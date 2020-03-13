@@ -67,6 +67,7 @@ object KompressorForm: TKompressorForm
     Top = 416
     Width = 136
     Caption = 'Komprimieren'
+    OnClick = KomprimierenButtonClick
     TabOrder = 4
   end
   object DekomprimierenButton: TButton
