@@ -1,0 +1,108 @@
+object KompressorForm: TKompressorForm
+  Left = 357
+  Height = 490
+  Top = 187
+  Width = 947
+  Caption = 'Kompressor'
+  ClientHeight = 490
+  ClientWidth = 947
+  Color = clCream
+  DesignTimePPI = 144
+  LCLVersion = '2.0.4.0'
+  object TopLabel: TLabel
+    Left = 48
+    Height = 38
+    Top = 32
+    Width = 380
+    Caption = '...ein Kompressionsprogramm'
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -28
+    Font.Name = 'Segoe UI Semibold'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold, fsItalic]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Memo: TMemo
+    Left = 488
+    Height = 440
+    Top = 24
+    Width = 433
+    Lines.Strings = (
+      'Memo'
+    )
+    TabOrder = 0
+  end
+  object BWTCheckBox: TCheckBox
+    Left = 48
+    Height = 29
+    Top = 110
+    Width = 287
+    Caption = 'Burrows-Wheeler-Transormation'
+    TabOrder = 1
+  end
+  object OLCheckBox: TCheckBox
+    Left = 48
+    Height = 29
+    Top = 160
+    Width = 201
+    Caption = 'One-length-encoding'
+    TabOrder = 2
+  end
+  object HaffCheckBox: TCheckBox
+    Left = 48
+    Height = 29
+    Top = 208
+    Width = 165
+    Caption = 'Huffman-Coding'
+    Checked = True
+    State = cbChecked
+    TabOrder = 3
+  end
+  object KomprimierenButton: TButton
+    Left = 48
+    Height = 38
+    Top = 416
+    Width = 136
+    Caption = 'Komprimieren'
+    TabOrder = 4
+  end
+  object DekomprimierenButton: TButton
+    Left = 192
+    Height = 38
+    Top = 416
+    Width = 144
+    Caption = 'Dekomprimieren'
+    TabOrder = 5
+  end
+  object OpenPathEdit: TEdit
+    Left = 48
+    Height = 33
+    Top = 280
+    Width = 352
+    TabOrder = 6
+    Text = 'OpenPathEdit'
+  end
+  object SavePathEdit: TEdit
+    Left = 48
+    Height = 33
+    Top = 336
+    Width = 352
+    TabOrder = 7
+    Text = 'SavePathEdit'
+  end
+  object OpenSpeedButton: TSpeedButton
+    Left = 418
+    Height = 33
+    Top = 280
+    Width = 35
+  end
+  object SaveSpeedButton: TSpeedButton
+    Left = 418
+    Height = 33
+    Top = 336
+    Width = 35
+  end
+end
