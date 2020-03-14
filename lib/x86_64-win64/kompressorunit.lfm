@@ -248,6 +248,7 @@ object KompressorForm: TKompressorForm
       FDFFABEAF2FFFFF3FEFFF4F6F6FFF1F7F2FFFAF6F5FFF9F7F6FFF3F3F3FFF8F6
       F5FFFBFAF6FF
     }
+    OnClick = OpenSpeedButtonClick
   end
   object SaveSpeedButton: TSpeedButton
     Left = 418
@@ -403,5 +404,14 @@ object KompressorForm: TKompressorForm
       FDFFABEAF2FFFFF3FEFFF4F6F6FFF1F7F2FFFAF6F5FFF9F7F6FFF3F3F3FFF8F6
       F5FFFBFAF6FF
     }
+    OnClick = SaveSpeedButtonClick
+  end
+  object OpenDialog: TOpenDialog
+    left = 384
+    top = 384
+  end
+  object SaveDialog: TSaveDialog
+    left = 384
+    top = 432
   end
 end

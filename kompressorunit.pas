@@ -18,6 +18,7 @@ uses
 type
   Tarrayofreal= array of real;
   Tarrayofbyte= array of byte;
+  Tarrayofstring= array of string;
 
   { TKompressorForm }
 
@@ -50,8 +51,17 @@ var
 
 implementation
 
+function SArrayToString(a:Tarrayofstring):String;
+var
+ i:Integer;
+ begin
+    result:='';
+   For i:=0 to (length(a)-1) do result:=result+a[i]+'; ';
+  end;
+
 function StringBitToAofByte(s:string):Tarrayofbyte;
 var
+ i:int64;
   begin
     //mach was damit da nicht immer ein string den platz für eine bitkette einnehmen muss!
   end;
@@ -107,11 +117,39 @@ var
   end;
 
 {------------------------HUFFMAN-CODING----------------------------------------}
-function huffman(s,alpha:string;wahrsch:Tarrayofreal):string;
+function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
 var
-  i:int64;
+  i,n,index:int64;
+  hilf:real;
+  nullen:string;
+  codealpha:array of string;
   begin
+    nullen:='';
+    setlength(codealpha,length(alpha));
+    for i:=0 to length(alpha)-1 do codealpha[i]:='f';
 
+    for n:=1 to length(alpha) do begin
+    hilf:=0;
+    for i:=0 to high(wahrsch) do begin
+      if hilf<wahrsch[i] then begin
+        if i>0 then begin
+         wahrsch[i-1]:=hilf;
+         hilf:=wahrsch[i];           //findet den größten Wert und lässt ihn in hilf, löscht ihn in wahrsch (zu 0)
+         index:=i;                   //um den nächstgrößten nach dieser Methode finden zu können
+         wahrsch[i]:=0;
+         end                         //index ist dann der index an der Stelle an dem der Buchstabe in alpha steht
+        else begin                    //der am wahrscheinlichsten ist... nach den in vorherigen durchläufen gelöschten
+         hilf:=wahrsch[i];
+         wahrsch[i]:=0;
+         index:=i;
+        end;
+      end;
+      end;
+
+    codealpha[index]:=nullen+'1';
+    nullen:=nullen+'0';
+    end;
+    result:=copy(codealpha);
   end;
 
 {$R *.lfm}
@@ -141,6 +179,9 @@ begin
     summe:=summe+wahrsch[i];
     end;
   Memo.lines.add('Summe der Wahrscheinlichkeiten: '+floattostr(summe));
+  {----------------------------------------------------------------------------}
+
+  Memo.Lines.add('Codealpha: '+Sarraytostring(huffman(data,alpha,wahrsch)));
 
 end;
 
