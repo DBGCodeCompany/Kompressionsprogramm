@@ -19,6 +19,7 @@ type
   Tarrayofreal= array of real;
   Tarrayofbyte= array of byte;
   Tarrayofstring= array of string;
+  Tarrayofbool= array of boolean;
 
   { TKompressorForm }
 
@@ -48,6 +49,7 @@ type
 
 var
   KompressorForm: TKompressorForm;
+  codealpha: array of string;
 
 implementation
 
@@ -59,11 +61,21 @@ var
    For i:=0 to (length(a)-1) do result:=result+a[i]+'; ';
   end;
 
-function StringBitToAofByte(s:string):Tarrayofbyte;
+function StringBitToTBits(s:Tarrayofstring):Tarrayofbool;
 var
- i:int64;
+ i,n:int64;
+ bits:Tarrayofbool;
+ str:string;
   begin
-    //mach was damit da nicht immer ein string den platz für eine bitkette einnehmen muss!
+    setlength(bits,1);
+    for i:=0 to high(s) do begin
+    str:=s[i];
+     for n:=1 to length(str) do begin
+       if str[n]='1' then bits[i+n-1]:=true else bits[i+n-1]:=false;
+       setlength(bits,length(bits)+1);
+     end;
+    end;
+    result:=copy(bits);
   end;
 
 function aofrealtostr(a:Tarrayofreal):string;   //schreibt ein array of real in einen String um
@@ -122,35 +134,61 @@ var
   i,n,index:int64;
   hilf:real;
   nullen:string;
-  codealpha:array of string;
+  kompdata:array of string;
   begin
+    {-------Codealphabet finden--mit Alphabet und Wahrscheinlichkeiten---------}
     nullen:='';
     setlength(codealpha,length(alpha));
-    for i:=0 to length(alpha)-1 do codealpha[i]:='f';
+    for i:=0 to length(alpha)-1 do codealpha[i]:='f';                           //codealphabet mit f's initialisieren
 
     for n:=1 to length(alpha) do begin
     hilf:=0;
     for i:=0 to high(wahrsch) do begin
+    //showmessage('Hilf: '+floattostr(hilf)+' wahrsch: '+floattostr(wahrsch[i])); //for Debug
       if hilf<wahrsch[i] then begin
-        if i>0 then begin
-         wahrsch[i-1]:=hilf;
-         hilf:=wahrsch[i];           //findet den größten Wert und lässt ihn in hilf, löscht ihn in wahrsch (zu 0)
-         index:=i;                   //um den nächstgrößten nach dieser Methode finden zu können
-         wahrsch[i]:=0;
-         end                         //index ist dann der index an der Stelle an dem der Buchstabe in alpha steht
-        else begin                    //der am wahrscheinlichsten ist... nach den in vorherigen durchläufen gelöschten
-         hilf:=wahrsch[i];
-         wahrsch[i]:=0;
+         hilf:=wahrsch[i];                                                      //findet den größten Wert und lässt ihn in hilf
          index:=i;
-        end;
       end;
       end;
-
+    //Showmessage('Durchlauf: '+inttostr(n)+' Index: '+inttostr(index));        //for Debug
+    wahrsch[index]:=0;                                                          //löscht den größten zu 0 um den nächstgrößten fiden zu können
     codealpha[index]:=nullen+'1';
     nullen:=nullen+'0';
     end;
-    result:=copy(codealpha);
+    {--------------------------------------------------------------------------}
+
+    {--------Zeichen des Datenstrings mit dem neuen Codealphabet eretzen-------}
+    setlength(kompdata,length(s));
+    for i:=1 to length(s) do begin
+      for n:=1 to length(alpha) do begin
+        if alpha[n]=s[i] then kompdata[i-1]:=codealpha[n-1];
+      end;
+    end;
+    {--------------------------------------------------------------------------}
+    result:=copy(kompdata);
   end;
+{------------------------------------------------------------------------------}
+{-------------------huffmankompriemierung entpacken----------------------------}
+function dehuff(bits:Tarrayofbool;codealpha:Tarrayofstring;alpha:string):string;
+var
+  i,index:int64;
+  data,strbits:string;
+  begin
+    data:='';
+    strbits:='';
+    for index:=0 to high(bits) do begin
+     if bits[index]=true then begin
+        strbits:=strbits+'1';
+        for i:=0 to high(codealpha) do begin
+          if strbits=codealpha[i] then data:=data+alpha[i+1];
+        end;
+        strbits:='';
+     end
+     else strbits:=strbits+'0';
+    end;
+    result:=data;
+  end;
+{------------------------------------------------------------------------------}
 
 {$R *.lfm}
 
@@ -159,6 +197,8 @@ var
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   Data,alpha:string;
+  kompdata:array of string;
+  bitdata:Tarrayofbool;
   wahrsch:array of real;
   summe:real;
   i:int64;
@@ -181,8 +221,11 @@ begin
   Memo.lines.add('Summe der Wahrscheinlichkeiten: '+floattostr(summe));
   {----------------------------------------------------------------------------}
 
-  Memo.Lines.add('Codealpha: '+Sarraytostring(huffman(data,alpha,wahrsch)));
-
+  kompdata:=huffman(data,alpha,wahrsch);
+  Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha));
+  Memo.Lines.add('Komprimiert: '+Sarraytostring(kompdata));
+  bitdata:=StringBitToTBits(kompdata);
+  Memo.lines.add('Entpackt: '+dehuff(bitdata,codealpha,alpha));
 end;
 
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);
