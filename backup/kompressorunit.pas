@@ -19,6 +19,7 @@ type
   Tarrayofreal= array of real;
   Tarrayofbyte= array of byte;
   Tarrayofstring= array of string;
+  Tarrayofbool= array of boolean;
 
   { TKompressorForm }
 
@@ -52,6 +53,14 @@ var
 
 implementation
 
+function potenz(basis,exponent:integer):integer;
+var
+i:integer;
+begin
+  for i:=2 to exponent do basis:=basis*basis;
+  result:=basis;
+end;
+
 function SArrayToString(a:Tarrayofstring):String;
 var
  i:Integer;
@@ -60,23 +69,21 @@ var
    For i:=0 to (length(a)-1) do result:=result+a[i]+'; ';
   end;
 
-function StringBitToTBits(s:Tarrayofstring):TBits;
+function StringBitToTBits(s:Tarrayofstring):Tarrayofbool;
 var
  i,n:int64;
- bits:TBits;
+ bits:Tarrayofbool;
  str:string;
   begin
-    bits:=TBits.create;
-    bits.size:=1;
+    setlength(bits,1);
     for i:=0 to high(s) do begin
     str:=s[i];
      for n:=1 to length(str) do begin
        if str[n]='1' then bits[i+n-1]:=true else bits[i+n-1]:=false;
-       bits.size:=bits.size+1;
+       setlength(bits,length(bits)+1);
      end;
     end;
-    result:=bits;
-    bits.free;
+    result:=copy(bits);
   end;
 
 function aofrealtostr(a:Tarrayofreal):string;   //schreibt ein array of real in einen String um
@@ -129,6 +136,35 @@ var
     result:=copy(wahrsch);
   end;
 
+function SaveBitArray(data:Tarrayofstring;Path:string):boolean;
+var
+  i,n,hilf:int64;
+  bitstr,str:string;
+  list:TStringlist;
+  begin
+    bitstr:='';
+    str:='';
+    for i:=0 to high(data) do bitstr:=bitstr+data[i];                           //alle Bits aneinanderreihen
+    i:=0;
+    while i<length(bitstr) do begin
+      hilf:=0;
+      for n:=8 downto 1 do begin
+        hilf:=hilf+(strtoint(bitstr[i+n])*potenz(2,n))                          //binär in dezimal umrechnen
+        end;
+      str:=str+chr(hilf);                                                       //den ASCII character davon abspeichern
+      inc(i,8);
+      end;
+   List:=TStringlist.create;
+   List.add(str);
+   try
+   List.savetofile(Path);
+   finally
+   List.free;
+   result:=true;
+   end;
+ end;
+
+
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
 var
@@ -170,14 +206,14 @@ var
   end;
 {------------------------------------------------------------------------------}
 {-------------------huffmankompriemierung entpacken----------------------------}
-function dehuff(bits:TBits;codealpha:Tarrayofstring;alpha:string):string;
+function dehuff(bits:Tarrayofbool;codealpha:Tarrayofstring;alpha:string):string;
 var
   i,index:int64;
   data,strbits:string;
   begin
     data:='';
     strbits:='';
-    for index:=0 to bits.size-1 do begin
+    for index:=0 to high(bits) do begin
      if bits[index]=true then begin
         strbits:=strbits+'1';
         for i:=0 to high(codealpha) do begin
@@ -199,7 +235,7 @@ procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   Data,alpha:string;
   kompdata:array of string;
-  bitdata:TBits;
+  bitdata:Tarrayofbool;
   wahrsch:array of real;
   summe:real;
   i:int64;
@@ -209,7 +245,7 @@ begin
   for i:=0 to (Memo.Lines.count-1) do data:=data+ Memo.lines[i];       //Text aus Memo einlesen
 
   alpha:=getalpha(Data);
-  showmessage('alphaLÄ: '+inttostr(length(alpha))+' DataLÄ: '+inttostr(length(Data)));
+  //showmessage('alphaLÄ: '+inttostr(length(alpha))+' DataLÄ: '+inttostr(length(Data)));
   wahrsch:=copy(getwahrsch(Data,alpha));
   Memo.lines.add('Alphabet: '+alpha);
   Memo.lines.add('Wahrscheinlichkeit: '+aofrealtostr(wahrsch));
@@ -223,10 +259,12 @@ begin
   {----------------------------------------------------------------------------}
 
   kompdata:=huffman(data,alpha,wahrsch);
+  showmessage(kompdata[high(kompdata)]);
   Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha));
   Memo.Lines.add('Komprimiert: '+Sarraytostring(kompdata));
-  bitdata:=StringBitToTBits(kompdata);
-  Memo.lines.add('Entpackt: '+dehuff(bitdata,codealpha,alpha));
+  SaveBitArray(kompdata,SavePathEdit.text);
+  //bitdata:=StringBitToTBits(kompdata);
+  //Memo.lines.add('Entpackt: '+dehuff(bitdata,codealpha,alpha));
 end;
 
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);

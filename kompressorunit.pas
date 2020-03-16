@@ -53,6 +53,14 @@ var
 
 implementation
 
+function potenz(basis,exponent:integer):integer;
+var
+i:integer;
+begin
+  for i:=2 to exponent do basis:=basis*basis;
+  result:=basis;
+end;
+
 function SArrayToString(a:Tarrayofstring):String;
 var
  i:Integer;
@@ -127,6 +135,40 @@ var
     end;                                                             //aufsummieren
     result:=copy(wahrsch);
   end;
+
+function SaveBitArray(data:Tarrayofstring;Path:string):boolean;
+var
+  i,n,hilf:int64;
+  bitstr,str:string;
+  list:TStringlist;
+  begin
+    bitstr:='';
+    str:='';
+    for i:=0 to high(data) do bitstr:=bitstr+data[i];                           //alle Bits aneinanderreihen
+    i:=0;
+    If length(bitstr) mod 8 <> 0 then begin
+      repeat
+        bitstr:=bitstr+'0';
+      until length(bitstr) mod 8 =0 ;
+    end;
+    while i<length(bitstr) do begin
+      hilf:=0;
+      for n:=1 to 8 do begin
+        hilf:=hilf+(strtoint(bitstr[i+n])*potenz(2,(9-n)))                          //binär in dezimal umrechnen
+        end;
+      str:=str+chr(hilf);                                                       //den ASCII character davon abspeichern
+      inc(i,8);
+      end;
+   List:=TStringlist.create;
+   List.add(str);
+   try
+   List.savetofile(Path);
+   finally
+   List.free;
+   result:=true;
+   end;
+ end;
+
 
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
@@ -208,7 +250,7 @@ begin
   for i:=0 to (Memo.Lines.count-1) do data:=data+ Memo.lines[i];       //Text aus Memo einlesen
 
   alpha:=getalpha(Data);
-  showmessage('alphaLÄ: '+inttostr(length(alpha))+' DataLÄ: '+inttostr(length(Data)));
+  //showmessage('alphaLÄ: '+inttostr(length(alpha))+' DataLÄ: '+inttostr(length(Data)));
   wahrsch:=copy(getwahrsch(Data,alpha));
   Memo.lines.add('Alphabet: '+alpha);
   Memo.lines.add('Wahrscheinlichkeit: '+aofrealtostr(wahrsch));
@@ -222,10 +264,12 @@ begin
   {----------------------------------------------------------------------------}
 
   kompdata:=huffman(data,alpha,wahrsch);
+  showmessage(kompdata[high(kompdata)]);
   Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha));
   Memo.Lines.add('Komprimiert: '+Sarraytostring(kompdata));
-  bitdata:=StringBitToTBits(kompdata);
-  Memo.lines.add('Entpackt: '+dehuff(bitdata,codealpha,alpha));
+  SaveBitArray(kompdata,SavePathEdit.text);
+  //bitdata:=StringBitToTBits(kompdata);
+  //Memo.lines.add('Entpackt: '+dehuff(bitdata,codealpha,alpha));
 end;
 
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);
