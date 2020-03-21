@@ -8,6 +8,7 @@ object KompressorForm: TKompressorForm
   ClientWidth = 947
   Color = clCream
   DesignTimePPI = 144
+  OnCreate = FormCreate
   LCLVersion = '2.0.4.0'
   object TopLabel: TLabel
     Left = 48
@@ -76,6 +77,7 @@ object KompressorForm: TKompressorForm
     Top = 416
     Width = 144
     Caption = 'Dekomprimieren'
+    OnClick = DekomprimierenButtonClick
     TabOrder = 5
   end
   object OpenPathEdit: TEdit
@@ -84,7 +86,7 @@ object KompressorForm: TKompressorForm
     Top = 280
     Width = 352
     TabOrder = 6
-    Text = 'OpenPathEdit'
+    Text = 'test.dbg'
   end
   object SavePathEdit: TEdit
     Left = 48
@@ -92,7 +94,7 @@ object KompressorForm: TKompressorForm
     Top = 336
     Width = 352
     TabOrder = 7
-    Text = 'SavePathEdit'
+    Text = 'test.dbg'
   end
   object OpenSpeedButton: TSpeedButton
     Left = 418
