@@ -1,0 +1,58 @@
+function SaveBitArray(data:Tarrayofstring;Path:string):boolean;
+var
+  i,n,hilf,nullmenge:int64;
+  bitstr,str:string;
+  list:TStringlist;
+  begin
+    bitstr:='';
+    str:='';
+    for i:=0 to high(data) do bitstr:=bitstr+data[i];                           //alle Bits aneinanderreihen
+    i:=0;
+    If length(bitstr) mod 8 <> 0 then begin
+      nullmenge:=0;
+      repeat
+        bitstr:=bitstr+'0';
+        inc(nullmenge);
+      until length(bitstr) mod 8 =0 ;
+    end;
+    while i<length(bitstr) do begin
+      hilf:=0;
+      for n:=1 to 8 do begin
+        hilf:=hilf+(strtoint(bitstr[i+n])*potenz(2,(9-n)))                          //binär in dezimal umrechnen
+        end;
+      str:=str+chr(hilf);                                                       //den ASCII character davon abspeichern
+      inc(i,8);
+      end;
+   str:=str+inttostr(nullmenge);                                                //an den String die addierten nullen
+   List:=TStringlist.create;                                                    //anschreiben
+   List.add(str);
+   try
+   List.savetofile(Path);
+   finally
+   List.free;
+   result:=true;
+   end;
+ end;
+
+function ReadBitArray(Path:string):string;
+var
+  i,nummer:int64;
+  str,bitstr:string;
+  List:TStringlist;
+  begin
+   bitstr:='';
+    List:=TStringlist.create;
+    List.LoadFromFile(Path);
+    str:=List.text;
+    for i:=1 to (length(str)-1) do begin
+      nummer:=ord(str[i]);
+      repeat                                                                    //dezimal ASCII in binär
+        bitstr:=bitstr+inttostr(nummer mod 2);
+        nummer:=nummer div 2;
+      until nummer=0 ;
+    end;
+    //showmessage(inttostr(length(str)));                                       //for debug
+    for i:=1 to strtoint(str[length(str)-2]) do bitstr.Remove(bitstr.length-(i-1)); //angehängte nullen entfernen
+    result:=bitstr;                                                                 //warum an der eigentliche string
+  end;                                                                              //zwei länger ist als er sein sollte
+                                                                                     //weiß ich nicht                   
