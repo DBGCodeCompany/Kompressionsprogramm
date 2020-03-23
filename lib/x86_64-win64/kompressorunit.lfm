@@ -1,24 +1,24 @@
 object KompressorForm: TKompressorForm
-  Left = 357
-  Height = 490
-  Top = 187
-  Width = 947
+  Left = 925
+  Height = 618
+  Top = 117
+  Width = 946
   Caption = 'Kompressor'
-  ClientHeight = 490
-  ClientWidth = 947
+  ClientHeight = 618
+  ClientWidth = 946
   Color = clCream
   DesignTimePPI = 144
   OnCreate = FormCreate
   LCLVersion = '2.0.4.0'
   object TopLabel: TLabel
     Left = 48
-    Height = 38
+    Height = 40
     Top = 32
-    Width = 380
+    Width = 387
     Caption = '...ein Kompressionsprogramm'
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlack
-    Font.Height = -28
+    Font.Height = -29
     Font.Name = 'Segoe UI Semibold'
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
@@ -30,10 +30,13 @@ object KompressorForm: TKompressorForm
     Left = 488
     Height = 440
     Top = 24
-    Width = 433
+    Width = 434
+    HideSelection = False
     Lines.Strings = (
       'Memo'
     )
+    ParentFont = False
+    ScrollBars = ssAutoVertical
     TabOrder = 0
   end
   object BWTCheckBox: TCheckBox
@@ -42,14 +45,16 @@ object KompressorForm: TKompressorForm
     Top = 110
     Width = 287
     Caption = 'Burrows-Wheeler-Transormation'
+    ParentFont = False
     TabOrder = 1
   end
-  object OLCheckBox: TCheckBox
+  object RLCheckBox: TCheckBox
     Left = 48
     Height = 29
     Top = 160
-    Width = 201
-    Caption = 'One-length-encoding'
+    Width = 199
+    Caption = 'Run-length-encoding'
+    ParentFont = False
     TabOrder = 2
   end
   object HaffCheckBox: TCheckBox
@@ -59,6 +64,7 @@ object KompressorForm: TKompressorForm
     Width = 165
     Caption = 'Huffman-Coding'
     Checked = True
+    ParentFont = False
     State = cbChecked
     TabOrder = 3
   end
@@ -69,6 +75,7 @@ object KompressorForm: TKompressorForm
     Width = 136
     Caption = 'Komprimieren'
     OnClick = KomprimierenButtonClick
+    ParentFont = False
     TabOrder = 4
   end
   object DekomprimierenButton: TButton
@@ -78,6 +85,7 @@ object KompressorForm: TKompressorForm
     Width = 144
     Caption = 'Dekomprimieren'
     OnClick = DekomprimierenButtonClick
+    ParentFont = False
     TabOrder = 5
   end
   object OpenPathEdit: TEdit
@@ -85,6 +93,7 @@ object KompressorForm: TKompressorForm
     Height = 33
     Top = 280
     Width = 352
+    ParentFont = False
     TabOrder = 6
     Text = 'test.dbg'
   end
@@ -93,6 +102,7 @@ object KompressorForm: TKompressorForm
     Height = 33
     Top = 336
     Width = 352
+    ParentFont = False
     TabOrder = 7
     Text = 'test.dbg'
   end
@@ -100,7 +110,7 @@ object KompressorForm: TKompressorForm
     Left = 418
     Height = 33
     Top = 280
-    Width = 35
+    Width = 34
     Glyph.Data = {
       42120000424D4212000000000000360000002800000023000000210000000100
       2000000000000C12000064000000640000000000000000000000F3F3F3FFF3F8
@@ -251,12 +261,13 @@ object KompressorForm: TKompressorForm
       F5FFFBFAF6FF
     }
     OnClick = OpenSpeedButtonClick
+    ParentFont = False
   end
   object SaveSpeedButton: TSpeedButton
     Left = 418
     Height = 33
     Top = 336
-    Width = 35
+    Width = 34
     Glyph.Data = {
       42120000424D4212000000000000360000002800000023000000210000000100
       2000000000000C12000064000000640000000000000000000000F3F3F3FFF3F8
@@ -407,6 +418,35 @@ object KompressorForm: TKompressorForm
       F5FFFBFAF6FF
     }
     OnClick = SaveSpeedButtonClick
+    ParentFont = False
+  end
+  object GeneratorButton: TButton
+    Left = 48
+    Height = 38
+    Top = 492
+    Width = 192
+    Caption = 'RLE Zufallswerte'
+    OnClick = GeneratorButtonClick
+    ParentFont = False
+    TabOrder = 8
+  end
+  object SizeEdit: TEdit
+    Left = 48
+    Height = 33
+    Top = 576
+    Width = 120
+    ParentFont = False
+    TabOrder = 9
+    Text = '100'
+  end
+  object AnzahlLabel: TLabel
+    Left = 48
+    Height = 25
+    Top = 540
+    Width = 105
+    Caption = 'Anzahl Daten'
+    ParentColor = False
+    ParentFont = False
   end
   object OpenDialog: TOpenDialog
     left = 384

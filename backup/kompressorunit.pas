@@ -47,7 +47,7 @@ type
     procedure KomprimierenButtonClick(Sender: TObject);
     procedure OpenSpeedButtonClick(Sender: TObject);
     procedure SaveSpeedButtonClick(Sender: TObject);
-    //procedure einlesen(data:string);
+    procedure save(data:Tarrayofbyte;Path:String);
   private
 
   public
@@ -61,6 +61,28 @@ var
 
 implementation
 
+function bittobyte(bits:Tarrayofbyte):Tarrayofbyte;
+var
+  i,n,lenge:integer;
+  abyte:byte;
+begin
+  lenge:=(length(bits)div 8)+1;
+  setlength(result,lenge);
+  for n:=0 to lenge do begin
+    abyte:=0;
+    if (length(bits)-(n*8))>7 then begin
+    for i:=0 to 7 do begin
+      if bits[i+(n*8)]=1 then abyte:=abyte+potenz(2,7-i);
+    end;
+    end
+    else begin
+      for i:=0 to (length(bits)-(n*8))-1 do begin
+        if bits[i+(n*8)]=1 then abyte:=abyte+potenz(2,(length(bits)-(n*8))-1-i);
+      end;
+    end;
+    result[n]:=abyte;
+  end;
+end;
 
 function potenz(basis,exponent:integer):integer;
 var
@@ -256,6 +278,22 @@ var
   filestream.free;
   end;
 
+function load(Path:string):Tarrayofbyte;
+var
+  ms:TMemorystream;
+  begin
+  ms:=TMemoryStream.create;
+  try
+  ms.loadfromfile(Path);
+  ms.position:=0;
+  setlength(result,ms.size);
+  ms.read(result[0],ms.size);
+  except
+    writeln('Fehler beim Lesen der Datei aus: '+Path);
+  end;
+  ms.free;
+  end;
+
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
 var
@@ -350,6 +388,24 @@ end;
 
 { TKompressorForm }
 
+procedure TKompressorform.save(data:Tarrayofbyte;Path:String);
+var
+  fs:TFilestream;
+  ms:TMemoryStream;
+  begin
+    ms:TMemoryStream.create;
+    fs:TFilestream.create(Path,fmCreate);
+    try
+       ms.writeBuffer(data,SizeOf(data));
+       ms.Position:=0;
+       fs.CopyFrom(ms, ms.Size);
+    except
+     Showmessage('Fehler beim Speichern nach: '+Path);
+  end;
+  fs.free;
+  ms.free;
+  end;
+
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   Data,alpha:string;
@@ -369,7 +425,7 @@ if RLCheckBox.Checked=true then begin
     startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
 
    setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
-  for i:=0 to memo.lines.count do begin
+  for i:=0 to (memo.lines.count-1) do begin
     origdata[i]:=strtoint(Memo.lines[i]);
   end;
 
