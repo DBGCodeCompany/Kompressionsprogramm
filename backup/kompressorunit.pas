@@ -20,10 +20,14 @@ type
   Tarrayofbyte= array of byte;
   Tarrayofstring= array of string;
   Tarrayofbool= array of boolean;
+  TArrayofInt= Array of integer;
 
   { TKompressorForm }
 
   TKompressorForm = class(TForm)
+    GeneratorButton: TButton;
+    AnzahlLabel: TLabel;
+    SizeEdit: TEdit;
     KomprimierenButton: TButton;
     DekomprimierenButton: TButton;
     BWTCheckBox: TCheckBox;
@@ -31,12 +35,13 @@ type
     OpenPathEdit: TEdit;
     SaveDialog: TSaveDialog;
     SavePathEdit: TEdit;
-    OLCheckBox: TCheckBox;
+    RLCheckBox: TCheckBox;
     HaffCheckBox: TCheckBox;
     Memo: TMemo;
     OpenSpeedButton: TSpeedButton;
     SaveSpeedButton: TSpeedButton;
     TopLabel: TLabel;
+    procedure GeneratorButtonClick(Sender: TObject);
     procedure DekomprimierenButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure KomprimierenButtonClick(Sender: TObject);
@@ -92,7 +97,8 @@ var
 
 function StringBitToTarrayofbool(s:string):Tarrayofbool;   //Schreibt einen string mit einsen und nullen in
 var                                                                //Tarrayofbool um (SPEICHERPLATZ!!)
- i:int64;
+// i:int64;
+ i:integer;
  bits:Tarrayofbool;
   begin
    setlength(bits,0);
@@ -105,7 +111,8 @@ var                                                                //Tarrayofboo
 
 function aofrealtostr(a:Tarrayofreal):string;   //schreibt ein array of real in einen String um
 var
-  i:int64;
+  //i:int64;
+ i:integer;
   begin
     result:='';
     for i:=0 to (length(a)-1) do begin
@@ -115,7 +122,8 @@ var
 
 function instring(s:string; a:char):boolean;     //prüfen ob ein Buchstabe in einem String ist
 var
-  i:int64;
+ // i:int64;
+ i:integer;
   begin
     result:=false;
     for i:=1 to length(s) do begin
@@ -128,7 +136,8 @@ var
 
 function getalpha(s:string):string;       //generiert das Alphabet, das s nutzt
 var
-  i:int64;
+ // i:int64;
+ i:integer;
   alpha:string;
   begin
     alpha:='';
@@ -140,7 +149,8 @@ var
 
 function getwahrsch(s,alpha:string):Tarrayofreal;
 var
-  i,n,lenge:int64;
+lenge:int64;  // i, n,
+ i,n:integer;
   wahrsch: array of real;
   begin
     lenge:=length(s);
@@ -249,7 +259,8 @@ var
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
 var
-  i,n,index:int64;
+ index:int64;  // i,n,
+ i,n:integer;
   hilf:real;
   nullen:string;
   kompdata:array of string;
@@ -288,7 +299,8 @@ var
 {-------------------huffmankompriemierung entpacken----------------------------}
 function dehuff(bits:Tarrayofbool;codealpha:Tarrayofstring;alpha:string):string;
 var
-  i,index:int64;
+  //i,index:int64;
+  i,index:integer;
   data,strbits:string;
   begin
     data:='';
@@ -306,7 +318,34 @@ var
     result:=data;
   end;
 {------------------------------------------------------------------------------}
+{----------------------Run-Length-Encoding-------------------------------------}
+function rleencode(Werte:TArrayofbyte):TArrayofInt;
+var i,z:integer;
+  WerteKomprimiert: Array of integer;
+  wert1:byte;
+  wert2:byte;
+begin
 
+   z:=0;
+
+  setLength(WerteKomprimiert,1);
+  WerteKomprimiert[0]:=1;
+
+  //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
+     for i:=0 to (Length(werte)-2) do begin
+         wert1:=(werte[i]);       //werte miteinander vergleichen,ob wechsel (01) vorliegt
+         wert2:=(werte[i+1]);
+        if wert1=wert2 then
+          inc(WerteKomprimiert[z],1)
+        else begin
+          inc(z,1);
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);
+          WerteKomprimiert[z] := 1;
+        end;
+        end;
+   result:=copy(WerteKomprimiert);
+end;
+{------------------------------------------------------------------------------}
 {$R *.lfm}
 
 { TKompressorForm }
@@ -318,8 +357,33 @@ var
   rbitdata,bitdata:Tarrayofbool;
   wahrsch:array of real;
   summe:real;
-  i:int64;
+  Komprimiert: array of integer;
+  origdata: array of byte;
+ // i:int64;
+ i,y:integer;
+ startwert:byte;
 begin
+
+if RLCheckBox.Checked=true then begin
+
+    startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
+
+   setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
+  for i:=0 to memo.lines.count do begin
+    origdata[i]:=strtoint(Memo.lines[i]);
+  end;
+
+  Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
+
+  Memo.lines.clear;
+
+  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
+    Memo.lines[y]:=inttostr(Komprimiert[y]);
+  end;
+   end;
+
+
+if HaffCheckbox.Checked=true then begin
   data:='';
 
   for i:=0 to (Memo.Lines.count-1) do data:=data+ Memo.lines[i];       //Text aus Memo einlesen
@@ -345,6 +409,7 @@ begin
   saveTarrayofbool(bitdata,SavePathEdit.text);
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
+  end;
 
   rbitdata:=loadTarrayofbool(OpenPathEdit.text);
   Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
@@ -354,6 +419,7 @@ end;
 procedure TKompressorForm.FormCreate(Sender: TObject);
 begin
   bits:=TBits.create;
+  Randomize;
 end;
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
@@ -369,6 +435,17 @@ begin
   alpha:=StringAusDatei('Alphabet.txt');
   Memo.lines.add('gelesenes Alphabet: '+alpha);
   Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
+end;
+
+procedure TKompressorForm.GeneratorButtonClick(Sender: TObject);
+var Werterandom:Array of byte;
+  i:integer;
+begin
+setLength(Werterandom,(strtoint(SizeEdit.text)-1));
+  for i:=0 to (strtoint(SizeEdit.text)-1) do begin
+    Werterandom[i]:=random(2);
+    Memo.lines[i]:=inttostr(Werterandom[i])
+  end;
 end;
 
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);

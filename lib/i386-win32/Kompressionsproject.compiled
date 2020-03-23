@@ -2,5 +2,4 @@
 <CONFIG>
   <Compiler Value="C:\lazarus32\fpc\3.0.4\bin\i386-win32\fpc.exe" Date="1325662673"/>
   <Params Value=" -MObjFPC -Scghi -O1 -g -gl -WG -l -vewnhibq -FiC:\Users\leon_\Documents\Schule\git\Kompressionsprogramm\lib\i386-win32 -FuC:\lazarus32\lcl\units\i386-win32\win32 -FuC:\lazarus32\lcl\units\i386-win32 -FuC:\lazarus32\components\lazutils\lib\i386-win32 -FuC:\lazarus32\packager\units\i386-win32 -FuC:\Users\leon_\Documents\Schule\git\Kompressionsprogramm\ -FUC:\Users\leon_\Documents\Schule\git\Kompressionsprogramm\lib\i386-win32\ -FEC:\Users\leon_\Documents\Schule\git\Kompressionsprogramm\ -oC:\Users\leon_\Documents\Schule\git\Kompressionsprogramm\Kompressionsproject.exe -dLCL -dLCLwin32 Kompressionsproject.lpr"/>
-  <Complete Value="False"/>
 </CONFIG>
