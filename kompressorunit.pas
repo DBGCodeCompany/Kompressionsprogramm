@@ -20,10 +20,14 @@ type
   Tarrayofbyte= array of byte;
   Tarrayofstring= array of string;
   Tarrayofbool= array of boolean;
+  TArrayofInt= Array of integer;
 
   { TKompressorForm }
 
   TKompressorForm = class(TForm)
+    GeneratorButton: TButton;
+    AnzahlLabel: TLabel;
+    SizeEdit: TEdit;
     KomprimierenButton: TButton;
     DekomprimierenButton: TButton;
     BWTCheckBox: TCheckBox;
@@ -31,12 +35,13 @@ type
     OpenPathEdit: TEdit;
     SaveDialog: TSaveDialog;
     SavePathEdit: TEdit;
-    OLCheckBox: TCheckBox;
+    RLCheckBox: TCheckBox;
     HaffCheckBox: TCheckBox;
     Memo: TMemo;
     OpenSpeedButton: TSpeedButton;
     SaveSpeedButton: TSpeedButton;
     TopLabel: TLabel;
+    procedure GeneratorButtonClick(Sender: TObject);
     procedure DekomprimierenButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure KomprimierenButtonClick(Sender: TObject);
@@ -315,7 +320,34 @@ var
     result:=data;
   end;
 {------------------------------------------------------------------------------}
+{----------------------Run-Length-Encoding-------------------------------------}
+function rleencode(Werte:TArrayofbyte):TArrayofInt;
+var i,z:integer;
+  WerteKomprimiert: Array of integer;
+  wert1:byte;
+  wert2:byte;
+begin
 
+   z:=0;
+
+  setLength(WerteKomprimiert,1);
+  WerteKomprimiert[0]:=1;
+
+  //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
+     for i:=0 to (Length(werte)-2) do begin
+         wert1:=(werte[i]);       //werte miteinander vergleichen,ob wechsel (01) vorliegt
+         wert2:=(werte[i+1]);
+        if wert1=wert2 then
+          inc(WerteKomprimiert[z],1)
+        else begin
+          inc(z,1);
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);
+          WerteKomprimiert[z] := 1;
+        end;
+        end;
+   result:=copy(WerteKomprimiert);
+end;
+{------------------------------------------------------------------------------}
 {$R *.lfm}
 
 { TKompressorForm }
@@ -327,9 +359,33 @@ var
   rbitdata,bitdata:Tarrayofbool;
   wahrsch:array of real;
   summe:real;
+  Komprimiert: array of integer;
+  origdata: array of byte;
  // i:int64;
- i:integer;
+ i,y:integer;
+ startwert:byte;
 begin
+
+if RLCheckBox.Checked=true then begin
+
+    startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
+
+   setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
+  for i:=0 to (memo.lines.count-1) do begin
+    origdata[i]:=strtoint(Memo.lines[i]);
+  end;
+
+  Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
+
+  Memo.lines.clear;
+
+  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
+    Memo.lines[y]:=inttostr(Komprimiert[y]);
+  end;
+   end;
+
+
+if HaffCheckbox.Checked=true then begin
   data:='';
 
   for i:=0 to (Memo.Lines.count-1) do data:=data+ Memo.lines[i];       //Text aus Memo einlesen
@@ -355,12 +411,14 @@ begin
   saveTarrayofbool(bitdata,SavePathEdit.text);
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
+  end;
 
 end;
 
 procedure TKompressorForm.FormCreate(Sender: TObject);
 begin
   bits:=TBits.create;
+  Randomize;
 end;
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
@@ -376,6 +434,17 @@ begin
   alpha:=StringAusDatei('Alphabet.txt');
   Memo.lines.add('gelesenes Alphabet: '+alpha);
   Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
+end;
+
+procedure TKompressorForm.GeneratorButtonClick(Sender: TObject);
+var Werterandom:Array of byte;
+  i:integer;
+begin
+setLength(Werterandom,(strtoint(SizeEdit.text)-1));
+  for i:=0 to (strtoint(SizeEdit.text)-1) do begin
+    Werterandom[i]:=random(2);
+    Memo.lines[i]:=inttostr(Werterandom[i])
+  end;
 end;
 
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);
