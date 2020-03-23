@@ -92,7 +92,8 @@ var
 
 function StringBitToTarrayofbool(s:string):Tarrayofbool;   //Schreibt einen string mit einsen und nullen in
 var                                                                //Tarrayofbool um (SPEICHERPLATZ!!)
- i:int64;
+// i:int64;
+ i:integer;
  bits:Tarrayofbool;
   begin
    setlength(bits,0);
@@ -105,7 +106,8 @@ var                                                                //Tarrayofboo
 
 function aofrealtostr(a:Tarrayofreal):string;   //schreibt ein array of real in einen String um
 var
-  i:int64;
+  //i:int64;
+ i:integer;
   begin
     result:='';
     for i:=0 to (length(a)-1) do begin
@@ -115,7 +117,8 @@ var
 
 function instring(s:string; a:char):boolean;     //prüfen ob ein Buchstabe in einem String ist
 var
-  i:int64;
+ // i:int64;
+ i:integer;
   begin
     result:=false;
     for i:=1 to length(s) do begin
@@ -128,7 +131,8 @@ var
 
 function getalpha(s:string):string;       //generiert das Alphabet, das s nutzt
 var
-  i:int64;
+ // i:int64;
+ i:integer;
   alpha:string;
   begin
     alpha:='';
@@ -140,7 +144,8 @@ var
 
 function getwahrsch(s,alpha:string):Tarrayofreal;
 var
-  i,n,lenge:int64;
+lenge:int64;  // i, n,
+ i,n:integer;
   wahrsch: array of real;
   begin
     lenge:=length(s);
@@ -250,7 +255,8 @@ var
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
 var
-  i,n,index:int64;
+ index:int64;  // i,n,
+ i,n:integer;
   hilf:real;
   nullen:string;
   kompdata:array of string;
@@ -290,7 +296,8 @@ var
 {-------------------huffmankompriemierung entpacken----------------------------}
 function dehuff(bits:Tarrayofbool;codealpha:Tarrayofstring;alpha:string):string;
 var
-  i,index:int64;
+  //i,index:int64;
+  i,index:integer;
   data,strbits:string;
   begin
     data:='';
@@ -362,8 +369,11 @@ var
   alpha:string;
 begin
   rbitdata:=loadTarrayofbool(OpenPathEdit.text);
+  Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
   codealpha:=SarrayAusDatei('Codealphabet.txt');
+  Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
   alpha:=StringAusDatei('Alphabet.txt');
+  Memo.lines.add('gelesenes Alphabet: '+alpha);
   Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
 end;
 
