@@ -246,7 +246,6 @@ var
   filestream.free;
   end;
 
-
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
 var
@@ -275,7 +274,6 @@ var
     nullen:=nullen+'0';
     end;
     {--------------------------------------------------------------------------}
-
     {--------Zeichen des Datenstrings mit dem neuen Codealphabet eretzen-------}
     setlength(kompdata,length(s));
     for i:=1 to length(s) do begin
@@ -347,6 +345,9 @@ begin
   saveTarrayofbool(bitdata,SavePathEdit.text);
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
+
+  rbitdata:=loadTarrayofbool(OpenPathEdit.text);
+  Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
 
 end;
 

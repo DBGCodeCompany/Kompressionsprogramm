@@ -246,7 +246,6 @@ var
   filestream.free;
   end;
 
-
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
 var
@@ -275,7 +274,6 @@ var
     nullen:=nullen+'0';
     end;
     {--------------------------------------------------------------------------}
-
     {--------Zeichen des Datenstrings mit dem neuen Codealphabet eretzen-------}
     setlength(kompdata,length(s));
     for i:=1 to length(s) do begin
@@ -348,6 +346,9 @@ begin
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
 
+  rbitdata:=loadTarrayofbool(OpenPathEdit.text);
+  Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
+
 end;
 
 procedure TKompressorForm.FormCreate(Sender: TObject);
@@ -362,8 +363,11 @@ var
   alpha:string;
 begin
   rbitdata:=loadTarrayofbool(OpenPathEdit.text);
+  Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
   codealpha:=SarrayAusDatei('Codealphabet.txt');
+  Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
   alpha:=StringAusDatei('Alphabet.txt');
+  Memo.lines.add('gelesenes Alphabet: '+alpha);
   Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
 end;
 
