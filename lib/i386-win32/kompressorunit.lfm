@@ -426,6 +426,7 @@ object KompressorForm: TKompressorForm
     Width = 128
     Caption = 'RLE Zufallswerte'
     OnClick = GeneratorButtonClick
+    ParentFont = False
     TabOrder = 8
   end
   object SizeEdit: TEdit
@@ -433,6 +434,7 @@ object KompressorForm: TKompressorForm
     Height = 23
     Top = 384
     Width = 80
+    ParentFont = False
     TabOrder = 9
     Text = '100'
   end
@@ -443,6 +445,7 @@ object KompressorForm: TKompressorForm
     Width = 70
     Caption = 'Anzahl Daten'
     ParentColor = False
+    ParentFont = False
   end
   object OpenDialog: TOpenDialog
     left = 256
