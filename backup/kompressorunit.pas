@@ -61,7 +61,7 @@ var
 
 implementation
 
-function bittobyte(bits:Tarrayofbyte):Tarrayofbyte;
+{function bittobyte(bits:Tarrayofbyte):Tarrayofbyte;
 var
   i,n,lenge:integer;
   abyte:byte;
@@ -82,7 +82,30 @@ begin
     end;
     result[n]:=abyte;
   end;
-end;
+end;}
+
+function bytetobit(bytes:Tarrayofbyte):Tarrayofbyte;
+var
+  i,n:integer;
+  rest:byte;
+  begin
+    setlength(result,length(bytes)*8);
+    for i:=0 to high(bytes) do begin
+      if bytes[i]<>0 then  begin
+      rest:=bytes[i];
+      n:=0;
+      repeat
+        if ((rest mod 2)=1) then result[(8*(i+1))-1-n]:=1
+        else result[(8*(i+1))-1-n]:=0;
+        rest:=rest div 2;
+        inc(n);
+        until rest=0;
+      end
+      else begin
+        for n:=0 to 7 do result[n+i]:=0;
+      end;
+    end;
+  end;
 
 function potenz(basis,exponent:integer):integer;
 var
@@ -384,6 +407,43 @@ begin
    result:=copy(WerteKomprimiert);
 end;
 {------------------------------------------------------------------------------}
+{-----------------Run-Length-Encoding entpacken--------------------------------}
+ function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+var entpackt:array of byte;
+    x:byte;
+    z,n,i,y:integer;
+begin
+
+   if Startwert=0 then x:=1 else x:=0;
+
+   z:=0;
+   n:=0;
+
+   for i:=0 to (Length(Werte)-1) do begin     //menge der daten bestimmen
+      n:=n+Werte[i];
+   end;
+
+   setLength(entpackt,n);
+
+   for i:=0 to (Length(Werte)-1) do begin
+   if (i mod 2) = 0 then  begin
+      for y:=1 to Werte[i] do begin
+         entpackt[z]:=startwert;//0 oder 1
+         Inc(z,1);
+      end
+      end
+       else  begin
+        for y:=1 to Werte[i]do  begin
+         entpackt[z]:=x;//0 oder 1
+         Inc(z,1);
+      end;
+       end;
+
+end;
+   result:=copy(entpackt);
+
+end;
+{------------------------------------------------------------------------------}
 {$R *.lfm}
 
 { TKompressorForm }
@@ -393,8 +453,8 @@ var
   fs:TFilestream;
   ms:TMemoryStream;
   begin
-    ms:TMemoryStream.create;
-    fs:TFilestream.create(Path,fmCreate);
+    ms:=TMemoryStream.create;           //statt nur :
+    fs:=TFilestream.create(Path,fmCreate);
     try
        ms.writeBuffer(data,SizeOf(data));
        ms.Position:=0;
@@ -433,8 +493,10 @@ if RLCheckBox.Checked=true then begin
 
   Memo.lines.clear;
 
+  memo.lines[0]:='Erster byte: '+inttostr(startwert);
+
   for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
-    Memo.lines[y]:=inttostr(Komprimiert[y]);
+    Memo.lines[y+1]:=inttostr(Komprimiert[y]);
   end;
    end;
 
@@ -465,11 +527,11 @@ if HaffCheckbox.Checked=true then begin
   saveTarrayofbool(bitdata,SavePathEdit.text);
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
-  end;
+
 
   rbitdata:=loadTarrayofbool(OpenPathEdit.text);
   Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
-
+  end;
 end;
 
 procedure TKompressorForm.FormCreate(Sender: TObject);
@@ -483,14 +545,39 @@ var
   rbitdata:Tarrayofbool;
   codealpha:array of string;
   alpha:string;
+  entpackt:array of byte;
+  verpackt:array of integer;
+  sw:string;
+  startwert:byte;
+  i:integer;
 begin
-  rbitdata:=loadTarrayofbool(OpenPathEdit.text);
+  if HaffCheckBox.Checked=true then begin
+   rbitdata:=loadTarrayofbool(OpenPathEdit.text);
   Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
   codealpha:=SarrayAusDatei('Codealphabet.txt');
   Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
   alpha:=StringAusDatei('Alphabet.txt');
   Memo.lines.add('gelesenes Alphabet: '+alpha);
   Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
+  end;
+
+  if RLCheckBox.Checked=true then begin
+      setLength(verpackt,memo.lines.count);
+      sw:=Memo.lines[0];
+     startwert:=strtoint(sw[14]);
+
+  for i:=1 to (memo.lines.count-1) do begin
+    verpackt[i-1]:=strtoint(Memo.lines[i]);
+  end;
+  memo.lines.clear;
+
+  entpackt:=rledecode(verpackt,startwert);
+
+  for i:=0 to (Length(entpackt)-1) do begin
+    Memo.lines[i]:=inttostr(entpackt[i]);
+    end;
+  end;
+
 end;
 
 procedure TKompressorForm.GeneratorButtonClick(Sender: TObject);
