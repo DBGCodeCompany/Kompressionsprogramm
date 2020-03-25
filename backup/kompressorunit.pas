@@ -28,17 +28,6 @@ type
   TKompressorForm = class(TForm)
     inputLabel: TLabel;
     outputLabel: TLabel;
-    LbinRadioButton: TRadioButton;
-    LStrRadioButton: TRadioButton;
-    SbinRadioButton: TRadioButton;
-    SstrRadioButton: TRadioButton;
-    LoadRadioGroup: TRadioGroup;
-    SaveRadioGroup: TRadioGroup;
-    saveButton: TButton;
-    LoadButton: TButton;
-    GeneratorButton: TButton;
-    AnzahlLabel: TLabel;
-    SizeEdit: TEdit;
     KomprimierenButton: TButton;
     DekomprimierenButton: TButton;
     BWTCheckBox: TCheckBox;
@@ -52,16 +41,12 @@ type
     OpenSpeedButton: TSpeedButton;
     SaveSpeedButton: TSpeedButton;
     TopLabel: TLabel;
-    procedure GeneratorButtonClick(Sender: TObject);
     procedure DekomprimierenButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure KomprimierenButtonClick(Sender: TObject);
-    procedure LoadButtonClick(Sender: TObject);
     procedure OpenSpeedButtonClick(Sender: TObject);
-    procedure saveButtonClick(Sender: TObject);
     procedure SaveSpeedButtonClick(Sender: TObject);
     procedure save(data:String; const Path:String);
-    procedure RLEinit;
   private
 
   public
@@ -75,38 +60,42 @@ var
 
 implementation
 
-function potenz(basis,exponent:integer):integer;
+function potenz(basis,exponent:integer):byte;                  //Potenz halt
 var
 i:integer;
 begin
-  for i:=2 to exponent do basis:=basis*basis;
-  result:=basis;
-end;
-
-function bittobyte(bits:string):Tarrayofbyte;
-var
-  i,n,lenge:integer;
-  abyte:byte;
-begin
-  lenge:=(length(bits)div 8);
-  setlength(result,lenge);
-  for n:=0 to lenge do begin
-    abyte:=0;
-    if (length(bits)-(n*8))>7 then begin
-    for i:=1 to 8 do begin
-      if bits[i+(n*8)]='1' then abyte:=abyte+potenz(2,8-i);
+  if exponent=0 then result:=1
+  else begin
+    result:=1;
+    for i:=1 to exponent do result:=result*basis;
     end;
+  end;
+
+function bittobyte(bits:string):Tarrayofbyte;        //schreibt ein string mit 1/0 in ein Tarrayofbyte um. Dabei werden
+var                                                  //immer 8 zeichen des Strings zu einem byte-Wert zusammengefasst
+  i,n,lenge:integer;                                 //(bsp.: '101'->5
+  abyte:byte;
+begin                                                       //länge des zukünftigen array of byte festlegen:
+  if (length(bits)mod 8)=0 then lenge:=(length(bits)div 8)  //wenn der BitString genau auf eine menge bytes aufgeht
+  else lenge:=(length(bits)div 8)+1;                        //sonst einen länger
+  setlength(result,lenge);
+  for n:=0 to lenge do begin                                //für jeden byte wiederholen
+    abyte:=0;
+    if (length(bits)-(n*8))>7 then begin                    //wenn noch 8 bits da sind, dann
+    for i:=1 to 8 do begin                                  //achtmal machen:
+      if bits[i+(n*8)]='1' then abyte:=abyte+potenz(2,8-i); //den jeweiligen dezimalwert aufsummieren
+    end;                                                    //(wenn bits[i]=0 dann halt nicht...
     end
     else begin
-      for i:=1 to (length(bits)-(n*8)) do begin
-        if bits[i+(n*8)]='1' then abyte:=abyte+potenz(2,(length(bits)-(n*8))-i);
+      for i:=1 to (length(bits)-(n*8)) do begin             //wenn weniger als 8bit noch da sind im string, dann
+        if bits[i+(n*8)]='1' then abyte:=abyte+potenz(2,(length(bits)-(n*8))-i);  //nur so oft noch machen
       end;
     end;
-    result[n]:=abyte;
+    result[n]:=abyte;                                       //jeweiliges ergebnis in das ergebnis schreiben
   end;
 end;
-                                                            //Schreibt ein Tarrayofstring in einen string um (AUSGABE)
-function SArrayToString(a:Tarrayofstring;kommata:boolean):String;
+
+function SArrayToString(a:Tarrayofstring;kommata:boolean):String; //Schreibt ein Tarrayofstring in einen string um (Huffman)
 var
  i:Integer;
  begin
@@ -117,32 +106,6 @@ var
    else begin
    For i:=0 to (length(a)-1) do result:=result+a[i];
    end;
-  end;
-
-function bitstostr(bitdata:Tarrayofbyte):string;          //Schreibt ein Tarrayofbyte in einen String um (AUSGABE)
-var
-  i:integer;
-  s:string;
-  begin
-    s:='';
-    for i:=0 to high(bitdata) do begin
-      s:=s+inttostr(bitdata[i]);
-    end;
-    result:=s;
-  end;
-
-function strtobits(s:string):Tarrayofbyte;   //Schreibt einen string mit einsen und nullen in
-var                                                                //Tarrayofbyte um (SPEICHERPLATZ!!)
-// i:int64;
- i:integer;
- bits:Tarrayofbyte;
-  begin
-   setlength(bits,0);
-    for i:=1 to length(s) do begin
-      setlength(bits,length(bits)+1);
-      if s[i]='1' then bits[i-1]:=1 else bits[i-1]:=0;
-    end;
-  result:=copy(bits);
   end;
 
 function aofrealtostr(a:Tarrayofreal):string;   //schreibt ein array of real in einen String um
@@ -165,7 +128,7 @@ var
     for i:=1 to length(s) do begin
       if s[i]=a then begin
         result:=true;
-        break;
+        break;                                    //bricht ab, wenn gefunden und gibt True zurück
       end;
     end;
   end;
@@ -195,12 +158,12 @@ lenge:int64;  // i, n,
       for n:=1 to lenge do begin
         if alpha[i]=s[n] then wahrsch[i-1]:= wahrsch[i-1]+(1/lenge); //für jeden gefunden Buchstaben aus alpha in s
       end;                                                           //an dessen Stelle in wahrsch die Wahrscheinlichkeit
-    end;                                                             //aufsummieren
+    end;                                                             //aufsummieren für jedes gefundene mal plus 1/lenge
     result:=copy(wahrsch);
   end;
 
-function StringInDatei(a,Path:string):boolean;
-var
+function StringInDatei(a,Path:string):boolean;              //Schreibt einen einzelnen String in eine Text datei
+var                                                         //(als .txt lesbar, nicht kryptisch)
   List:TStringList;
 begin
   try
@@ -213,8 +176,8 @@ begin
   end;
 end;
 
-function StringausDatei(Path:string):string;
-var
+function StringausDatei(Path:string):string;                 //Läd einen einzelnen String aus einer Text datei
+var                                                          //(als .txt lesbar, nicht kryptisch)
   List:TStringList;
   s:string;
   i:integer;
@@ -230,10 +193,10 @@ begin
  end;
 end;
 
-function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;
-var
-  List:TStringList;
-  i:integer;
+function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;    //Schreibt ein Array of String in eine Datei
+var                                                                 //(als .txt lesbar, nicht kryptisch!)
+  List:TStringList;                                                 //Jedes Feld des Arrays ist eine neue Zeile der
+  i:integer;                                                        //Text Datei.
 begin
  List:=TStringList.create;
   try
@@ -245,9 +208,9 @@ begin
   end;
 end;
 
-function SarrayAusDatei(Path:string):Tarrayofstring;
-var
-  List:TStringList;
+function SarrayAusDatei(Path:string):Tarrayofstring;    //Läd ein array of String aus einer Datei (.txt), in der
+var                                                     //Text gespeichert ist. Jede neue Zeile der Datei ist
+  List:TStringList;                                     //ein neues Feld des Arrays
   i:integer;
 begin
  List:=TStringlist.create;
@@ -260,8 +223,8 @@ begin
  end;
 end;
 
-function LoadBitString(const Path: string): string;
-var
+function LoadBitString(const Path: string): string;     //Läd einen BitString (1/0) aus der Datei unter Path
+var                                                     //Diese Datei kann von allen Möglichen Typen sein!
   fs: TFileStream;
   DataLeft,i: Integer;
   bytes:Tarrayofbyte;
@@ -280,7 +243,7 @@ begin
 end;
 
 {------------------------HUFFMAN-CODING----------------------------------------}
-function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
+function huffman(s,alpha:string;wahrsch:Tarrayofreal):String;
 var
  index:int64;  // i,n,
  i,n:integer;
@@ -304,8 +267,8 @@ var
       end;
     //Showmessage('Durchlauf: '+inttostr(n)+' Index: '+inttostr(index));        //for Debug
     wahrsch[index]:=0;                                                          //löscht den größten zu 0 um den nächstgrößten fiden zu können
-    codealpha[index]:=nullen+'1';
-    nullen:=nullen+'0';
+    codealpha[index]:=nullen+'1';                                               //für den wahrscheinlichsten buchstaben aus
+    nullen:=nullen+'0';                                                         //alpha hat codealpha '1', für den zwiten 01 usw.
     end;
     {--------------------------------------------------------------------------}
     {--------Zeichen des Datenstrings mit dem neuen Codealphabet eretzen-------}
@@ -316,7 +279,7 @@ var
       end;
     end;
     {--------------------------------------------------------------------------}
-    result:=copy(kompdata);
+    result:=SArrayToString(kompdata,false);
   end;
 {------------------------------------------------------------------------------}
 {-------------------huffmankompriemierung entpacken----------------------------}
@@ -324,19 +287,19 @@ function dehuff(bits:string;codealpha:Tarrayofstring;alpha:string):string;
 var
   i,index:integer;
   data,strbits:string;
-  begin
-    data:='';
+  begin                                                                         //Init
+    data:='';                                                                   //Init
     strbits:='';
-    for index:=1 to length(bits) do begin
-     if bits[index]='1' then begin
-        strbits:=strbits+'1';
-        for i:=0 to high(codealpha) do begin
-          if strbits=codealpha[i] then data:=data+alpha[i+1];
+    for index:=1 to length(bits) do begin                                       //wenn in den Komprimierten Daten eine 1
+     if bits[index]='1' then begin                                              //gefunden wird, wird im Codealphabet nach
+        strbits:=strbits+'1';                                                   //der kombination aus den nullen un der 1
+        for i:=0 to high(codealpha) do begin                                    //gesucht und der richtige buchstabe
+          if strbits=codealpha[i] then data:=data+alpha[i+1];                   //aus alpha an das Ergebnis gehängt
         end;
         strbits:='';
      end
-     else strbits:=strbits+'0';
-    end;
+     else strbits:=strbits+'0';                                                 //sonst werden weiter nullen an den
+    end;                                                                        //"Vergleichsstring" gehängt
     result:=data;
   end;
 {------------------------------------------------------------------------------}
@@ -348,21 +311,23 @@ var i,z:integer;
   wert2:byte;
 begin
 
-   z:=0;
+  z:=0;
 
   setLength(WerteKomprimiert,1);
-  WerteKomprimiert[0]:=1;
+
+  WerteKomprimiert[0]:=1;  //anfangswert, falls sofort ein wechsel auftritt
 
   //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
+
      for i:=0 to (Length(werte)-2) do begin
          wert1:=(werte[i]);       //werte miteinander vergleichen,ob wechsel (01) vorliegt
          wert2:=(werte[i+1]);
         if wert1=wert2 then
-          inc(WerteKomprimiert[z],1)
+          inc(WerteKomprimiert[z],1) //es wird gezählt, wie oft etwas hintereinander steht
         else begin
-          inc(z,1);
-          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);
-          WerteKomprimiert[z] := 1;
+          inc(z,1);                   //hier liegt ein wechsel vor und greifen auf den nächsten platz des array zu
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);  //dynamische erweiterung des arrays
+          WerteKomprimiert[z] := 1;       //auch hier 1 als minimum
         end;
         end;
    result:=copy(WerteKomprimiert);
@@ -375,7 +340,7 @@ var entpackt:array of byte;
     z,n,i,y:integer;
 begin
 
-   if Startwert=0 then x:=1 else x:=0;
+   if Startwert=0 then x:=1 else x:=0;   //festlegen, wann 0/1 geschrieben werden muss
 
    z:=0;
    n:=0;
@@ -387,7 +352,7 @@ begin
    setLength(entpackt,n);
 
    for i:=0 to (Length(Werte)-1) do begin
-   if (i mod 2) = 0 then  begin
+   if (i mod 2) = 0 then  begin    //startwert bei i=0,2,4,usw. deshalb auf teilbarkeit prüfen
       for y:=1 to Werte[i] do begin
          entpackt[z]:=startwert;//0 oder 1
          Inc(z,1);
@@ -395,7 +360,7 @@ begin
       end
        else  begin
         for y:=1 to Werte[i]do  begin
-         entpackt[z]:=x;//0 oder 1
+         entpackt[z]:=x;//gegenteil vom startwert
          Inc(z,1);
       end;
        end;
@@ -423,49 +388,22 @@ begin
   end;
  end;
 
-procedure TKompressorForm.RLEinit;
-var
- i,y:integer;
- startwert:byte;
- origdata: array of byte;
- Komprimiert: array of integer;
-  begin
-   startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
-
-   setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
-  for i:=0 to (memo.lines.count-1) do begin
-    origdata[i]:=strtoint(Memo.lines[i]);
-  end;
-
-  Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
-
-  Memo.lines.clear;
-
-  memo.lines[0]:='Erster byte: '+inttostr(startwert);
-
-  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
-    Memo.lines[y+1]:=inttostr(Komprimiert[y]);
-  end;
-  end;
-
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
-  Data,alpha:string;
-  kompdata:array of string;
-  bitdata,bytedata,rbytedata:Tarrayofbyte;
+  Data,alpha,kompdata:string;
   wahrsch:array of real;
   summe:real;
-  i:integer;
+  i,y:integer;
+  startwert:byte;
+  origdata: array of byte;
+  Komprimiert: array of integer;
+  rledata:Tarrayofstring;
 begin
-{---------------------RLE------------------------------------------------------}
-if RLCheckBox.Checked=true then RLEinit;
-
 {------------------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 if HaffCheckbox.Checked=true then begin
   data:='';
-
-  for i:=0 to (Memo.Lines.count-1) do data:=data+ Memo.lines[i];       //Text aus Memo einlesen
+  for i:=0 to (Memo.Lines.count-1) do data:=data+ Memo.lines[i];                //Text aus Memo einlesen
 
   alpha:=getalpha(Data);
   wahrsch:=copy(getwahrsch(Data,alpha));
@@ -482,98 +420,95 @@ if HaffCheckbox.Checked=true then begin
 
   kompdata:=huffman(data,alpha,wahrsch);
   Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
-  Memo.Lines.add('Komprimiert: '+Sarraytostring(kompdata,true));
-  if RLCheckbox.checked=true then begin
-    for i:=0 to high(kompdata) do Memo.lines[i]:=kompdata[i];
-    RLEinit;
-    end;
-  //save(SarraytoString(kompdata,false),SavePathEdit.text);
+  Memo.Lines.add('Komprimiert: '+kompdata);
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
+  Showmessage('Jetzt kommt Run-Length-Encoding.');                              //um dem Nutzer Zeit zu geben die Daten
+  //Für RLE die gehufften Daten ins Memo schreiben:                             //Im Memo zu überprüfen (geht eleganter)
+  Memo.lines.Clear;
+  for i:=1 to length(kompdata) do Memo.lines[i-1]:=kompdata[i];
+  end;
 
+{---------------------RLE------------------------------------------------------}
+if RLCheckBox.Checked=true then begin
+
+   startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
+
+   setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
+  for i:=0 to (memo.lines.count-1) do begin
+    origdata[i]:=strtoint(Memo.lines[i]);
+  end;
+
+  Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
+
+  Memo.lines.clear;             //für ausgabe der komprimierten Werte
+
+  memo.lines[0]:='Erster byte: '+inttostr(startwert);   //erster byte wird mit ausgegeben/abgespeichert, um später zurückzurechnen
+
+  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
+    Memo.lines[y+1]:=inttostr(Komprimiert[y]);
+  end;
+  setlength(rledata,Memo.lines.count);             //Die Daten im Memo als String abspeichern
+  for i:=0 to Memo.Lines.count-1 do rledata[i]:=Memo.lines[i];
+  SarrayInDatei(rledata,SavePathEdit.text);
   end;
 {------------------------------------------------------------------------------}
 {-------------------------BURROWS-WHEELER--------------------------------------}
 end;
 
-procedure TKompressorForm.LoadButtonClick(Sender: TObject);
-var
- str:string;
- strA:Tarrayofstring;
- i:integer;
-begin
-if LbinRadioButton.checked=true then begin
-  str:=loadBitString(OpenPathEdit.text);
-  for i:=1 to length(str) do Memo.lines[i-1]:=str[i];
-  end;
-if LstrRadioButton.checked=true then begin
-  strA:=SarrayAusDatei(OpenPathEdit.text);
-  for i:=0 to high(strA) do Memo.lines[i]:=strA[i];
-  end;
-end;
-
 procedure TKompressorForm.FormCreate(Sender: TObject);
 begin
-  bits:=TBits.create;
   Randomize;
 end;
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
-  rbytedata:Tarrayofbyte;
-  codealpha:array of string;
-  alpha,rbitdata:string;
+  codealpha,readdata:array of string;
+  alpha,sw,rledata,entpacktstr:string;
   entpackt:array of byte;
   verpackt:array of integer;
-  sw:string;
   startwert:byte;
   i:integer;
 begin
-
-  //rbytedata:=loadbytearray(OpenPathEdit.text);
-  //Memo.lines.add('Gelesene Daten:');
- // for i:=0 to high(rbytedata) do Memo.lines.add(binStr(rbytedata[i],8));
- {--------------------------HUFFMAN-DEHUFF-------------------------------------}
-  if HaffCheckBox.Checked=true then begin
-  // rbitdata:=loadbytearray(OpenPathEdit.text);
-  Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
-  codealpha:=SarrayAusDatei('Codealphabet.txt');
-  Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
-  alpha:=StringAusDatei('Alphabet.txt');
-  Memo.lines.add('gelesenes Alphabet: '+alpha);
-
- // Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
-  end;
-{------------------------------------------------------------------------------}
-{-------------------------RLE-DeRLE--------------------------------------------}
+  //DATEN LADEN:
+  Memo.lines.clear;
+  readdata:=SarrayausDatei(OpenPathEdit.text);
+  for i:=0 to high(readdata) do Memo.Lines[i]:=readdata[i];  //und ins Array schreiben
+ {-------------------------RLE-DeRLE--------------------------------------------}
   if RLCheckBox.Checked=true then begin
-      setLength(verpackt,memo.lines.count);
-      sw:=Memo.lines[0];
-     startwert:=strtoint(sw[14]);
 
-  for i:=1 to (memo.lines.count-1) do begin
+  setLength(verpackt,memo.lines.count);  //anlegen des arrays zum Einlesen
+
+  sw:=Memo.lines[0];                    //einlesen des startwerts (erster byte)
+  startwert:=strtoint(sw[14]);
+
+  for i:=1 to (memo.lines.count-1) do begin    //einlesen der zu entpackenden werte
     verpackt[i-1]:=strtoint(Memo.lines[i]);
   end;
-  memo.lines.clear;
 
-  entpackt:=rledecode(verpackt,startwert);
+  memo.lines.clear;                //für ausgabe der entpackten werte
 
-  for i:=0 to (Length(entpackt)-1) do begin
+  entpackt:=rledecode(verpackt,startwert);       //hier wird entpackt
+
+  for i:=0 to (Length(entpackt)-1) do begin       //ausgabe der entpackten werte
     Memo.lines[i]:=inttostr(entpackt[i]);
     end;
   end;
 {------------------------------------------------------------------------------}
-end;
-
-procedure TKompressorForm.GeneratorButtonClick(Sender: TObject);
-var Werterandom:Array of byte;
-  i:integer;
-begin
-setLength(Werterandom,(strtoint(SizeEdit.text)-1));
-  for i:=0 to (strtoint(SizeEdit.text)-1) do begin
-    Werterandom[i]:=random(2);
-    Memo.lines[i]:=inttostr(Werterandom[i])
+ {--------------------------HUFFMAN-DEHUFF-------------------------------------}
+  if HaffCheckBox.Checked=true then begin
+   rledata:='';
+   for i:=0 to Memo.lines.count-1 do rledata:=rledata+Memo.lines[i];      //"Einlesen" aus dem Array, in das RLE geschriebn
+                                                                                                                      //hat
+  codealpha:=SarrayAusDatei('Codealphabet.txt');
+  Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
+  alpha:=StringAusDatei('Alphabet.txt');
+  Memo.lines.add('gelesenes Alphabet: '+alpha);
+  entpacktstr:=dehuff(rledata,codealpha,alpha);              //hier wird die Huffmankomprimierung aufgehoben
+  Memo.lines.add('Entpackt: '+entpacktstr);
+  StringinDatei(entpacktstr,SavePathEdit.text);              //und abgespeichert
   end;
+{------------------------------------------------------------------------------}
 end;
 
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);
@@ -581,40 +516,10 @@ begin
     If OpenDialog.execute then OpenPathEdit.text:= OpenDialog.Filename;
 end;
 
-procedure TKompressorForm.saveButtonClick(Sender: TObject);
-var
-  str:String;
-  i:integer;
-  bytes:Tarrayofbyte;
-  strA:Tarrayofstring;
-begin
-if SbinRadioButton.checked=true then begin
-  str:='';
-  for i:=0 to Memo.lines.count do str:=str+Memo.lines[i];
-  Memo.lines.add('Zur Kontrolle: '+str);
-  bytes:=bittobyte(str);
-  for i:=0 to high(bytes) do Memo.lines.add('Zur Kontrolle: '+inttostr(bytes[i]));
-  save(str,SavePathEdit.text);
-  end;
-if SstrRadioButton.checked=true then begin
-  setlength(strA,Memo.lines.count);
-  for i:=0 to Memo.lines.count-1 do strA[i]:=Memo.lines[i];
-  SarrayinDatei(strA,SavePathEdit.Text);
-  end;
-end;
-
 procedure TKompressorForm.SaveSpeedButtonClick(Sender: TObject);
 begin
     If SaveDialog.execute then SavePathEdit.text:= SaveDialog.Filename;
 end;
-
-{procedure TKompressorform.einlesen(data:string);
-var
-  i:int64;
-  begin
-    for i:=0 to Memo.Lines.count do data:=data+ Memo.lines[i];
-  end;      }
-
 { TKompressorForm }
 
 

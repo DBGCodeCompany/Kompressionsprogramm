@@ -1,10 +1,10 @@
 object KompressorForm: TKompressorForm
-  Left = 925
-  Height = 637
-  Top = 117
+  Left = 931
+  Height = 638
+  Top = 111
   Width = 946
   Caption = 'Kompressor'
-  ClientHeight = 637
+  ClientHeight = 638
   ClientWidth = 946
   Color = clCream
   DesignTimePPI = 144
@@ -27,13 +27,13 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object Memo: TMemo
-    Left = 488
-    Height = 440
+    Left = 516
+    Height = 600
     Top = 24
-    Width = 434
+    Width = 405
     HideSelection = False
     Lines.Strings = (
-      'Memo'
+      'Bitte geben Sie den Pfad der unverpackten Datei an.'
     )
     ParentFont = False
     ScrollBars = ssAutoVertical
@@ -54,7 +54,9 @@ object KompressorForm: TKompressorForm
     Top = 160
     Width = 199
     Caption = 'Run-length-encoding'
+    Checked = True
     ParentFont = False
+    State = cbChecked
     TabOrder = 2
   end
   object HaffCheckBox: TCheckBox
@@ -63,7 +65,9 @@ object KompressorForm: TKompressorForm
     Top = 208
     Width = 165
     Caption = 'Huffman-Coding'
+    Checked = True
     ParentFont = False
+    State = cbChecked
     TabOrder = 3
   end
   object KomprimierenButton: TButton
@@ -418,52 +422,6 @@ object KompressorForm: TKompressorForm
     OnClick = SaveSpeedButtonClick
     ParentFont = False
   end
-  object GeneratorButton: TButton
-    Left = 48
-    Height = 38
-    Top = 492
-    Width = 136
-    Caption = 'RLE Zufallswerte'
-    OnClick = GeneratorButtonClick
-    ParentFont = False
-    TabOrder = 8
-  end
-  object SizeEdit: TEdit
-    Left = 48
-    Height = 33
-    Top = 576
-    Width = 120
-    ParentFont = False
-    TabOrder = 9
-    Text = '100'
-  end
-  object AnzahlLabel: TLabel
-    Left = 48
-    Height = 25
-    Top = 540
-    Width = 105
-    Caption = 'Anzahl Daten'
-    ParentColor = False
-    ParentFont = False
-  end
-  object LoadButton: TButton
-    Left = 192
-    Height = 38
-    Top = 489
-    Width = 144
-    Caption = 'Load to Memo'
-    OnClick = LoadButtonClick
-    TabOrder = 10
-  end
-  object saveButton: TButton
-    Left = 352
-    Height = 38
-    Top = 488
-    Width = 144
-    Caption = 'Save from Memo'
-    OnClick = saveButtonClick
-    TabOrder = 11
-  end
   object inputLabel: TLabel
     Left = 8
     Height = 25
@@ -471,6 +429,7 @@ object KompressorForm: TKompressorForm
     Width = 42
     Caption = 'Input'
     ParentColor = False
+    ParentFont = False
   end
   object outputLabel: TLabel
     Left = 8
@@ -479,81 +438,14 @@ object KompressorForm: TKompressorForm
     Width = 57
     Caption = 'Output'
     ParentColor = False
-  end
-  object LoadRadioGroup: TRadioGroup
-    Left = 192
-    Height = 96
-    Top = 536
-    Width = 135
-    AutoFill = True
-    Caption = 'Load'
-    ChildSizing.LeftRightSpacing = 6
-    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-    ChildSizing.EnlargeVertical = crsHomogenousChildResize
-    ChildSizing.ShrinkHorizontal = crsScaleChilds
-    ChildSizing.ShrinkVertical = crsScaleChilds
-    ChildSizing.Layout = cclLeftToRightThenTopToBottom
-    ChildSizing.ControlsPerLine = 1
-    ClientHeight = 66
-    ClientWidth = 131
-    TabOrder = 12
-    object LbinRadioButton: TRadioButton
-      Left = 6
-      Height = 33
-      Top = 0
-      Width = 119
-      Caption = 'Binär'
-      TabOrder = 0
-    end
-    object LStrRadioButton: TRadioButton
-      Left = 6
-      Height = 33
-      Top = 33
-      Width = 119
-      Caption = 'String'
-      TabOrder = 1
-    end
-  end
-  object SaveRadioGroup: TRadioGroup
-    Left = 352
-    Height = 95
-    Top = 537
-    Width = 142
-    AutoFill = True
-    Caption = 'Save'
-    ChildSizing.LeftRightSpacing = 6
-    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-    ChildSizing.EnlargeVertical = crsHomogenousChildResize
-    ChildSizing.ShrinkHorizontal = crsScaleChilds
-    ChildSizing.ShrinkVertical = crsScaleChilds
-    ChildSizing.Layout = cclLeftToRightThenTopToBottom
-    ChildSizing.ControlsPerLine = 1
-    ClientHeight = 65
-    ClientWidth = 138
-    TabOrder = 13
-    object SbinRadioButton: TRadioButton
-      Left = 6
-      Height = 33
-      Top = 0
-      Width = 126
-      Caption = 'Binär'
-      TabOrder = 0
-    end
-    object SstrRadioButton: TRadioButton
-      Left = 6
-      Height = 32
-      Top = 33
-      Width = 126
-      Caption = 'String'
-      TabOrder = 1
-    end
+    ParentFont = False
   end
   object OpenDialog: TOpenDialog
-    left = 384
-    top = 384
+    left = 432
+    top = 396
   end
   object SaveDialog: TSaveDialog
-    left = 384
-    top = 432
+    left = 348
+    top = 396
   end
 end
