@@ -230,19 +230,6 @@ begin
 end;
 
 function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;
-{var
-  filestream:TFilestream;
-  begin
-  filestream:=TFilestream.create(Path,fmCreate);
-  try
-  Filestream.WriteBuffer(data,SizeOf(data));
-  result:=true;
-  except
-    Showmessage('Fehler beim schreiben der Datei nach:'+Path);
-    result:=false;
-  end;
-  filestream.free;
-  end;        }
 var
   List:TStringList;
   i:integer;
@@ -258,20 +245,6 @@ begin
 end;
 
 function SarrayAusDatei(Path:string):Tarrayofstring;
-{var
-  filestream:TFileStream;
-  data:Tarrayofstring;
-  begin
-  filestream:=TFilestream.create(Path,fmOpenRead);
-  try
-  setlength(data,filestream.size);
-  filestream.ReadBuffer(data,filestream.size);
-  result:=copy(data);
-  except
-    Showmessage('Fehler beim lesen der Datei bei: '+Path);
-  end;
-  filestream.free;
-  end;      }
 var
   List:TStringList;
   i:integer;
