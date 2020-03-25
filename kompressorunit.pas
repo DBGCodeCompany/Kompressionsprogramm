@@ -348,21 +348,23 @@ var i,z:integer;
   wert2:byte;
 begin
 
-   z:=0;
+  z:=0;
 
   setLength(WerteKomprimiert,1);
-  WerteKomprimiert[0]:=1;
+
+  WerteKomprimiert[0]:=1;  //anfangswert, falls sofort ein wechsel auftritt
 
   //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
+
      for i:=0 to (Length(werte)-2) do begin
          wert1:=(werte[i]);       //werte miteinander vergleichen,ob wechsel (01) vorliegt
          wert2:=(werte[i+1]);
         if wert1=wert2 then
-          inc(WerteKomprimiert[z],1)
+          inc(WerteKomprimiert[z],1) //es wird gezählt, wie oft etwas hintereinander steht
         else begin
-          inc(z,1);
-          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);
-          WerteKomprimiert[z] := 1;
+          inc(z,1);                   //hier liegt ein wechsel vor und greifen auf den nächsten platz des array zu
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);  //dynamische erweiterung des arrays
+          WerteKomprimiert[z] := 1;       //auch hier 1 als minimum
         end;
         end;
    result:=copy(WerteKomprimiert);
@@ -375,7 +377,7 @@ var entpackt:array of byte;
     z,n,i,y:integer;
 begin
 
-   if Startwert=0 then x:=1 else x:=0;
+   if Startwert=0 then x:=1 else x:=0;   //festlegen, wann 0/1 geschrieben werden muss
 
    z:=0;
    n:=0;
@@ -387,7 +389,7 @@ begin
    setLength(entpackt,n);
 
    for i:=0 to (Length(Werte)-1) do begin
-   if (i mod 2) = 0 then  begin
+   if (i mod 2) = 0 then  begin    //startwert bei i=0,2,4,usw. deshalb auf teilbarkeit prüfen
       for y:=1 to Werte[i] do begin
          entpackt[z]:=startwert;//0 oder 1
          Inc(z,1);
@@ -395,7 +397,7 @@ begin
       end
        else  begin
         for y:=1 to Werte[i]do  begin
-         entpackt[z]:=x;//0 oder 1
+         entpackt[z]:=x;//gegenteil vom startwert
          Inc(z,1);
       end;
        end;
@@ -439,9 +441,9 @@ var
 
   Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
 
-  Memo.lines.clear;
+  Memo.lines.clear;             //für ausgabe der komprimierten Werte
 
-  memo.lines[0]:='Erster byte: '+inttostr(startwert);
+  memo.lines[0]:='Erster byte: '+inttostr(startwert);   //erster byte wird mit ausgegeben/abgespeichert, um später zurückzurechnen
 
   for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
     Memo.lines[y+1]:=inttostr(Komprimiert[y]);
@@ -502,6 +504,7 @@ var
  strA:Tarrayofstring;
  i:integer;
 begin
+    Memo.Lines.clear;        //sinnvoll, wenn beides hintereinander geladen wird, ohne aktion zwischendurch
 if LbinRadioButton.checked=true then begin
   str:=loadBitString(OpenPathEdit.text);
   for i:=1 to length(str) do Memo.lines[i-1]:=str[i];
@@ -547,24 +550,28 @@ begin
 {------------------------------------------------------------------------------}
 {-------------------------RLE-DeRLE--------------------------------------------}
   if RLCheckBox.Checked=true then begin
-      setLength(verpackt,memo.lines.count);
-      sw:=Memo.lines[0];
-     startwert:=strtoint(sw[14]);
 
-  for i:=1 to (memo.lines.count-1) do begin
+  setLength(verpackt,memo.lines.count);  //anlegen des arrays zum Einlesen
+
+  sw:=Memo.lines[0];                    //einlesen des startwerts (erster byte)
+  startwert:=strtoint(sw[14]);
+
+  for i:=1 to (memo.lines.count-1) do begin    //einlesen der zu entpackenden werte
     verpackt[i-1]:=strtoint(Memo.lines[i]);
   end;
-  memo.lines.clear;
 
-  entpackt:=rledecode(verpackt,startwert);
+  memo.lines.clear;                //für ausgabe der entpackten werte
 
-  for i:=0 to (Length(entpackt)-1) do begin
+  entpackt:=rledecode(verpackt,startwert);       //hier wird entpackt
+
+  for i:=0 to (Length(entpackt)-1) do begin       //ausgabe der entpackten werte
     Memo.lines[i]:=inttostr(entpackt[i]);
     end;
   end;
 {------------------------------------------------------------------------------}
 end;
 
+{--Generator erzeugt 0 und 1 im memo, um rle zu testen, nur temporär!!---------}
 procedure TKompressorForm.GeneratorButtonClick(Sender: TObject);
 var Werterandom:Array of byte;
   i:integer;

@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="78"/>
+        <UsageCount Value="77"/>
       </Unit0>
       <Unit1>
         <Filename Value="kompressorunit.pas"/>
@@ -19,10 +19,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="528"/>
-        <CursorPos X="4" Y="545"/>
-        <FoldState Value=" T3iY067 pj0jM0E6]9Lk80I2P"/>
-        <UsageCount Value="78"/>
+        <TopLine Value="185"/>
+        <CursorPos X="53" Y="247"/>
+        <FoldState Value=" T3iX067 pj0jM0E5s"/>
+        <UsageCount Value="77"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
