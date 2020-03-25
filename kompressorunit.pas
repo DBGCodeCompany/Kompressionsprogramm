@@ -13,7 +13,8 @@ unit kompressorunit;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,
+  ExtCtrls;
 
 type
   Tarrayofreal= array of real;
@@ -25,6 +26,16 @@ type
   { TKompressorForm }
 
   TKompressorForm = class(TForm)
+    inputLabel: TLabel;
+    outputLabel: TLabel;
+    LbinRadioButton: TRadioButton;
+    LStrRadioButton: TRadioButton;
+    SbinRadioButton: TRadioButton;
+    SstrRadioButton: TRadioButton;
+    LoadRadioGroup: TRadioGroup;
+    SaveRadioGroup: TRadioGroup;
+    saveButton: TButton;
+    LoadButton: TButton;
     GeneratorButton: TButton;
     AnzahlLabel: TLabel;
     SizeEdit: TEdit;
@@ -45,9 +56,11 @@ type
     procedure DekomprimierenButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure KomprimierenButtonClick(Sender: TObject);
+    procedure LoadButtonClick(Sender: TObject);
     procedure OpenSpeedButtonClick(Sender: TObject);
+    procedure saveButtonClick(Sender: TObject);
     procedure SaveSpeedButtonClick(Sender: TObject);
-    procedure save(data:Tarrayofbyte;Path:String);
+    procedure save(data:String; const Path:String);
   private
 
   public
@@ -61,58 +74,35 @@ var
 
 implementation
 
-{function bittobyte(bits:Tarrayofbyte):Tarrayofbyte;
-var
-  i,n,lenge:integer;
-  abyte:byte;
-begin
-  lenge:=(length(bits)div 8)+1;
-  setlength(result,lenge);
-  for n:=0 to lenge do begin
-    abyte:=0;
-    if (length(bits)-(n*8))>7 then begin
-    for i:=0 to 7 do begin
-      if bits[i+(n*8)]=1 then abyte:=abyte+potenz(2,7-i);
-    end;
-    end
-    else begin
-      for i:=0 to (length(bits)-(n*8))-1 do begin
-        if bits[i+(n*8)]=1 then abyte:=abyte+potenz(2,(length(bits)-(n*8))-1-i);
-      end;
-    end;
-    result[n]:=abyte;
-  end;
-end;}
-
-function bytetobit(bytes:Tarrayofbyte):Tarrayofbyte;
-var
-  i,n:integer;
-  rest:byte;
-  begin
-    setlength(result,length(bytes)*8);
-    for i:=0 to high(bytes) do begin
-      if bytes[i]<>0 then  begin
-      rest:=bytes[i];
-      n:=0;
-      repeat
-        if ((rest mod 2)=1) then result[(8*(i+1))-1-n]:=1
-        else result[(8*(i+1))-1-n]:=0;
-        rest:=rest div 2;
-        inc(n);
-        until rest=0;
-      end
-      else begin
-        for n:=0 to 7 do result[n+i]:=0;
-      end;
-    end;
-  end;
-
 function potenz(basis,exponent:integer):integer;
 var
 i:integer;
 begin
   for i:=2 to exponent do basis:=basis*basis;
   result:=basis;
+end;
+
+function bittobyte(bits:string):Tarrayofbyte;
+var
+  i,n,lenge:integer;
+  abyte:byte;
+begin
+  lenge:=(length(bits)div 8);
+  setlength(result,lenge);
+  for n:=0 to lenge do begin
+    abyte:=0;
+    if (length(bits)-(n*8))>7 then begin
+    for i:=1 to 8 do begin
+      if bits[i+(n*8)]='1' then abyte:=abyte+potenz(2,8-i);
+    end;
+    end
+    else begin
+      for i:=1 to (length(bits)-(n*8)) do begin
+        if bits[i+(n*8)]='1' then abyte:=abyte+potenz(2,(length(bits)-(n*8))-i);
+      end;
+    end;
+    result[n]:=abyte;
+  end;
 end;
                                                             //Schreibt ein Tarrayofstring in einen string um (AUSGABE)
 function SArrayToString(a:Tarrayofstring;kommata:boolean):String;
@@ -128,28 +118,28 @@ var
    end;
   end;
 
-function bitstostr(bitdata:Tarrayofbool):string;          //Schreibt ein Tarrayofbool in einen String um (AUSGABE)
+function bitstostr(bitdata:Tarrayofbyte):string;          //Schreibt ein Tarrayofbyte in einen String um (AUSGABE)
 var
   i:integer;
   s:string;
   begin
     s:='';
     for i:=0 to high(bitdata) do begin
-      if bitdata[i]=true then s:=s+'1' else s:=s+'0';
+      s:=s+inttostr(bitdata[i]);
     end;
     result:=s;
   end;
 
-function StringBitToTarrayofbool(s:string):Tarrayofbool;   //Schreibt einen string mit einsen und nullen in
-var                                                                //Tarrayofbool um (SPEICHERPLATZ!!)
+function strtobits(s:string):Tarrayofbyte;   //Schreibt einen string mit einsen und nullen in
+var                                                                //Tarrayofbyte um (SPEICHERPLATZ!!)
 // i:int64;
  i:integer;
- bits:Tarrayofbool;
+ bits:Tarrayofbyte;
   begin
    setlength(bits,0);
     for i:=1 to length(s) do begin
       setlength(bits,length(bits)+1);
-      if s[i]='1' then bits[i-1]:=true else bits[i-1]:=false;
+      if s[i]='1' then bits[i-1]:=1 else bits[i-1]:=0;
     end;
   result:=copy(bits);
   end;
@@ -208,37 +198,6 @@ lenge:int64;  // i, n,
     result:=copy(wahrsch);
   end;
 
-function saveTarrayofbool(data:Tarrayofbool;Path:string):boolean;
-var
-  filestream:TFilestream;
-  begin
-  filestream:=TFilestream.create(Path,fmCreate);
-  try
-  Filestream.WriteBuffer(data,SizeOf(data));
-  result:=true;
-  except
-    Showmessage('Fehler beim schreiben der Datei nach:'+Path);
-    result:=false;
-  end;
-  filestream.free;
-  end;
-
-function loadTarrayofbool(Path:string):Tarrayofbool;
-var
-  filestream:TFileStream;
-  data:Tarrayofbool;
-  begin
-  filestream:=TFilestream.create(Path,fmOpenRead);
-  try
-  setlength(data,filestream.size);
-  filestream.ReadBuffer(data,filestream.size);
-  result:=copy(data);
-  except
-    Showmessage('Fehler beim lesen der Datei bei: '+Path);
-  end;
-  filestream.free;
-  end;
-
 function StringInDatei(a,Path:string):boolean;
 var
   List:TStringList;
@@ -272,50 +231,52 @@ end;
 
 function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;
 var
-  filestream:TFilestream;
-  begin
-  filestream:=TFilestream.create(Path,fmCreate);
+  List:TStringList;
+  i:integer;
+begin
+ List:=TStringList.create;
   try
-  Filestream.WriteBuffer(data,SizeOf(data));
+  for i:=0 to high(data) do List.add(data[i]);
+  List.SaveToFile(Path);
   result:=true;
-  except
-    Showmessage('Fehler beim schreiben der Datei nach:'+Path);
-    result:=false;
+  finally
+     List.free;
   end;
-  filestream.free;
-  end;
+end;
 
 function SarrayAusDatei(Path:string):Tarrayofstring;
 var
-  filestream:TFileStream;
-  data:Tarrayofstring;
-  begin
-  filestream:=TFilestream.create(Path,fmOpenRead);
-  try
-  setlength(data,filestream.size);
-  filestream.ReadBuffer(data,filestream.size);
-  result:=copy(data);
-  except
-    Showmessage('Fehler beim lesen der Datei bei: '+Path);
-  end;
-  filestream.free;
-  end;
+  List:TStringList;
+  i:integer;
+begin
+ List:=TStringlist.create;
+ try
+ List.LoadFromFile(Path);
+ setlength(result,List.count);
+ for i:=0 to List.count-1 do result[i]:=List[i];
+ finally
+   list.free;
+ end;
+end;
 
-function load(Path:string):Tarrayofbyte;
+function LoadBitString(const Path: string): string;
 var
-  ms:TMemorystream;
-  begin
-  ms:=TMemoryStream.create;
+  fs: TFileStream;
+  DataLeft,i: Integer;
+  bytes:Tarrayofbyte;
+begin
+  fs := TFileStream.Create(Path,fmOpenRead or fmShareDenyWrite);
   try
-  ms.loadfromfile(Path);
-  ms.position:=0;
-  setlength(result,ms.size);
-  ms.read(result[0],ms.size);
-  except
-    writeln('Fehler beim Lesen der Datei aus: '+Path);
+     fs.Position:=0;
+     DataLeft := fs.Size;
+     SetLength(bytes, DataLeft div SizeOf(Byte));
+     fs.Read(PByte(bytes)^, DataLeft);
+  finally
+     fs.Free;
   end;
-  ms.free;
-  end;
+  result:='';
+  for i:=0 to high(bytes) do result:=result+binStr(bytes[i],8);
+end;
 
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):Tarrayofstring;
@@ -358,7 +319,7 @@ var
   end;
 {------------------------------------------------------------------------------}
 {-------------------huffmankompriemierung entpacken----------------------------}
-function dehuff(bits:Tarrayofbool;codealpha:Tarrayofstring;alpha:string):string;
+function dehuff(bits:Tarrayofbyte;codealpha:Tarrayofstring;alpha:string):string;
 var
   //i,index:int64;
   i,index:integer;
@@ -367,7 +328,7 @@ var
     data:='';
     strbits:='';
     for index:=0 to high(bits) do begin
-     if bits[index]=true then begin
+     if bits[index]=1 then begin
         strbits:=strbits+'1';
         for i:=0 to high(codealpha) do begin
           if strbits=codealpha[i] then data:=data+alpha[i+1];
@@ -448,29 +409,25 @@ end;
 
 { TKompressorForm }
 
-procedure TKompressorform.save(data:Tarrayofbyte;Path:String);
+procedure TKompressorform.save(data:String; const Path:String);
 var
-  fs:TFilestream;
-  ms:TMemoryStream;
-  begin
-    ms:=TMemoryStream.create;           //statt nur :
-    fs:=TFilestream.create(Path,fmCreate);
-    try
-       ms.writeBuffer(data,SizeOf(data));
-       ms.Position:=0;
-       fs.CopyFrom(ms, ms.Size);
-    except
-     Showmessage('Fehler beim Speichern nach: '+Path);
+  fs: TFileStream;
+  bytes:Tarrayofbyte;
+begin
+  bytes:=bittobyte(data);
+  fs := TFileStream.Create(Path, fmCreate);
+  try
+     fs.WriteBuffer(Pointer(bytes)^, Length(bytes));
+  finally
+     fs.free;
   end;
-  fs.free;
-  ms.free;
-  end;
+ end;
 
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   Data,alpha:string;
   kompdata:array of string;
-  rbitdata,bitdata:Tarrayofbool;
+  bitdata,bytedata,rbytedata:Tarrayofbyte;
   wahrsch:array of real;
   summe:real;
   Komprimiert: array of integer;
@@ -479,10 +436,10 @@ var
  i,y:integer;
  startwert:byte;
 begin
-
+{---------------------RLE------------------------------------------------------}
 if RLCheckBox.Checked=true then begin
 
-    startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
+   startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
 
    setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
   for i:=0 to (memo.lines.count-1) do begin
@@ -499,8 +456,8 @@ if RLCheckBox.Checked=true then begin
     Memo.lines[y+1]:=inttostr(Komprimiert[y]);
   end;
    end;
-
-
+{------------------------------------------------------------------------------}
+{---------------------------HUFFMAN--------------------------------------------}
 if HaffCheckbox.Checked=true then begin
   data:='';
 
@@ -523,14 +480,28 @@ if HaffCheckbox.Checked=true then begin
   Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
   Memo.Lines.add('Komprimiert: '+Sarraytostring(kompdata,true));
 
-  bitdata:=StringBitToTarrayofbool(Sarraytostring(kompdata,false));
-  saveTarrayofbool(bitdata,SavePathEdit.text);
+  save(SarraytoString(kompdata,false),SavePathEdit.text);
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
 
+  end;
+{------------------------------------------------------------------------------}
+{-------------------------BURROWS-WHEELER--------------------------------------}
+end;
 
-  rbitdata:=loadTarrayofbool(OpenPathEdit.text);
-  Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
+procedure TKompressorForm.LoadButtonClick(Sender: TObject);
+var
+ str:string;
+ strA:Tarrayofstring;
+ i:integer;
+begin
+if LbinRadioButton.checked=true then begin
+  str:=loadBitString(OpenPathEdit.text);
+  for i:=1 to length(str) do Memo.lines[i-1]:=str[i];
+  end;
+if LstrRadioButton.checked=true then begin
+  strA:=SarrayAusDatei(OpenPathEdit.text);
+  for i:=0 to high(strA) do Memo.lines[i]:=strA[i];
   end;
 end;
 
@@ -542,7 +513,7 @@ end;
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
-  rbitdata:Tarrayofbool;
+  rbitdata,rbytedata:Tarrayofbyte;
   codealpha:array of string;
   alpha:string;
   entpackt:array of byte;
@@ -551,8 +522,13 @@ var
   startwert:byte;
   i:integer;
 begin
+
+  //rbytedata:=loadbytearray(OpenPathEdit.text);
+  //Memo.lines.add('Gelesene Daten:');
+ // for i:=0 to high(rbytedata) do Memo.lines.add(binStr(rbytedata[i],8));
+
   if HaffCheckBox.Checked=true then begin
-   rbitdata:=loadTarrayofbool(OpenPathEdit.text);
+  // rbitdata:=loadbytearray(OpenPathEdit.text);
   Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
   codealpha:=SarrayAusDatei('Codealphabet.txt');
   Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
@@ -594,6 +570,28 @@ end;
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);
 begin
     If OpenDialog.execute then OpenPathEdit.text:= OpenDialog.Filename;
+end;
+
+procedure TKompressorForm.saveButtonClick(Sender: TObject);
+var
+  str:String;
+  i:integer;
+  bytes:Tarrayofbyte;
+  strA:Tarrayofstring;
+begin
+if SbinRadioButton.checked=true then begin
+  str:='';
+  for i:=0 to Memo.lines.count do str:=str+Memo.lines[i];
+  Memo.lines.add('Zur Kontrolle: '+str);
+  bytes:=bittobyte(str);
+  for i:=0 to high(bytes) do Memo.lines.add('Zur Kontrolle: '+inttostr(bytes[i]));
+  save(str,SavePathEdit.text);
+  end;
+if SstrRadioButton.checked=true then begin
+  setlength(strA,Memo.lines.count);
+  for i:=0 to Memo.lines.count-1 do strA[i]:=Memo.lines[i];
+  SarrayinDatei(strA,SavePathEdit.Text);
+  end;
 end;
 
 procedure TKompressorForm.SaveSpeedButtonClick(Sender: TObject);

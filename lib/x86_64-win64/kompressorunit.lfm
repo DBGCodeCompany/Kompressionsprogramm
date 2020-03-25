@@ -1,10 +1,10 @@
 object KompressorForm: TKompressorForm
   Left = 925
-  Height = 618
+  Height = 637
   Top = 117
   Width = 946
   Caption = 'Kompressor'
-  ClientHeight = 618
+  ClientHeight = 637
   ClientWidth = 946
   Color = clCream
   DesignTimePPI = 144
@@ -63,9 +63,7 @@ object KompressorForm: TKompressorForm
     Top = 208
     Width = 165
     Caption = 'Huffman-Coding'
-    Checked = True
     ParentFont = False
-    State = cbChecked
     TabOrder = 3
   end
   object KomprimierenButton: TButton
@@ -89,25 +87,25 @@ object KompressorForm: TKompressorForm
     TabOrder = 5
   end
   object OpenPathEdit: TEdit
-    Left = 48
+    Left = 88
     Height = 33
     Top = 280
     Width = 352
     ParentFont = False
     TabOrder = 6
-    Text = 'test.dbg'
+    Text = 'test.txt'
   end
   object SavePathEdit: TEdit
-    Left = 48
+    Left = 88
     Height = 33
     Top = 336
     Width = 352
     ParentFont = False
     TabOrder = 7
-    Text = 'test.dbg'
+    Text = 'saved.txt'
   end
   object OpenSpeedButton: TSpeedButton
-    Left = 418
+    Left = 448
     Height = 33
     Top = 280
     Width = 34
@@ -264,7 +262,7 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object SaveSpeedButton: TSpeedButton
-    Left = 418
+    Left = 448
     Height = 33
     Top = 336
     Width = 34
@@ -424,7 +422,7 @@ object KompressorForm: TKompressorForm
     Left = 48
     Height = 38
     Top = 492
-    Width = 192
+    Width = 136
     Caption = 'RLE Zufallswerte'
     OnClick = GeneratorButtonClick
     ParentFont = False
@@ -447,6 +445,108 @@ object KompressorForm: TKompressorForm
     Caption = 'Anzahl Daten'
     ParentColor = False
     ParentFont = False
+  end
+  object LoadButton: TButton
+    Left = 192
+    Height = 38
+    Top = 489
+    Width = 144
+    Caption = 'Load to Memo'
+    OnClick = LoadButtonClick
+    TabOrder = 10
+  end
+  object saveButton: TButton
+    Left = 352
+    Height = 38
+    Top = 488
+    Width = 144
+    Caption = 'Save from Memo'
+    OnClick = saveButtonClick
+    TabOrder = 11
+  end
+  object inputLabel: TLabel
+    Left = 8
+    Height = 25
+    Top = 280
+    Width = 42
+    Caption = 'Input'
+    ParentColor = False
+  end
+  object outputLabel: TLabel
+    Left = 8
+    Height = 25
+    Top = 336
+    Width = 57
+    Caption = 'Output'
+    ParentColor = False
+  end
+  object LoadRadioGroup: TRadioGroup
+    Left = 192
+    Height = 96
+    Top = 536
+    Width = 135
+    AutoFill = True
+    Caption = 'Load'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 66
+    ClientWidth = 131
+    TabOrder = 12
+    object LbinRadioButton: TRadioButton
+      Left = 6
+      Height = 33
+      Top = 0
+      Width = 119
+      Caption = 'Binär'
+      TabOrder = 0
+    end
+    object LStrRadioButton: TRadioButton
+      Left = 6
+      Height = 33
+      Top = 33
+      Width = 119
+      Caption = 'String'
+      TabOrder = 1
+    end
+  end
+  object SaveRadioGroup: TRadioGroup
+    Left = 352
+    Height = 95
+    Top = 537
+    Width = 142
+    AutoFill = True
+    Caption = 'Save'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 65
+    ClientWidth = 138
+    TabOrder = 13
+    object SbinRadioButton: TRadioButton
+      Left = 6
+      Height = 33
+      Top = 0
+      Width = 126
+      Caption = 'Binär'
+      TabOrder = 0
+    end
+    object SstrRadioButton: TRadioButton
+      Left = 6
+      Height = 32
+      Top = 33
+      Width = 126
+      Caption = 'String'
+      TabOrder = 1
+    end
   end
   object OpenDialog: TOpenDialog
     left = 384
