@@ -61,6 +61,7 @@ type
     procedure saveButtonClick(Sender: TObject);
     procedure SaveSpeedButtonClick(Sender: TObject);
     procedure save(data:String; const Path:String);
+    procedure RLEinit;
   private
 
   public
@@ -230,19 +231,6 @@ begin
 end;
 
 function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;
-{var
-  filestream:TFilestream;
-  begin
-  filestream:=TFilestream.create(Path,fmCreate);
-  try
-  Filestream.WriteBuffer(data,SizeOf(data));
-  result:=true;
-  except
-    Showmessage('Fehler beim schreiben der Datei nach:'+Path);
-    result:=false;
-  end;
-  filestream.free;
-  end;        }
 var
   List:TStringList;
   i:integer;
@@ -258,20 +246,6 @@ begin
 end;
 
 function SarrayAusDatei(Path:string):Tarrayofstring;
-{var
-  filestream:TFileStream;
-  data:Tarrayofstring;
-  begin
-  filestream:=TFilestream.create(Path,fmOpenRead);
-  try
-  setlength(data,filestream.size);
-  filestream.ReadBuffer(data,filestream.size);
-  result:=copy(data);
-  except
-    Showmessage('Fehler beim lesen der Datei bei: '+Path);
-  end;
-  filestream.free;
-  end;      }
 var
   List:TStringList;
   i:integer;
@@ -346,16 +320,15 @@ var
   end;
 {------------------------------------------------------------------------------}
 {-------------------huffmankompriemierung entpacken----------------------------}
-function dehuff(bits:Tarrayofbyte;codealpha:Tarrayofstring;alpha:string):string;
+function dehuff(bits:string;codealpha:Tarrayofstring;alpha:string):string;
 var
-  //i,index:int64;
   i,index:integer;
   data,strbits:string;
   begin
     data:='';
     strbits:='';
-    for index:=0 to high(bits) do begin
-     if bits[index]=1 then begin
+    for index:=1 to length(bits) do begin
+     if bits[index]='1' then begin
         strbits:=strbits+'1';
         for i:=0 to high(codealpha) do begin
           if strbits=codealpha[i] then data:=data+alpha[i+1];
@@ -450,22 +423,13 @@ begin
   end;
  end;
 
-procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
+procedure TKompressorForm.RLEinit;
 var
-  Data,alpha:string;
-  kompdata:array of string;
-  bitdata,bytedata,rbytedata:Tarrayofbyte;
-  wahrsch:array of real;
-  summe:real;
-  Komprimiert: array of integer;
-  origdata: array of byte;
- // i:int64;
  i,y:integer;
  startwert:byte;
-begin
-{---------------------RLE------------------------------------------------------}
-if RLCheckBox.Checked=true then begin
-
+ origdata: array of byte;
+ Komprimiert: array of integer;
+  begin
    startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
 
    setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
@@ -482,7 +446,20 @@ if RLCheckBox.Checked=true then begin
   for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
     Memo.lines[y+1]:=inttostr(Komprimiert[y]);
   end;
-   end;
+  end;
+
+procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
+var
+  Data,alpha:string;
+  kompdata:array of string;
+  bitdata,bytedata,rbytedata:Tarrayofbyte;
+  wahrsch:array of real;
+  summe:real;
+  i:integer;
+begin
+{---------------------RLE------------------------------------------------------}
+if RLCheckBox.Checked=true then RLEinit;
+
 {------------------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 if HaffCheckbox.Checked=true then begin
@@ -506,8 +483,11 @@ if HaffCheckbox.Checked=true then begin
   kompdata:=huffman(data,alpha,wahrsch);
   Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
   Memo.Lines.add('Komprimiert: '+Sarraytostring(kompdata,true));
-
-  save(SarraytoString(kompdata,false),SavePathEdit.text);
+  if RLCheckbox.checked=true then begin
+    for i:=0 to high(kompdata) do Memo.lines[i]:=kompdata[i];
+    RLEinit;
+    end;
+  //save(SarraytoString(kompdata,false),SavePathEdit.text);
   Stringindatei(alpha,'Alphabet.txt');
   Sarrayindatei(codealpha,'Codealphabet.txt');
 
@@ -540,9 +520,9 @@ end;
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
-  rbitdata,rbytedata:Tarrayofbyte;
+  rbytedata:Tarrayofbyte;
   codealpha:array of string;
-  alpha:string;
+  alpha,rbitdata:string;
   entpackt:array of byte;
   verpackt:array of integer;
   sw:string;
@@ -553,7 +533,7 @@ begin
   //rbytedata:=loadbytearray(OpenPathEdit.text);
   //Memo.lines.add('Gelesene Daten:');
  // for i:=0 to high(rbytedata) do Memo.lines.add(binStr(rbytedata[i],8));
-
+ {--------------------------HUFFMAN-DEHUFF-------------------------------------}
   if HaffCheckBox.Checked=true then begin
   // rbitdata:=loadbytearray(OpenPathEdit.text);
   Memo.lines.add('Gelesene Daten: '+bitstostr(rbitdata));
@@ -561,9 +541,11 @@ begin
   Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
   alpha:=StringAusDatei('Alphabet.txt');
   Memo.lines.add('gelesenes Alphabet: '+alpha);
-  Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
-  end;
 
+ // Memo.lines.add('Entpackt: '+dehuff(rbitdata,codealpha,alpha));
+  end;
+{------------------------------------------------------------------------------}
+{-------------------------RLE-DeRLE--------------------------------------------}
   if RLCheckBox.Checked=true then begin
       setLength(verpackt,memo.lines.count);
       sw:=Memo.lines[0];
@@ -580,7 +562,7 @@ begin
     Memo.lines[i]:=inttostr(entpackt[i]);
     end;
   end;
-
+{------------------------------------------------------------------------------}
 end;
 
 procedure TKompressorForm.GeneratorButtonClick(Sender: TObject);
