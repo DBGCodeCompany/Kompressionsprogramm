@@ -33,6 +33,9 @@ type
     BWTCheckBox: TCheckBox;
     OpenDialog: TOpenDialog;
     OpenPathEdit: TEdit;
+    MemoAusgabeRadioButton: TRadioButton;
+    keineAusgabeRadioButton: TRadioButton;
+    AusgabeRadioGroup: TRadioGroup;
     SaveDialog: TSaveDialog;
     SavePathEdit: TEdit;
     RLCheckBox: TCheckBox;
@@ -397,19 +400,27 @@ var
   startwert:byte;
   origdata: array of byte;
   Komprimiert: array of integer;
-  rledata:Tarrayofstring;
+  rledata,startdata:Tarrayofstring;
 begin
+//DATEN LADEN:
+ startdata:=SarrayausDAtei(OpenPathEdit.text);
+ If MemoAusgabeRadioButton.checked=true then begin
+ for i:=0 to high(Startdata) do Memo.lines[i]:=Startdata[i];
+ end;
 {------------------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 if HaffCheckbox.Checked=true then begin
   data:='';
-  for i:=0 to (Memo.Lines.count-1) do data:=data+ Memo.lines[i];                //Text aus Memo einlesen
-
+  for i:=0 to high(startdata) do data:=data+startdata[i];                       //Gelesene Daten in einen String umschreib
   alpha:=getalpha(Data);
   wahrsch:=copy(getwahrsch(Data,alpha));
+
+  If MemoAusgabeRadioButton.checked=true then begin
   Memo.lines.add('Alphabet: '+alpha);
   Memo.lines.add('Wahrscheinlichkeit: '+aofrealtostr(wahrsch));
+  end;
 
+  If MemoAusgabeRadioButton.checked=true then begin
   {----------------Zur Kontrolle! Summe muss 1 ergeben-------------------------}
   summe:=0;
   for i:=0 to (length(wahrsch)-1) do begin
@@ -417,41 +428,59 @@ if HaffCheckbox.Checked=true then begin
     end;
   Memo.lines.add('Summe der Wahrscheinlichkeiten: '+floattostr(summe));
   {----------------------------------------------------------------------------}
-
-  kompdata:=huffman(data,alpha,wahrsch);
-  Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
-  Memo.Lines.add('Komprimiert: '+kompdata);
-  Stringindatei(alpha,'Alphabet.txt');
-  Sarrayindatei(codealpha,'Codealphabet.txt');
-  Showmessage('Jetzt kommt Run-Length-Encoding.');                              //um dem Nutzer Zeit zu geben die Daten
-  //Für RLE die gehufften Daten ins Memo schreiben:                             //Im Memo zu überprüfen (geht eleganter)
-  Memo.lines.Clear;
-  for i:=1 to length(kompdata) do Memo.lines[i-1]:=kompdata[i];
   end;
 
+  kompdata:=huffman(data,alpha,wahrsch);
+  Stringindatei(alpha,'Alphabet.txt');
+  Sarrayindatei(codealpha,'Codealphabet.txt');
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
+  Memo.Lines.add('Komprimiert: '+kompdata);
+  end;
+
+  end;
 {---------------------RLE------------------------------------------------------}
 if RLCheckBox.Checked=true then begin
 
-   startwert:=strtoint(Memo.lines[0]);   //für späteres zurückrechnen merken
+if HaffCheckBox.Checked=true then begin;
+  Showmessage('Jetzt kommt Run-Length-Encoding.');                              //um dem Nutzer Zeit zu geben die Daten
+                                                                                //Im Memo zu überprüfen (geht eleganter)
+  startwert:=strtoint(kompdata[1]);
+  setlength(origdata,length(kompdata)-1);
+  for i:=1 to length(kompdata)-1 do origdata[i-1]:=strtoint(kompdata[i+1]);       //kompdata direkt in origdata, ohne Memo
+ end
+else begin
+   startwert:=strtoint(startdata[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
+                                                                                //ausgelesene Daten nehmen.
+   setLength(origdata,length(startdata));    //übernahme der werte aus startdata
+  for i:=1 to high(startdata) do begin
+    origdata[i-1]:=strtoint(startdata[i]);
+  end;
+ end;
 
-   setLength(origdata,memo.lines.count);    //übernahme der werte aus dem memo
-  for i:=0 to (memo.lines.count-1) do begin
-    origdata[i]:=strtoint(Memo.lines[i]);
+  If MemoAusgabeRadioButton.checked=true then begin
+  for i:=1 to high(startdata) do Memo.lines[i-1]:=startdata[i];
   end;
 
   Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
 
+  If MemoAusgabeRadioButton.checked=true then begin
   Memo.lines.clear;             //für ausgabe der komprimierten Werte
-
   memo.lines[0]:='Erster byte: '+inttostr(startwert);   //erster byte wird mit ausgegeben/abgespeichert, um später zurückzurechnen
 
   for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
     Memo.lines[y+1]:=inttostr(Komprimiert[y]);
   end;
-  setlength(rledata,Memo.lines.count);             //Die Daten im Memo als String abspeichern
-  for i:=0 to Memo.Lines.count-1 do rledata[i]:=Memo.lines[i];
-  SarrayInDatei(rledata,SavePathEdit.text);
   end;
+
+  setlength(rledata,length(komprimiert)+1);             //Die Daten aus komprimiert als String abspeichern
+  rledata[0]:=inttostr(startwert);
+  for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
+  SarrayInDatei(rledata,SavePathEdit.text);
+  end
+//Wenn nicht noch mit RLE komprimieren:
+else save(kompdata,SavePathEdit.text);    //Den Bitstring, den huffman generiert hat abspeichern.
 {------------------------------------------------------------------------------}
 {-------------------------BURROWS-WHEELER--------------------------------------}
 end;
@@ -464,49 +493,72 @@ end;
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
   codealpha,readdata:array of string;
-  alpha,sw,rledata,entpacktstr:string;
+  alpha,sw,rledata,entpacktstr,a:string;
   entpackt:array of byte;
   verpackt:array of integer;
   startwert:byte;
   i:integer;
 begin
-  //DATEN LADEN:
-  Memo.lines.clear;
-  readdata:=SarrayausDatei(OpenPathEdit.text);
-  for i:=0 to high(readdata) do Memo.Lines[i]:=readdata[i];  //und ins Array schreiben
  {-------------------------RLE-DeRLE--------------------------------------------}
   if RLCheckBox.Checked=true then begin
 
-  setLength(verpackt,memo.lines.count);  //anlegen des arrays zum Einlesen
-
-  sw:=Memo.lines[0];                    //einlesen des startwerts (erster byte)
-  startwert:=strtoint(sw[14]);
-
-  for i:=1 to (memo.lines.count-1) do begin    //einlesen der zu entpackenden werte
-    verpackt[i-1]:=strtoint(Memo.lines[i]);
+  //DATEN LADEN:
+  Memo.lines.clear;
+  readdata:=SarrayausDatei(OpenPathEdit.text);
+  If MemoAusgabeRadioButton.checked=true then begin
+  for i:=0 to high(readdata) do Memo.Lines[i]:=readdata[i];  //und ins Array schreiben
   end;
 
-  memo.lines.clear;                //für ausgabe der entpackten werte
+ {----------------------EINLESEN-----------------------------------------------}
+  setLength(verpackt,length(readdata));       //anlegen des arrays zum Einlesen
+  sw:=readdata[0];                    //einlesen des startwerts (erster byte)
+  startwert:=strtoint(sw);
+  for i:=1 to high(readdata) do begin    //einlesen der zu entpackenden werte
+    verpackt[i-1]:=strtoint(readdata[i]);
+  end;
+{------------------------------------------------------------------------------}
 
-  entpackt:=rledecode(verpackt,startwert);       //hier wird entpackt
+  entpackt:=rledecode(verpackt,startwert);        //hier wird entpackt
 
+  If MemoAusgabeRadioButton.checked=true then begin
+  memo.lines.clear;                               //für ausgabe der entpackten werte
   for i:=0 to (Length(entpackt)-1) do begin       //ausgabe der entpackten werte
     Memo.lines[i]:=inttostr(entpackt[i]);
     end;
   end;
+
+  setlength(rledata,length(entpackt));
+  for i:=0 to high(entpackt) do begin
+    a:=inttostr(entpackt[i]);
+    rledata[i+1]:=a[1];                            //Daten für dehuff als String bereitstellen
+  end;
+
+  if HaffCheckBox.checked=false then begin         //wenn nicht noch mit Huffman entpackt wird, ergebnis abspeichern
+  StringinDAtei(rledata,SavePathedit.text);
+  end;
+  end
+
+  //Wenn nicht mit RLE dekomprimiert werden soll, dann:
+  else begin
+    rledata:=loadBitString(OpenPathEdit.text);
+    If MemoAusgabeRadioButton.checked=true then begin
+    for i:=1 to length(rledata) do Memo.lines[i-1]:=rledata[i];
+    end;
+ end;
 {------------------------------------------------------------------------------}
  {--------------------------HUFFMAN-DEHUFF-------------------------------------}
   if HaffCheckBox.Checked=true then begin
-   rledata:='';
-   for i:=0 to Memo.lines.count-1 do rledata:=rledata+Memo.lines[i];      //"Einlesen" aus dem Array, in das RLE geschriebn
-                                                                                                                      //hat
+
   codealpha:=SarrayAusDatei('Codealphabet.txt');
-  Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
   alpha:=StringAusDatei('Alphabet.txt');
-  Memo.lines.add('gelesenes Alphabet: '+alpha);
   entpacktstr:=dehuff(rledata,codealpha,alpha);              //hier wird die Huffmankomprimierung aufgehoben
-  Memo.lines.add('Entpackt: '+entpacktstr);
   StringinDatei(entpacktstr,SavePathEdit.text);              //und abgespeichert
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  Memo.lines.add('gelesenes Codealphabet: '+Sarraytostring(codealpha,true));
+  Memo.lines.add('gelesenes Alphabet: '+alpha);
+  Memo.lines.add('Entpackt: '+entpacktstr);
+  end;
   end;
 {------------------------------------------------------------------------------}
 end;

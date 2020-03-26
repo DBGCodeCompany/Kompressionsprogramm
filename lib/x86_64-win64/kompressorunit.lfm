@@ -1,10 +1,10 @@
 object KompressorForm: TKompressorForm
   Left = 931
-  Height = 638
+  Height = 599
   Top = 111
   Width = 946
   Caption = 'Kompressor'
-  ClientHeight = 638
+  ClientHeight = 599
   ClientWidth = 946
   Color = clCream
   DesignTimePPI = 144
@@ -28,7 +28,7 @@ object KompressorForm: TKompressorForm
   end
   object Memo: TMemo
     Left = 516
-    Height = 600
+    Height = 552
     Top = 24
     Width = 405
     HideSelection = False
@@ -439,6 +439,40 @@ object KompressorForm: TKompressorForm
     Caption = 'Output'
     ParentColor = False
     ParentFont = False
+  end
+  object AusgabeRadioGroup: TRadioGroup
+    Left = 40
+    Height = 102
+    Top = 472
+    Width = 278
+    AutoFill = True
+    Caption = 'Ausgabe wählen:'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 72
+    ClientWidth = 274
+    TabOrder = 8
+    object MemoAusgabeRadioButton: TRadioButton
+      Left = 6
+      Height = 36
+      Top = 0
+      Width = 262
+      Caption = 'Memo Ausgabe'
+      TabOrder = 0
+    end
+    object keineAusgabeRadioButton: TRadioButton
+      Left = 6
+      Height = 36
+      Top = 36
+      Width = 262
+      Caption = 'Keine Memo Ausgabe'
+      TabOrder = 1
+    end
   end
   object OpenDialog: TOpenDialog
     left = 432
