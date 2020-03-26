@@ -451,16 +451,17 @@ if HaffCheckBox.Checked=true then begin;
   for i:=1 to length(kompdata)-1 do origdata[i-1]:=strtoint(kompdata[i+1]);       //kompdata direkt in origdata, ohne Memo
  end
 else begin
-   startwert:=strtoint(startdata[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
+   data:=loadBitString(OpenPathEdit.text);
+   startwert:=strtoint(data[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
                                                                                 //ausgelesene Daten nehmen.
-   setLength(origdata,length(startdata));    //übernahme der werte aus startdata
-  for i:=1 to high(startdata) do begin
-    origdata[i-1]:=strtoint(startdata[i]);
+   setLength(origdata,length(data)-1);    //übernahme der werte aus startdata
+  for i:=2 to length(data) do begin
+    origdata[i-2]:=strtoint(data[i]);
   end;
  end;
 
   If MemoAusgabeRadioButton.checked=true then begin
-  for i:=1 to high(startdata) do Memo.lines[i-1]:=startdata[i];
+  for i:=1 to high(data) do Memo.lines[i-1]:=data[i];
   end;
 
   Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays

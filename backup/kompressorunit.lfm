@@ -471,7 +471,9 @@ object KompressorForm: TKompressorForm
       Top = 36
       Width = 262
       Caption = 'Keine Memo Ausgabe'
+      Checked = True
       TabOrder = 1
+      TabStop = True
     end
   end
   object OpenDialog: TOpenDialog
