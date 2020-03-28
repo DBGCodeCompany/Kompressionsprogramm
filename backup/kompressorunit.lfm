@@ -42,7 +42,7 @@ object KompressorForm: TKompressorForm
   object BWTCheckBox: TCheckBox
     Left = 48
     Height = 29
-    Top = 110
+    Top = 96
     Width = 287
     Caption = 'Burrows-Wheeler-Transormation'
     ParentFont = False
@@ -51,7 +51,7 @@ object KompressorForm: TKompressorForm
   object RLCheckBox: TCheckBox
     Left = 48
     Height = 29
-    Top = 160
+    Top = 144
     Width = 199
     Caption = 'Run-length-encoding'
     Checked = True
@@ -62,7 +62,7 @@ object KompressorForm: TKompressorForm
   object HaffCheckBox: TCheckBox
     Left = 48
     Height = 29
-    Top = 208
+    Top = 192
     Width = 165
     Caption = 'Huffman-Coding'
     Checked = True
@@ -475,6 +475,14 @@ object KompressorForm: TKompressorForm
       TabOrder = 1
       TabStop = True
     end
+  end
+  object AlphaCheckBox: TCheckBox
+    Left = 48
+    Height = 29
+    Top = 240
+    Width = 231
+    Caption = 'Alphabet Komprimierung'
+    TabOrder = 9
   end
   object OpenDialog: TOpenDialog
     left = 432

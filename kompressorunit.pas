@@ -26,6 +26,7 @@ type
   { TKompressorForm }
 
   TKompressorForm = class(TForm)
+    AlphaCheckBox: TCheckBox;
     inputLabel: TLabel;
     outputLabel: TLabel;
     KomprimierenButton: TButton;
@@ -373,6 +374,69 @@ end;
 
 end;
 {------------------------------------------------------------------------------}
+{--------------------Alphabet-Codierung----------------------------------------}
+function alphacode(data:string):Tarrayofbyte;   //Optimiert das Alphabet, das data nutzt indem es ein neues
+var                                             //generiert, das nur die notwenige anzahl an zeichen hat
+    i,n:integer;
+    alphabet,bits:string;
+    bitdata,bitalpha:array of string;
+    abyte,len:byte;
+begin
+  alphabet:=getalpha(data);                  //Alphabet, das data nutzt generieren
+  n:=length(alphabet);
+  len:=0;                                    //menge an bits errechnen, die ein zeichen braucht um alle zeichen
+  repeat                                     //in alphabet abzubilden (=len)
+     n:=n div 2;
+     len:=len+1;
+  until n=0 ;
+
+  setlength(bitalpha,length(alphabet));     //das neue Alphabet generieren
+  for i:=0 to length(bitalpha) do begin
+    bitalpha[i]:=binstr(i,len);             //binStr() gibt i als bitString der länge (len) zurück
+  end;
+
+  setlength(bitdata,length(data));
+  for i:=1 to length(data) do begin         //Die daten in alpha mit dem neuen Alphabet ersetzen
+    for n:=1 to length(alphabet) do begin
+      if alphabet[n]=data[i] then break;
+    end;
+    bitdata[i-1]:=bitalpha[n-1];
+  end;
+
+  bits:=Sarraytostring(bitdata,false);      //alle Bits hintereinander schreiben (zum auseinandernehmen hat man len als
+  result:=bittobyte(bits);                  //Zeichen länge! --also kein problem
+  setlength(result,length(result)+1);
+  result[high(result)]:=len;                //die Zeichenlänge mit abspeichern!!
+
+  SarrayinDatei(bitalpha,'BitAlphabet.txt');      //Das Bitalphabet abspeichern
+  StringinDatei(alphabet,'Alphabet.txt');         //Das Klare Alphabet abspeichern
+end;
+{------------------------------------------------------------------------------}
+{------------------Alphabet-DECodierung----------------------------------------}
+function dealphacode(bitstr:string):string;
+var
+    i,n:integer;
+    str,daten,alphabet:string;
+    bitalpha:=Array of string;
+    len:byte;
+begin
+ len:=data[high(data)];                        //Die Zeichenlänge der Codierung rausholen
+ bitalpha:=Sarrayausdatei('BitAlphabet.txt');  //Das CodeAlphabet laden
+ alphabet:=StringausDatei('Alphabet.txt');     //Das KlareAlphabet laden
+
+ daten:='';
+ for i:=1 to (bitstr div len) do begin
+   str:='';
+   for n:=1 to len do str:=str+bitstr[i*len+n-len]; //immer eine bitfolge der länge len aus bitstr ziehen
+
+   for n:=0 to high(bitalpha) do begin              //diese bitfolge im bitalpha finden
+     if bitalpha[n]=str then break;
+   end;
+  daten:=daten+alphabet[n];                         //und das passende Zeichen aus dem Klaren Alphabet an daten hängen
+ end;
+ result:=daten;
+end;
+
 {$R *.lfm}
 
 { TKompressorForm }
