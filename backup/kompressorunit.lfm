@@ -8,7 +8,6 @@ object KompressorForm: TKompressorForm
   ClientWidth = 946
   Color = clCream
   DesignTimePPI = 144
-  OnCreate = FormCreate
   LCLVersion = '2.0.4.0'
   object TopLabel: TLabel
     Left = 48

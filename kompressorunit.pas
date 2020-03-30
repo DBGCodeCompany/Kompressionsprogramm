@@ -46,7 +46,6 @@ type
     SaveSpeedButton: TSpeedButton;
     TopLabel: TLabel;
     procedure DekomprimierenButtonClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure KomprimierenButtonClick(Sender: TObject);
     procedure OpenSpeedButtonClick(Sender: TObject);
     procedure SaveSpeedButtonClick(Sender: TObject);
@@ -375,12 +374,12 @@ end;
 end;
 {------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
-function alphacode(data:string):Tarrayofbyte;   //Optimiert das Alphabet, das data nutzt indem es ein neues
+function alphacode(data:string):string;         //Optimiert das Alphabet, das data nutzt indem es ein neues
 var                                             //generiert, das nur die notwenige anzahl an zeichen hat
     i,n:integer;
     alphabet,bits:string;
     bitdata,bitalpha:array of string;
-    abyte,len:byte;
+    len:byte;
 begin
   alphabet:=getalpha(data);                  //Alphabet, das data nutzt generieren
   n:=length(alphabet);
@@ -391,7 +390,7 @@ begin
   until n=0 ;
 
   setlength(bitalpha,length(alphabet));     //das neue Alphabet generieren
-  for i:=0 to length(bitalpha) do begin
+  for i:=0 to high(bitalpha) do begin
     bitalpha[i]:=binstr(i,len);             //binStr() gibt i als bitString der länge (len) zurück
   end;
 
@@ -404,10 +403,9 @@ begin
   end;
 
   bits:=Sarraytostring(bitdata,false);      //alle Bits hintereinander schreiben (zum auseinandernehmen hat man len als
-  result:=bittobyte(bits);                  //Zeichen länge! --also kein problem
-  setlength(result,length(result)+1);
-  result[high(result)]:=len;                //die Zeichenlänge mit abspeichern!!
+  result:=bits;                             //Zeichen länge! --also kein problem
 
+  StringinDAtei(inttostr(len),'blocklänge.txt');  //die Zeichenlänge mit abspeichern!!
   SarrayinDatei(bitalpha,'BitAlphabet.txt');      //Das Bitalphabet abspeichern
   StringinDatei(alphabet,'Alphabet.txt');         //Das Klare Alphabet abspeichern
 end;
@@ -417,26 +415,29 @@ function dealphacode(bitstr:string):string;
 var
     i,n:integer;
     str,daten,alphabet:string;
-    bitalpha:=Array of string;
+    bitalpha:Array of string;
     len:byte;
 begin
- len:=data[high(data)];                        //Die Zeichenlänge der Codierung rausholen
+ len:=strtoint(StringAusDatei('blocklänge.txt'));//Die Zeichenlänge der Codierung rausholen
  bitalpha:=Sarrayausdatei('BitAlphabet.txt');  //Das CodeAlphabet laden
  alphabet:=StringausDatei('Alphabet.txt');     //Das KlareAlphabet laden
 
  daten:='';
- for i:=1 to (bitstr div len) do begin
+ for i:=1 to (length(bitstr) div len) do begin
    str:='';
    for n:=1 to len do str:=str+bitstr[i*len+n-len]; //immer eine bitfolge der länge len aus bitstr ziehen
 
    for n:=0 to high(bitalpha) do begin              //diese bitfolge im bitalpha finden
      if bitalpha[n]=str then break;
    end;
-  daten:=daten+alphabet[n];                         //und das passende Zeichen aus dem Klaren Alphabet an daten hängen
+  daten:=daten+alphabet[n+1];                         //und das passende Zeichen aus dem Klaren Alphabet an daten hängen
  end;
  result:=daten;
 end;
-
+{------------------------------------------------------------------------------}
+{------------------------Burrows-Wheeler-Transformation------------------------}
+{function bwt(data:string):string;
+}
 {$R *.lfm}
 
 { TKompressorForm }
@@ -473,7 +474,7 @@ begin
  end;
 {------------------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
-if HaffCheckbox.Checked=true then begin
+if (HaffCheckbox.Checked=true) then begin
   data:='';
   for i:=0 to high(startdata) do data:=data+startdata[i];                       //Gelesene Daten in einen String umschreib
   alpha:=getalpha(Data);
@@ -501,20 +502,20 @@ if HaffCheckbox.Checked=true then begin
   If MemoAusgabeRadioButton.checked=true then begin
   Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
   Memo.Lines.add('Komprimiert: '+kompdata);
+  Showmessage('Jetzt kommt Run-Length-Encoding.');                              //um dem Nutzer Zeit zu geben die Daten
+                                                                                //Im Memo zu überprüfen (geht eleganter)
   end;
 
   end;
 {---------------------RLE------------------------------------------------------}
-if RLCheckBox.Checked=true then begin
+if (RLCheckBox.Checked=true) then begin
 
-if HaffCheckBox.Checked=true then begin;
-  Showmessage('Jetzt kommt Run-Length-Encoding.');                              //um dem Nutzer Zeit zu geben die Daten
-                                                                                //Im Memo zu überprüfen (geht eleganter)
+if (HaffCheckBox.Checked=true) then begin;
   startwert:=strtoint(kompdata[1]);
   setlength(origdata,length(kompdata)-1);
   for i:=1 to length(kompdata)-1 do origdata[i-1]:=strtoint(kompdata[i+1]);       //kompdata direkt in origdata, ohne Memo
- end
-else begin
+ end;
+if (HaffCheckBox.checked=false) and (RLCheckBox.checked=true) then begin
    data:=loadBitString(OpenPathEdit.text);
    startwert:=strtoint(data[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
                                                                                 //ausgelesene Daten nehmen.
@@ -543,16 +544,20 @@ else begin
   rledata[0]:=inttostr(startwert);
   for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
   SarrayInDatei(rledata,SavePathEdit.text);
-  end
+  end;
 //Wenn nicht noch mit RLE komprimieren:
-else save(kompdata,SavePathEdit.text);    //Den Bitstring, den huffman generiert hat abspeichern.
+if (RLCheckbox.checked=false) and (HaffCheckBox.checked=true) then begin
+save(kompdata,SavePathEdit.text);    //Den Bitstring, den huffman generiert hat abspeichern.
+end;
+{------------------------------------------------------------------------------}
+{--------------------------Alpha-Codierung-------------------------------------}
+if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox.checked=false) then begin
+  data:=alphacode(sarraytostring(startdata,false));
+  If MemoAusgabeRadioButton.checked=true then Showmessage('Bits: '+data);
+  save(data,SavePathEdit.text);
+  end;
 {------------------------------------------------------------------------------}
 {-------------------------BURROWS-WHEELER--------------------------------------}
-end;
-
-procedure TKompressorForm.FormCreate(Sender: TObject);
-begin
-  Randomize;
 end;
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
@@ -601,10 +606,10 @@ begin
   if HaffCheckBox.checked=false then begin         //wenn nicht noch mit Huffman entpackt wird, ergebnis abspeichern
   save(rledata,SavePathedit.text);
   end;
-  end
+  end;
 
   //Wenn nicht mit RLE dekomprimiert werden soll, dann:
-  else begin
+  if (haffcheckbox.Checked=true) and (rlCheckbox.checked=false) and (alphacheckbox.checked=false) then begin
     rledata:=loadBitString(OpenPathEdit.text);
     If MemoAusgabeRadioButton.checked=true then begin
     for i:=1 to length(rledata) do Memo.lines[i-1]:=rledata[i];
@@ -612,7 +617,7 @@ begin
  end;
 {------------------------------------------------------------------------------}
  {--------------------------HUFFMAN-DEHUFF-------------------------------------}
-  if HaffCheckBox.Checked=true then begin
+  if (HaffCheckBox.Checked=true) and (alphacheckbox.checked=false) then begin
 
   codealpha:=SarrayAusDatei('Codealphabet.txt');
   alpha:=StringAusDatei('Alphabet.txt');
@@ -624,6 +629,11 @@ begin
   Memo.lines.add('gelesenes Alphabet: '+alpha);
   Memo.lines.add('Entpackt: '+entpacktstr);
   end;
+  end;
+{------------------------------------------------------------------------------}
+{--------------------------Alpha-Codierung-------------------------------------}
+if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox.checked=false) then begin
+  StringINDatei(dealphacode(loadbitstring(OpenPathEdit.text)),SavePathEdit.text);
   end;
 {------------------------------------------------------------------------------}
 end;
