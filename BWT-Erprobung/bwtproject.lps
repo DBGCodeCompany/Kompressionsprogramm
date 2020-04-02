@@ -9,17 +9,29 @@
         <Filename Value="bwtproject.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="37"/>
-        <CursorPos X="16" Y="53"/>
-        <UsageCount Value="22"/>
+        <TopLine Value="52"/>
+        <CursorPos X="35" Y="66"/>
+        <UsageCount Value="23"/>
         <Loaded Value="True"/>
       </Unit0>
     </Units>
-    <JumpHistory Count="1">
+    <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
         <Filename Value="bwtproject.lpr"/>
         <Caret Line="62" Column="75" TopLine="41"/>
       </Position1>
+      <Position2>
+        <Filename Value="bwtproject.lpr"/>
+        <Caret Line="47" Column="31" TopLine="43"/>
+      </Position2>
+      <Position3>
+        <Filename Value="bwtproject.lpr"/>
+        <Caret Line="63" Column="19" TopLine="44"/>
+      </Position3>
+      <Position4>
+        <Filename Value="bwtproject.lpr"/>
+        <Caret Line="8" Column="14"/>
+      </Position4>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

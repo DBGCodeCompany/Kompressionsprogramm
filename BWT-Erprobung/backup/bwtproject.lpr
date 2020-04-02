@@ -1,6 +1,9 @@
 //Zur erprobung der Burrows-Wheeler-Transformation
 program bwtproject;
 
+uses
+  sysutils;
+
 var
   data:string;
 
@@ -42,14 +45,17 @@ function bwt(data:string):string;
   begin
      for i:=0 to length(data)-1 do begin         //für jedes sortieren generieren
       setlength(indizes,i+1);
+      indizes[i]:=i;
       str:= permute(data,i);                     //permutation generieren
-      for index:=length(indizes)-1 downto 0 do begin
+      for index:=high(indizes)-1 downto 0 do begin
         if tausch(permute(data,indizes[index]),str)=true then begin    //und die nummer der Permutation im array
-         indizes[i]:=index;                                    //richtig einsortieren
+          writeln('Getauscht');
+         indizes[index+1]:=index;                                    //richtig einsortieren
          indizes[index]:=i;
         end
         else begin
          indizes[i]:=i;
+         break;
         end;
       end;
      end;
@@ -58,7 +64,7 @@ function bwt(data:string):string;
   for i:=0 to high(indizes) do begin
       if indizes[i]=0 then index:=i;                           //Ort der original Permutation im Array speichern
       str:=permute(data,i);
-      writeln(str);                                            //for Debug
+      writeln('('+inttostr(indizes[i])+')'+str);                                            //for Debug
       result:=result+str[length(str)];                         //den letzten Buchstaben der Tabbelenzeile abspeichern
    end;
   end;
@@ -68,7 +74,7 @@ begin
   writeln('Bitte String angeben: ');
   readln(data);
   writeln('BWT-Transformiert: ');
-  writeln(bwt(data));
+  writeln('Transformiert: '+bwt(data));
   readln;
 end.
 
