@@ -26,6 +26,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+     function tausch2(char1,char2:char;str:string;index:integer;pos:integer):boolean;
   private
 
   public
@@ -76,6 +77,31 @@ begin
     end;
   end;
 end;
+function permute2(str:string;index:integer;pos:integer):char;
+var l:integer;
+begin
+   l:=length(str);
+    if (pos+index)>l then result:=str[pos+index-l]
+     else result:=str[index+pos];
+end;
+{alternative zur einfachen tauschfunktion}
+{deklaration als tform.funktion und listung unter tform}
+{rekursiv: sind die chars gleich, ruft sich die funktion}
+{selbst auf, dabei werden die nächsten chars verglichen etc}
+function TForm1.tausch2(char1,char2:char;str:string;index:integer;pos:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
+begin
+ result:=false;                                            //Damit result auch gesetzt ist, wenn die strings gleich sind
+     if ord(char1)=ord(char2) then begin
+       result:=tausch2(permute2(str,index,pos+1),permute2(str,index+1,pos+1),str,index,pos+1);
+      end
+    else
+    if ord(char1)>ord(char2) then begin        //ASCII indizes der Stringzeichen an der stelle i vergleichen
+      result:=true;                                //und danach entscheiden                                      //...wenn sie geleich sind, dann eine position weiter gehen
+    end;                                           //im string und wieder vergleichen.
+    if ord(char1)<ord(char2) then begin
+      result:=false;
+    end;
+  end;
 
 function rleencode(Werte:TArrayofByte):TArrayofInt;
 begin
@@ -238,8 +264,21 @@ begin
    for i:=0 to (origlaenge-1) do begin
     indizes[i]:=i;
    end;
-
-  for g:=1 to origlaenge do begin                                             //bubblesort
+   //neue prozedur
+   for g:=1 to origlaenge do begin                                             //bubblesort
+   repeat
+   q:=q+1;
+   if tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],1)=true then begin                                               //vergleichen
+   k:=indizes[q+1];                                                                     //dreieckstausch
+   indizes[q+1]:=indizes[q];
+   indizes[q]:=k;
+                                                                                //erhöhen von n
+   end;
+  until q=origlaenge-2;
+  if q=origlaenge-2 then q:=0;                                               //zurücksetzen von q
+  end;
+   //alte prozedur
+  {for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if tausch(permute(orig,indizes[q]),permute(orig,indizes[q+1]))=true then begin                                               //vergleichen
@@ -250,7 +289,7 @@ begin
    end;
   until q=origlaenge-2;
   if q=origlaenge-2 then q:=0;                                               //zurücksetzen von q
-  end;
+  end; }
 
   for i:=0 to (origlaenge-1) do begin   //ohne ausgabe
   hilf2:=permute(orig,indizes[i]);

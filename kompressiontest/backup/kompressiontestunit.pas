@@ -157,8 +157,8 @@ begin
    indizes[n-1]:=indizes[n];
    indizes[n]:=k;
    end;
-  until n=len-2;
-  if n=len-2 then n:=0;                                               //zurücksetzen von q
+  until n=len-1;
+  if n=len-1 then n:=0;                                               //zurücksetzen von q
   end;
 
   result:='';
