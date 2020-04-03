@@ -132,6 +132,41 @@ end;
 
 end;
 
+function debwt(trans:string;index:integer):string;
+var
+  i,n,len,k:integer;
+  orig:string;
+  indizes:array of integer;
+  chr:char;
+begin
+   len:=length(trans);
+   orig:=trans;                                         //die originaldaten speichern
+   setlength(indizes,len);                                 //für die indizes in den originaldaten
+   for i:=1 to len do indizes[i-1]:=i;             //die indizes initialisieren
+
+   n:=0;
+   for i:=1 to len do begin                                             //bubblesort
+   repeat
+   n:=n+1;
+   if ord(orig[n])>ord(orig[n+1]) then begin                                    //vergleichen
+   chr:=orig[n];                                                                  //dreieckstausch der chars
+   orig[n]:=orig[n+1];
+   orig[n+1]:=chr;
+
+   k:=indizes[n-1];                                                               //dreieckstausch der indizes
+   indizes[n-1]:=indizes[n];
+   indizes[n]:=k;
+   end;
+  until n=len-1;
+  if n=len-1 then n:=0;                                               //zurücksetzen von q
+  end;
+
+  result:='';
+  for i:=1 to len do begin
+   result:=result+orig[index];
+   index:=indizes[index-1];
+  end;
+end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
@@ -190,6 +225,7 @@ var test: array of integer;
     hilf2:string;
     q,k,g:integer;
     indizes:array of integer;
+    tick1,tick2:int64;
 begin
     q:=-1;
 
@@ -198,7 +234,7 @@ begin
     origlaenge:=testtext.length;
     setlength(indizes,origlaenge-1);
     setlength(verpackt,origlaenge);
-
+ tick1:=gettickcount;
    for i:=0 to (origlaenge-1) do begin
     indizes[i]:=i;
    end;
@@ -223,7 +259,12 @@ begin
 
   verpackt[i+1]:=hilf2[origlaenge];
   end;
+  tick2:=gettickcount-tick1;
   memo1.lines[origlaenge]:=verpackt+inttostr(index);
+  memo1.lines.add(inttostr(tick2)+'ms');
+
+  memo1.lines.add('detransformiert: ');
+  memo1.lines.add(debwt(verpackt,index));
 
 
 
