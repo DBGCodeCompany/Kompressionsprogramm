@@ -258,14 +258,14 @@ begin
     testtext:=edit2.text;
     orig:=testtext;
     origlaenge:=testtext.length;
-    setlength(indizes,origlaenge-1);
+    setlength(indizes,origlaenge);
     setlength(verpackt,origlaenge);
- tick1:=gettickcount;
+ tick1:=gettickcount64;
    for i:=0 to (origlaenge-1) do begin
     indizes[i]:=i;
    end;
    //neue prozedur
-   for g:=1 to origlaenge do begin                                             //bubblesort
+   {for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],1)=true then begin                                               //vergleichen
@@ -275,10 +275,10 @@ begin
                                                                                 //erhöhen von n
    end;
   until q=origlaenge-2;
-  if q=origlaenge-2 then q:=0;                                               //zurücksetzen von q
-  end;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;}
    //alte prozedur
-  {for g:=1 to origlaenge do begin                                             //bubblesort
+  for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if tausch(permute(orig,indizes[q]),permute(orig,indizes[q+1]))=true then begin                                               //vergleichen
@@ -288,8 +288,8 @@ begin
                                                                                 //erhöhen von n
    end;
   until q=origlaenge-2;
-  if q=origlaenge-2 then q:=0;                                               //zurücksetzen von q
-  end; }
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;
 
   for i:=0 to (origlaenge-1) do begin   //ohne ausgabe
   hilf2:=permute(orig,indizes[i]);
@@ -298,8 +298,9 @@ begin
 
   verpackt[i+1]:=hilf2[origlaenge];
   end;
-  tick2:=gettickcount-tick1;
-  memo1.lines[origlaenge]:=verpackt+inttostr(index);
+  tick2:=gettickcount64-tick1;
+  Memo1.lines.add(verpackt+inttostr(index));
+  //memo1.lines[origlaenge]:=verpackt+inttostr(index);
   memo1.lines.add(inttostr(tick2)+'ms');
 
   memo1.lines.add('detransformiert: ');
