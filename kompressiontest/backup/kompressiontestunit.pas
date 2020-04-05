@@ -26,7 +26,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
-     function tausch2(char1,char2:char;str:string;index:integer;pos:integer):boolean;
+    function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
   private
 
   public
@@ -88,11 +88,11 @@ end;
 {deklaration als tform.funktion und listung unter tform}
 {rekursiv: sind die chars gleich, ruft sich die funktion}
 {selbst auf, dabei werden die nächsten chars verglichen etc}
-function TForm1.tausch2(char1,char2:char;str:string;index:integer;pos:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
+function TForm1.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
 begin
  result:=false;                                            //Damit result auch gesetzt ist, wenn die strings gleich sind
-     if ord(char1)=ord(char2) then begin
-       result:=tausch2(permute2(str,index,pos+1),permute2(str,index+1,pos+1),str,index,pos+1);
+     if (ord(char1)=ord(char2)) AND (pos<=max) then begin
+       result:=tausch2(permute2(str,index1,pos+1),permute2(str,index2,pos+1),str,index1,index2,pos+1,max);
       end
     else
     if ord(char1)>ord(char2) then begin        //ASCII indizes der Stringzeichen an der stelle i vergleichen
@@ -258,14 +258,14 @@ begin
     testtext:=edit2.text;
     orig:=testtext;
     origlaenge:=testtext.length;
-    setlength(indizes,origlaenge-1);
+    setlength(indizes,origlaenge);
     setlength(verpackt,origlaenge);
- tick1:=gettickcount;
+ tick1:=gettickcount64;
    for i:=0 to (origlaenge-1) do begin
     indizes[i]:=i;
    end;
    //neue prozedur
-   for g:=1 to origlaenge do begin                                             //bubblesort
+   {for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],1)=true then begin                                               //vergleichen
@@ -275,10 +275,10 @@ begin
                                                                                 //erhöhen von n
    end;
   until q=origlaenge-2;
-  if q=origlaenge-2 then q:=0;                                               //zurücksetzen von q
-  end;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;}
    //alte prozedur
-  {for g:=1 to origlaenge do begin                                             //bubblesort
+  for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if tausch(permute(orig,indizes[q]),permute(orig,indizes[q+1]))=true then begin                                               //vergleichen
@@ -288,8 +288,8 @@ begin
                                                                                 //erhöhen von n
    end;
   until q=origlaenge-2;
-  if q=origlaenge-2 then q:=0;                                               //zurücksetzen von q
-  end; }
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;
 
   for i:=0 to (origlaenge-1) do begin   //ohne ausgabe
   hilf2:=permute(orig,indizes[i]);
@@ -298,8 +298,9 @@ begin
 
   verpackt[i+1]:=hilf2[origlaenge];
   end;
-  tick2:=gettickcount-tick1;
-  memo1.lines[origlaenge]:=verpackt+inttostr(index);
+  tick2:=gettickcount64-tick1;
+  Memo1.lines.add(verpackt+inttostr(index));
+  //memo1.lines[origlaenge]:=verpackt+inttostr(index);
   memo1.lines.add(inttostr(tick2)+'ms');
 
   memo1.lines.add('detransformiert: ');

@@ -21,8 +21,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="257"/>
-        <CursorPos X="23" Y="263"/>
+        <TopLine Value="286"/>
+        <CursorPos X="9" Y="292"/>
         <UsageCount Value="110"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -113,8 +113,8 @@
       <Unit15>
         <Filename Value="..\..\..\kompressiontest\kompressiontestunit.pas"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="304"/>
-        <CursorPos X="3" Y="311"/>
+        <TopLine Value="272"/>
+        <CursorPos X="115" Y="278"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit15>
