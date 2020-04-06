@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="11"/>
+    <BuildModes Active="Default"/>
+    <Units Count="1">
+      <Unit0>
+        <Filename Value="recordproject.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="33"/>
+        <CursorPos X="3" Y="42"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit0>
+    </Units>
+    <JumpHistory Count="8" HistoryIndex="7">
+      <Position1>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="31" Column="12" TopLine="6"/>
+      </Position1>
+      <Position2>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="19" Column="22" TopLine="3"/>
+      </Position2>
+      <Position3>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="4" Column="17"/>
+      </Position3>
+      <Position4>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="15" Column="22" TopLine="3"/>
+      </Position4>
+      <Position5>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="20" Column="19" TopLine="5"/>
+      </Position5>
+      <Position6>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="21" Column="22" TopLine="6"/>
+      </Position6>
+      <Position7>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="9" Column="23"/>
+      </Position7>
+      <Position8>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="34" Column="12" TopLine="15"/>
+      </Position8>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+</CONFIG>
