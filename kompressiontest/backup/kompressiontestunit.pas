@@ -21,6 +21,7 @@ type
     Edit1: TEdit;
     Edit2: TEdit;
     Memo1: TMemo;
+    Memo2: TMemo;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -124,7 +125,114 @@ begin
         end;
    result:=copy(WerteKomprimiert);
 end;
+// nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
+ //möglich, um bwt weiter zu verarbeiten
+ //1 gibt nicht alle werte zurück
+function rleencodestring1(s:string):TarrayofInt ;
+var
+   i, j,r: integer;
+   letters:string;
+   counts:array of integer;
+   ausgabe:array of integer;
+ begin
 
+   j := 0;
+   setLength(counts,1);
+   setlength(letters,1);
+     letters[1]:=s[1];
+     counts[0] := 1;
+
+
+     for i := 1 to (length(s)-1) do
+       if s[i] = s[i+1]  then
+         inc(counts[j])
+       else
+       begin
+       setlength(counts,length(counts)+1);
+         setlength(letters,length(letters)+1);
+         letters[j+2]:=s[i+1];
+         inc(j);
+         counts[j] := 1;
+       end;
+
+   setLength(ausgabe,length(counts)+length(letters));
+   //nur zum test
+   {ausgabe[0]:=ord(letters[1]);
+   ausgabe[1]:=counts[0];
+   ausgabe[2]:=ord(letters[2]);
+   ausgabe[3]:=counts[1];
+   ausgabe[4]:=ord(letters[3]);
+   ausgabe[5]:=counts[2];
+   ausgabe[6]:=ord(letters[4]);
+   ausgabe[7]:=counts[3]; }
+
+
+   y:=1;
+   r:=0;
+
+  repeat
+  //ausgabe[y]:=ord(letters[r+1]);
+  ausgabe[y]:=counts[r];
+  inc(y,2);
+  inc(r,1);
+  until y>(length(ausgabe));
+
+  y:=0;
+  r:=1;
+  repeat
+  ausgabe[y]:=ord(letters[r]);
+  inc(y,2);
+  inc(r,1);
+  until y=(length(ausgabe));
+
+  result:=copy(ausgabe);
+
+
+ end;
+ //funktioniert nicht, wenn anzahl>9
+ function rleencodestring2(s:string):string;
+var
+   i, j,r: integer;
+   letters:string;
+   counts:array of integer;
+   hilf,ausgabe:string;
+ begin
+   j := 0;
+   setLength(counts,1);
+   setlength(letters,1);
+     letters[1]:=s[1];
+     counts[0] := 1;
+
+
+     for i := 1 to (length(s)-1) do
+       if s[i] = s[i+1]  then
+         inc(counts[j])
+       else
+       begin
+       setlength(counts,length(counts)+1);
+         setlength(letters,length(letters)+1);
+         letters[j+2]:=s[i+1];
+         inc(j);
+         counts[j] := 1;
+       end;
+
+   setLength(ausgabe,length(counts)+length(letters));
+
+
+   y:=1;
+   r:=0;
+
+  repeat
+  ausgabe[y]:=letters[r+1];
+  hilf:=inttostr(counts[r]);
+  ausgabe[y+1]:=hilf[1];
+  inc(y,2);
+  inc(r,1);
+  until y>(length(ausgabe));
+
+  result:=ausgabe;
+
+ end;
 function Tform1.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
 var entpackt:array of byte;
   x:byte;
@@ -265,10 +373,10 @@ begin
     indizes[i]:=i;
    end;
    //neue prozedur
-   {for g:=1 to origlaenge do begin                                             //bubblesort
+   for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
-   if tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],1)=true then begin                                               //vergleichen
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
    k:=indizes[q+1];                                                                     //dreieckstausch
    indizes[q+1]:=indizes[q];
    indizes[q]:=k;
@@ -276,9 +384,9 @@ begin
    end;
   until q=origlaenge-2;
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
-  end;}
+  end;
    //alte prozedur
-  for g:=1 to origlaenge do begin                                             //bubblesort
+ { for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if tausch(permute(orig,indizes[q]),permute(orig,indizes[q+1]))=true then begin                                               //vergleichen
@@ -289,7 +397,7 @@ begin
    end;
   until q=origlaenge-2;
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
-  end;
+  end; }
 
   for i:=0 to (origlaenge-1) do begin   //ohne ausgabe
   hilf2:=permute(orig,indizes[i]);
@@ -305,6 +413,27 @@ begin
 
   memo1.lines.add('detransformiert: ');
   memo1.lines.add(debwt(verpackt,index));
+   memo1.lines.add('mit rle:');
+  memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
+ test:=rleencodestring1(verpackt);
+ //für überprüfen der fkt
+ edit1.text:=inttostr(length(test));
+ i:=0;
+ repeat
+ Memo2.lines.add(chr(test[i]));
+ Memo2.lines.Add(inttostr(test[i+1]));
+ inc(i,2)
+ until i>(Length(test));
+ memo2.lines.clear;
+ //nur zum test
+ { Memo2.lines.add(chr(test[0]));
+  Memo2.lines.Add(inttostr(test[1]));
+  Memo2.lines.add(chr(test[2]));
+  Memo2.lines.Add(inttostr(test[3]));
+  Memo2.lines.add(chr(test[4]));
+  Memo2.lines.Add(inttostr(test[5]));
+  Memo2.lines.add(chr(test[6]));
+  Memo2.lines.Add(inttostr(test[7])); }
 
 
 
