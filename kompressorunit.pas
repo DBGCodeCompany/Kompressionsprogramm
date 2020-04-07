@@ -50,6 +50,7 @@ type
     procedure OpenSpeedButtonClick(Sender: TObject);
     procedure SaveSpeedButtonClick(Sender: TObject);
     procedure save(data:String; const Path:String);
+    function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
   private
 
   public
@@ -91,7 +92,31 @@ begin
      else result[i]:=str[index+i];
    end;
 end;
-
+function permute2(str:string;index:integer;pos:integer):char;
+var l:integer;
+begin
+   l:=length(str);
+    if (pos+index)>l then result:=str[pos+index-l]
+     else result:=str[index+pos];
+end;
+{alternative zur einfachen tauschfunktion}
+{deklaration als tform.funktion und listung unter tform}
+{rekursiv: sind die chars gleich, ruft sich die funktion}
+{selbst auf, dabei werden die nächsten chars verglichen etc}
+function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
+begin
+ result:=false;                                            //Damit result auch gesetzt ist, wenn die strings gleich sind
+     if (ord(char1)=ord(char2)) AND (pos<=max) then begin
+       result:=tausch2(permute2(str,index1,pos+1),permute2(str,index2,pos+1),str,index1,index2,pos+1,max);
+      end
+    else
+    if ord(char1)>ord(char2) then begin        //ASCII indizes der Stringzeichen an der stelle i vergleichen
+      result:=true;                                //und danach entscheiden                                      //...wenn sie geleich sind, dann eine position weiter gehen
+    end;                                           //im string und wieder vergleichen.
+    if ord(char1)<ord(char2) then begin
+      result:=false;
+    end;
+  end;
 function potenz(basis,exponent:integer):byte;                  //Potenz halt
 var
 i:integer;
@@ -102,7 +127,58 @@ begin
     for i:=1 to exponent do result:=result*basis;
     end;
   end;
+// nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
+ //möglich, um bwt weiter zu verarbeiten
+function rleencodestring(s:string):TarrayofInt ;
+var
+   i,y, j,r: integer;
+   letters:string;
+   counts:array of integer;
+   ausgabe:array of integer;
+ begin
 
+   j := 0;
+   setLength(counts,1);
+   setlength(letters,1);
+     letters[1]:=s[1];
+     counts[0] := 1;
+
+
+     for i := 1 to (length(s)-1) do
+       if s[i] = s[i+1]  then
+         inc(counts[j])
+       else
+       begin
+       setlength(counts,length(counts)+1);
+         setlength(letters,length(letters)+1);
+         letters[j+2]:=s[i+1];
+         inc(j);
+         counts[j] := 1;
+       end;
+
+   setLength(ausgabe,length(counts)+length(letters));
+
+   y:=1;
+   r:=0;
+
+  repeat
+  ausgabe[y]:=counts[r];
+  inc(y,2);
+  inc(r,1);
+  until y>(length(ausgabe));
+
+  y:=0;
+  r:=1;
+  repeat
+  ausgabe[y]:=ord(letters[r]);
+  inc(y,2);
+  inc(r,1);
+  until y=(length(ausgabe));
+
+  result:=copy(ausgabe);
+
+
+ end;
 function bittobyte(bits:string):Tarrayofbyte;        //schreibt ein string mit 1/0 in ein Tarrayofbyte um. Dabei werden
 var                                                  //immer 8 zeichen des Strings zu einem byte-Wert zusammengefasst
   i,n,lenge:integer;                                 //(bsp.: '101'->5
@@ -493,6 +569,43 @@ for i:=0 to high(indizes) do begin
     result:=result+str[length(str)];                         //den letzten Buchstaben der Tabbelenzeile abspeichern
  end;
 end;
+{------------------------------------------------------------------------------}
+{-----------------Burrows-Wheeler-Transformation-Decodierung-------------------}
+function debwt(trans:string;index:integer):string;
+var
+  i,n,len,k:integer;
+  orig:string;
+  indizes:array of integer;
+  chr:char;
+begin
+   len:=length(trans);
+   orig:=trans;                                         //die originaldaten speichern
+   setlength(indizes,len);                                 //für die indizes in den originaldaten
+   for i:=1 to len do indizes[i-1]:=i;             //die indizes initialisieren
+
+   n:=0;
+   for i:=1 to len do begin                                             //bubblesort
+   repeat
+   n:=n+1;
+   if ord(orig[n])>ord(orig[n+1]) then begin                                    //vergleichen
+   chr:=orig[n];                                                                  //dreieckstausch der chars
+   orig[n]:=orig[n+1];
+   orig[n+1]:=chr;
+
+   k:=indizes[n-1];                                                               //dreieckstausch der indizes
+   indizes[n-1]:=indizes[n];
+   indizes[n]:=k;
+   end;
+  until n=len-1;
+  if n=len-1 then n:=0;                                               //zurücksetzen von q
+  end;
+
+  result:='';
+  for i:=1 to len do begin
+   result:=result+orig[index];
+   index:=indizes[index-1];
+  end;
+end;
 {$R *.lfm}
 
 { TKompressorForm }
@@ -521,6 +634,13 @@ var
   origdata: array of byte;
   Komprimiert: array of integer;
   rledata,startdata:Tarrayofstring;
+  //für bwt:
+  {origstr:string;
+  origlaenge:integer;
+  hilf:string;
+  indizes:array of integer;
+  g,q,k:integer;
+  }
 begin
 //DATEN LADEN:
  startdata:=SarrayausDAtei(OpenPathEdit.text);
@@ -616,6 +736,40 @@ if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox
 if BWTCheckBox.checked=true then begin
    data:=Memo.lines[0];
    Memo.lines.add(bwt(data));
+   //bwt verbessert -> einlesen noch nicht fertig (aber eigentlich nur origstr:=data)
+   { q:=-1;
+
+
+    origstr:=;//einlesen!!
+    origlaenge:=origstr.length;
+    setlength(indizes,origlaenge);
+    setlength(verpackt,origlaenge);
+   for i:=0 to (origlaenge-1) do begin
+    indizes[i]:=i;
+   end;
+
+   for g:=1 to origlaenge do begin                                             //bubblesort
+   repeat
+   q:=q+1;
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
+   k:=indizes[q+1];                                                                     //dreieckstausch
+   indizes[q+1]:=indizes[q];
+   indizes[q]:=k;
+                                                                                //erhöhen von n
+   end;
+  until q=origlaenge-2;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;
+
+  for i:=0 to (origlaenge-1) do begin
+  hilf:=permute(origstr,indizes[i]);
+ // memo.lines[i]:=hilf;    //ausgabe im memo
+  if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
+  verpackt[i+1]:=hilf[origlaenge];
+  end;
+  Memo.lines.add(verpackt+inttostr(index)); }
+  //rleencodestring mit ergebnis (verpackt+inttostr(index))
+  //direkt möglich (vorherige kontrolle, ob rle auch haken?
   end;
 end;
 
