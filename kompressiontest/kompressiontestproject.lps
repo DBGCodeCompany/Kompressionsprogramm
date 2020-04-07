@@ -21,8 +21,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="412"/>
-        <CursorPos X="30" Y="420"/>
+        <TopLine Value="270"/>
+        <CursorPos X="12" Y="288"/>
+        <FoldState Value=" T4602 TLj20N044 T7GBJ TMkO0102161 T8V21]73iA0A5 pjIkP1g014[L46iB018 T1iD07[T45kS1a[T70iGK3G piamaW3]c2sd24X"/>
         <UsageCount Value="111"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -113,8 +114,9 @@
       <Unit15>
         <Filename Value="..\..\..\kompressiontest\kompressiontestunit.pas"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="437"/>
-        <CursorPos X="6" Y="472"/>
+        <TopLine Value="248"/>
+        <CursorPos X="12" Y="264"/>
+        <FoldState Value=" T4602 TLpY2D3 T7GBJ T8V211 T3iA0A5 pjIk11g013]B2l30A1[U46iB018 T1iD07[c45k41a[c5iYkf09[c50iGK3F]JdmUQ5B TMk011/"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit15>
@@ -123,7 +125,6 @@
         <EditorIndex Value="2"/>
         <TopLine Value="517"/>
         <CursorPos Y="543"/>
-        <FoldState Value=" T4E02 T7RKT T8i9211 T3iM0F5 pj1jT0M7 pifja0D4]9gjP0R3]R4k00R2]9WkP0%].6iN01O T1iP0C6[Y5A189]qYkN2U4]I8kZ0G01[s4Il90@]s0iRU9M]bfndX6G]9ak6a2617]b2kBa4D[,4j6W36 TMjg01L"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit16>
@@ -247,7 +248,7 @@
       </Position29>
       <Position30>
         <Filename Value="kompressiontestunit.pas"/>
-        <Caret Line="404" Column="7" TopLine="416"/>
+        <Caret Line="363" TopLine="208"/>
       </Position30>
     </JumpHistory>
     <RunParams>

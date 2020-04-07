@@ -416,9 +416,9 @@ begin
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
   end; }
 
-  for i:=0 to (origlaenge-1) do begin   //ohne ausgabe
-  hilf2:=permute(orig,indizes2[i]);
-  memo1.lines[i]:=hilf2;
+  for i:=0 to (origlaenge-1) do begin
+  hilf2:=permute(orig,indizes[i]);
+ // memo1.lines[i]:=hilf2;    //ausgabe im memo
   if hilf2=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
   verpackt[i+1]:=hilf2[origlaenge];
   end;

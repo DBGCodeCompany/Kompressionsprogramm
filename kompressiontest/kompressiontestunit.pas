@@ -248,7 +248,45 @@ var
   result:=ausgabe;
 
  end;
-function Tform1.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+ function rledecodestring(werte:TArrayofInt):string;
+ var //n:integer;
+    z,y,x,m:integer;
+    ausgabe:string;
+    chars:string;
+ begin
+  n:=0;
+  i:=1;
+  z:=1;
+  m:=1;
+
+  setlength(chars,(length(werte) div 2));
+
+
+  repeat
+  n:=n+werte[i];
+  if m<5 then chars[m]:=chr(werte[i-1]);
+  inc(i,2);
+  inc(m,1);
+  until i>(length(werte)-1);
+
+  setLength(ausgabe,n);
+
+  x:=1;
+  m:=1;
+  repeat
+  for y:=1 to Werte[x] do begin
+         ausgabe[z]:=chars[m];
+         Inc(z,1);
+      end ;
+  inc(m,1);
+  Inc(x,2);
+  if m=length(chars) then ausgabe[z]:=chars[m];
+  until x>(length(ausgabe)) ;
+
+  result:=ausgabe;
+
+ end;
+ function Tform1.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
 var entpackt:array of byte;
   x:byte;
 begin
@@ -441,7 +479,11 @@ begin
  inc(i,2)
  until i=(Length(test));
 
-
+  memo1.lines.Add('rle detransformiert:');
+ hilf:=rledecodestring(test);
+ memo1.lines.add(hilf);
+ edit1.text:=inttostr(length(hilf));
+// memo1.lines.add(rledecodestring(test));
 
 
 
