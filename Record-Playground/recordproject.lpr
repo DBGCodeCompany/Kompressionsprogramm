@@ -5,8 +5,8 @@ sysutils,classes;
 
 type                                              //um den record abspeichern zu können müssen die strings
   TDatensatz =record                              //und arrays leider statisch sein...
-    str:string[20];
-    Astr: array[0..2] of string[20];
+    str:string;
+    Astr: array of shortstring;
   end;
 
   var
@@ -36,7 +36,9 @@ begin
   else begin
   writeln('Wie heisst der Datensatz?');
   readln(daten.str);
-  writeln('Wie viele Namen haben Sie? Egal Sie koennen und muessen nur drei angeben.');
+  writeln('Wie viele Namen haben Sie?');
+  readln(go);
+  setlength(daten.Astr,inttostr(go));
   for i:=0 to high(daten.Astr) do readln(daten.Astr[i]);
   Writeln();
   Writeln('Datensatz: '+daten.str);

@@ -18,9 +18,10 @@
         <ComponentName Value="KompressorForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="64"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="517"/>
         <CursorPos X="11" Y="106"/>
-        <FoldState Value=" T4E02 T3iN0F326 T6iO0121A T1iQ0C21119 T0iSU9M pifndX6G]9ak6a2213[U4Mk001W"/>
+        <FoldState Value=" T4E02 TLwT25091 T8iA21]83iN0F7 pibjQ0C6]9ZjI0H3]9djP0k]9jKkX0M4 pm5mg0%]/6iO01P[i4yF06 T1i]yA]GekQ09[=4fkF0M[y4GkR0S5 plWnc0@]y0iSU9L[y4mVX6E]9YkEQ5G]9dk1y39[I4jQb2B]-NjYYaB TMq401071^"/>
         <UsageCount Value="91"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -46,13 +47,12 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="290"/>
         <CursorPos X="19" Y="318"/>
-        <FoldState Value=" T4602 TLj20N0411]CMkO01081 T8V21]73iA0A5 pjIkP1g11[L56iB014[A41iD07[V45kS1a[V70iGK3F piXlfW34 T2re24E"/>
+        <FoldState Value=" T4602 TLj20N041 TMkO0]78V21]73iA0A5 T6iB013 T1iD07]G0iGK3EP"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit4>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">

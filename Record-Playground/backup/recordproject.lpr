@@ -36,7 +36,7 @@ begin
   else begin
   writeln('Wie heisst der Datensatz?');
   readln(daten.str);
-  writeln('Wie viele Namen haben Sie? Egal Sie können und müssen nur drei angeben.');
+  writeln('Wie viele Namen haben Sie? Egal Sie koennen und muessen nur drei angeben.');
   for i:=0 to high(daten.Astr) do readln(daten.Astr[i]);
   Writeln();
   Writeln('Datensatz: '+daten.str);
