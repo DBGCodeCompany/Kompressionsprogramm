@@ -28,6 +28,7 @@ type
     procedure FormCreate(Sender: TObject);
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
+    //function bwt(indizes:array of integer;origlaenge:integer;orig:string):TArrayofInt;
   private
 
   public
@@ -85,6 +86,31 @@ begin
     if (pos+index)>l then result:=str[pos+index-l]
      else result:=str[index+pos];
 end;
+{function TForm1.bwt(indizes:array of integer;origlaenge:integer;orig:string):TArrayofInt;
+var q,k,g:integer;
+begin
+
+   q:=-1;
+
+
+   //neue prozedur
+   for g:=1 to origlaenge do begin                                             //bubblesort
+   repeat
+   q:=q+1;
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
+   k:=indizes[q+1];                                                                     //dreieckstausch
+   indizes[q+1]:=indizes[q];
+   indizes[q]:=k;
+                                                                                //erhöhen von n
+   end;
+  until q=origlaenge-2;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;
+
+
+   result:=ausgabe;
+end; }
+
 {alternative zur einfachen tauschfunktion}
 {deklaration als tform.funktion und listung unter tform}
 {rekursiv: sind die chars gleich, ruft sich die funktion}
@@ -127,7 +153,6 @@ begin
 end;
 // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
  //möglich, um bwt weiter zu verarbeiten
- //1 gibt nicht alle werte zurück
 function rleencodestring1(s:string):TarrayofInt ;
 var
    i, j,r: integer;
@@ -156,16 +181,6 @@ var
        end;
 
    setLength(ausgabe,length(counts)+length(letters));
-   //nur zum test
-   {ausgabe[0]:=ord(letters[1]);
-   ausgabe[1]:=counts[0];
-   ausgabe[2]:=ord(letters[2]);
-   ausgabe[3]:=counts[1];
-   ausgabe[4]:=ord(letters[3]);
-   ausgabe[5]:=counts[2];
-   ausgabe[6]:=ord(letters[4]);
-   ausgabe[7]:=counts[3]; }
-
 
    y:=1;
    r:=0;
@@ -368,10 +383,12 @@ begin
     origlaenge:=testtext.length;
     setlength(indizes,origlaenge);
     setlength(verpackt,origlaenge);
- tick1:=gettickcount64;
+   tick1:=gettickcount64;
    for i:=0 to (origlaenge-1) do begin
     indizes[i]:=i;
    end;
+
+  // indizes:=bwt(indizes,origlaenge,orig);
    //neue prozedur
    for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
@@ -399,11 +416,10 @@ begin
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
   end; }
 
-  for i:=0 to (origlaenge-1) do begin   //ohne ausgabe
+  for i:=0 to (origlaenge-1) do begin
   hilf2:=permute(orig,indizes[i]);
-  memo1.lines[i]:=hilf2;
+ // memo1.lines[i]:=hilf2;    //ausgabe im memo
   if hilf2=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-
   verpackt[i+1]:=hilf2[origlaenge];
   end;
   tick2:=gettickcount64-tick1;
@@ -415,8 +431,7 @@ begin
   memo1.lines.add(debwt(verpackt,index));
    memo1.lines.add('mit rle:');
   memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
- test:=rleencodestring1(verpackt);
- //für überprüfen der fkt
+ test:=rleencodestring1(verpackt+inttostr(index));
  edit1.text:=inttostr(length(test));
  memo2.lines.clear;
  i:=0;
@@ -424,23 +439,15 @@ begin
  Memo2.lines.add(chr(test[i]));
  Memo2.lines.Add(inttostr(test[i+1]));
  inc(i,2)
- until i>(Length(test));
-
- //nur zum test
- { Memo2.lines.add(chr(test[0]));
-  Memo2.lines.Add(inttostr(test[1]));
-  Memo2.lines.add(chr(test[2]));
-  Memo2.lines.Add(inttostr(test[3]));
-  Memo2.lines.add(chr(test[4]));
-  Memo2.lines.Add(inttostr(test[5]));
-  Memo2.lines.add(chr(test[6]));
-  Memo2.lines.Add(inttostr(test[7])); }
+ until i=(Length(test));
 
 
 
 
 
 
+
+    //alte bwt
  { tabelle:=TStringlist.Create;
    testtext:=edit2.text;
    orig:=testtext;
@@ -474,7 +481,7 @@ begin
   }
 
  // edit1.text:=verpackt+inttostr(index);
-
+ //altes rle
  { startwert:=strtoint(memo1.lines[0]);
 
   setLength(test2,memo1.lines.count);
