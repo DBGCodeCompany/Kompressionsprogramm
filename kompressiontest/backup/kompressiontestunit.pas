@@ -28,7 +28,7 @@ type
     procedure FormCreate(Sender: TObject);
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
-    //function bwt(indizes:array of integer;origlaenge:integer;orig:string):TArrayofInt;
+    function bwt(indizes:array of integer;origlaenge:integer;orig:string):TArrayofInt;
   private
 
   public
@@ -300,7 +300,8 @@ var
 
  end;
  function rledecodestring2(werte:TArrayofInt):string;
-  var //n:integer;
+  var
+     //n:integer;
      z,y,m:integer;
      ausgabe:string;
      chars:string;
@@ -368,6 +369,30 @@ begin
 end;
    result:=copy(entpackt);
 
+end;
+ function TForm1.bwt(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
+var q,k,g:integer;
+begin
+
+   q:=-1;
+
+
+   //neue prozedur
+   for g:=1 to origlaenge do begin                                             //bubblesort
+   repeat
+   q:=q+1;
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
+   k:=indizes[q+1];                                                                     //dreieckstausch
+   indizes[q+1]:=indizes[q];
+   indizes[q]:=k;
+                                                                                //erhöhen von n
+   end;
+  until q=origlaenge-2;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;
+
+
+   result:=indizes;
 end;
 
 function debwt(trans:string;index:integer):string;
@@ -477,9 +502,9 @@ begin
     indizes[i]:=i;
    end;
 
-  // indizes:=bwt(indizes,origlaenge,orig);
+   indizes:=bwt(indizes,origlaenge,orig);
    //neue prozedur
-   for g:=1 to origlaenge do begin                                             //bubblesort
+   {for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
@@ -490,7 +515,7 @@ begin
    end;
   until q=origlaenge-2;
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
-  end;
+  end; }
    //alte prozedur
  { for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
