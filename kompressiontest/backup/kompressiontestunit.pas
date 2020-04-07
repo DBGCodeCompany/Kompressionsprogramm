@@ -182,7 +182,20 @@ var
 
    setLength(ausgabe,length(counts)+length(letters));
 
-   y:=1;
+    r:=1;
+   y:=0;
+
+   for i:=0 to Length(ausgabe) do begin
+      if (i mod 2) = 0 then  begin
+      ausgabe[i]:=ord(letters[r]);
+     inc(r,1);
+      end
+       else  begin
+     ausgabe[i]:=counts[y];
+    inc(y,1);
+   end;
+   end;
+   {y:=1;
    r:=0;
 
   repeat
@@ -198,7 +211,7 @@ var
   ausgabe[y]:=ord(letters[r]);
   inc(y,2);
   inc(r,1);
-  until y=(length(ausgabe));
+  until y=(length(ausgabe)); }
 
   result:=copy(ausgabe);
 
@@ -248,7 +261,83 @@ var
   result:=ausgabe;
 
  end;
-function Tform1.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+ function rledecodestring(werte:TArrayofInt):string;
+ var //n:integer;
+    z,y,x,m:integer;
+    ausgabe:string;
+    chars:string;
+ begin
+  n:=0;
+  i:=1;
+  z:=1;
+  m:=1;
+
+  setlength(chars,(length(werte) div 2));
+
+
+  repeat
+  n:=n+werte[i];
+  if m<5 then chars[m]:=chr(werte[i-1]);
+  inc(i,2);
+  inc(m,1);
+  until i>(length(werte)-1);
+
+  setLength(ausgabe,n);
+
+  x:=1;
+  m:=1;
+  repeat
+  for y:=1 to Werte[x] do begin
+         ausgabe[z]:=chars[m];
+         Inc(z,1);
+      end ;
+  inc(m,1);
+  Inc(x,2);
+  if m=length(chars) then ausgabe[z]:=chars[m];
+  until x>(length(ausgabe)) ;
+
+  result:=ausgabe;
+
+ end;
+ function rledecodestring2(werte:TArrayofInt):string;
+  var //n:integer;
+     z,y,m:integer;
+     ausgabe:string;
+     chars:string;
+  begin
+   n:=0;
+   i:=1;
+   z:=1;
+   m:=1;
+
+   setlength(chars,(length(werte) div 2));
+
+     for i:=0 to (Length(Werte)-1) do begin
+      if (i mod 2) = 0 then  begin
+        chars[m]:=chr(werte[i]);
+        inc(m,1);
+      end
+       else  begin
+        n:=n+werte[i];
+     end;
+   end;
+
+   setLength(ausgabe,n);
+
+  m:=1;
+
+  for i:=0 to (Length(Werte)-1) do begin
+   if (i mod 2) <> 0 then  begin
+        for y:=1 to Werte[i]do  begin
+         ausgabe[z]:=chars[m];
+         Inc(z,1);
+      end;
+       Inc(m,1);
+       end;
+ end;
+     result:=ausgabe;
+  end;
+ function Tform1.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
 var entpackt:array of byte;
   x:byte;
 begin
@@ -418,7 +507,7 @@ begin
 
   for i:=0 to (origlaenge-1) do begin
   hilf2:=permute(orig,indizes[i]);
- // memo1.lines[i]:=hilf2;    //ausgabe im memo
+  memo1.lines[i]:=hilf2;    //ausgabe im memo
   if hilf2=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
   verpackt[i+1]:=hilf2[origlaenge];
   end;
@@ -441,7 +530,11 @@ begin
  inc(i,2)
  until i=(Length(test));
 
-
+  memo1.lines.Add('rle detransformiert:');
+ hilf:=rledecodestring2(test);
+ memo1.lines.add(hilf);
+ edit1.text:=inttostr(length(hilf));
+// memo1.lines.add(rledecodestring(test));
 
 
 
