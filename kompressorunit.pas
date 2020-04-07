@@ -51,6 +51,7 @@ type
     procedure SaveSpeedButtonClick(Sender: TObject);
     procedure save(data:String; const Path:String);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
+    function bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
   private
 
   public
@@ -389,9 +390,7 @@ begin
         end;
    result:=copy(WerteKomprimiert);
 end;
-// nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
- //möglich, um bwt weiter zu verarbeiten
-function rleencodestring(s:string):TarrayofInt ;
+function rleencodestring(s:string):TarrayofInt ;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
 var
    i,y, j,r: integer;
    letters:string;
@@ -477,8 +476,8 @@ end;
 end;
  function rledecodestring(werte:TArrayofInt):string;
    var
-      //n:integer;
-      z,y,m:integer;
+
+      z,y,m,n,i:integer;
       ausgabe:string;
       chars:string;
    begin
@@ -605,6 +604,30 @@ for i:=0 to high(indizes) do begin
     str:=permute(data,i);
     result:=result+str[length(str)];                         //den letzten Buchstaben der Tabbelenzeile abspeichern
  end;
+end;
+function TKompressorForm.bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
+var q,k,g:integer;
+begin
+
+   q:=-1;
+
+
+   //neue prozedur
+   for g:=1 to origlaenge do begin                                             //bubblesort
+   repeat
+   q:=q+1;
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
+   k:=indizes[q+1];                                                                     //dreieckstausch
+   indizes[q+1]:=indizes[q];
+   indizes[q]:=k;
+                                                                                //erhöhen von n
+   end;
+  until q=origlaenge-2;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;
+
+
+   result:=indizes;
 end;
 {------------------------------------------------------------------------------}
 {-----------------Burrows-Wheeler-Transformation-Decodierung-------------------}
@@ -773,11 +796,11 @@ if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox
 if BWTCheckBox.checked=true then begin
    data:=Memo.lines[0];
    Memo.lines.add(bwt(data));
-   //bwt verbessert -> einlesen noch nicht fertig (aber eigentlich nur origstr:=data)
+   //bwt verbessert
    { q:=-1;
 
 
-    origstr:=;//einlesen!!
+    origstr:=data;//einlesen?!
     origlaenge:=origstr.length;
     setlength(indizes,origlaenge);
     setlength(verpackt,origlaenge);
@@ -785,7 +808,8 @@ if BWTCheckBox.checked=true then begin
     indizes[i]:=i;
    end;
 
-   for g:=1 to origlaenge do begin                                             //bubblesort
+   indizes:=bwt2(indizes,origlaenge,orig);
+  { for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
    if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
@@ -796,11 +820,11 @@ if BWTCheckBox.checked=true then begin
    end;
   until q=origlaenge-2;
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
-  end;
+  end;}
 
   for i:=0 to (origlaenge-1) do begin
   hilf:=permute(origstr,indizes[i]);
- // memo.lines[i]:=hilf;    //ausgabe im memo
+ // memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
   if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
   verpackt[i+1]:=hilf[origlaenge];
   end;

@@ -127,58 +127,7 @@ begin
     for i:=1 to exponent do result:=result*basis;
     end;
   end;
-// nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
- //möglich, um bwt weiter zu verarbeiten
-function rleencodestring(s:string):TarrayofInt ;
-var
-   i,y, j,r: integer;
-   letters:string;
-   counts:array of integer;
-   ausgabe:array of integer;
- begin
 
-   j := 0;
-   setLength(counts,1);
-   setlength(letters,1);
-     letters[1]:=s[1];
-     counts[0] := 1;
-
-
-     for i := 1 to (length(s)-1) do
-       if s[i] = s[i+1]  then
-         inc(counts[j])
-       else
-       begin
-       setlength(counts,length(counts)+1);
-         setlength(letters,length(letters)+1);
-         letters[j+2]:=s[i+1];
-         inc(j);
-         counts[j] := 1;
-       end;
-
-   setLength(ausgabe,length(counts)+length(letters));
-
-   y:=1;
-   r:=0;
-
-  repeat
-  ausgabe[y]:=counts[r];
-  inc(y,2);
-  inc(r,1);
-  until y>(length(ausgabe));
-
-  y:=0;
-  r:=1;
-  repeat
-  ausgabe[y]:=ord(letters[r]);
-  inc(y,2);
-  inc(r,1);
-  until y=(length(ausgabe));
-
-  result:=copy(ausgabe);
-
-
- end;
 function bittobyte(bits:string):Tarrayofbyte;        //schreibt ein string mit 1/0 in ein Tarrayofbyte um. Dabei werden
 var                                                  //immer 8 zeichen des Strings zu einem byte-Wert zusammengefasst
   i,n,lenge:integer;                                 //(bsp.: '101'->5
@@ -440,6 +389,55 @@ begin
         end;
    result:=copy(WerteKomprimiert);
 end;
+// nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
+ //möglich, um bwt weiter zu verarbeiten
+function rleencodestring(s:string):TarrayofInt ;
+var
+   i,y, j,r: integer;
+   letters:string;
+   counts:array of integer;
+   ausgabe:array of integer;
+ begin
+
+   j := 0;
+   setLength(counts,1);
+   setlength(letters,1);
+     letters[1]:=s[1];
+     counts[0] := 1;
+
+
+     for i := 1 to (length(s)-1) do
+       if s[i] = s[i+1]  then
+         inc(counts[j])
+       else
+       begin
+       setlength(counts,length(counts)+1);
+         setlength(letters,length(letters)+1);
+         letters[j+2]:=s[i+1];
+         inc(j);
+         counts[j] := 1;
+       end;
+
+   setLength(ausgabe,length(counts)+length(letters));
+
+    r:=1;
+   y:=0;
+
+   for i:=0 to Length(ausgabe) do begin
+      if (i mod 2) = 0 then  begin
+      ausgabe[i]:=ord(letters[r]);
+     inc(r,1);
+      end
+       else  begin
+     ausgabe[i]:=counts[y];
+    inc(y,1);
+   end;
+   end;
+
+  result:=copy(ausgabe);
+
+
+ end;
 {------------------------------------------------------------------------------}
 {-----------------Run-Length-Encoding entpacken--------------------------------}
  function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
@@ -477,6 +475,45 @@ end;
    result:=copy(entpackt);
 
 end;
+ function rledecodestring(werte:TArrayofInt):string;
+   var
+      //n:integer;
+      z,y,m:integer;
+      ausgabe:string;
+      chars:string;
+   begin
+    n:=0;
+    i:=1;
+    z:=1;
+    m:=1;
+
+    setlength(chars,(length(werte) div 2));
+
+      for i:=0 to (Length(Werte)-1) do begin
+       if (i mod 2) = 0 then  begin
+         chars[m]:=chr(werte[i]);
+         inc(m,1);
+       end
+        else  begin
+         n:=n+werte[i];
+      end;
+    end;
+
+    setLength(ausgabe,n);
+
+   m:=1;
+
+   for i:=0 to (Length(Werte)-1) do begin
+    if (i mod 2) <> 0 then  begin
+         for y:=1 to Werte[i]do  begin
+          ausgabe[z]:=chars[m];
+          Inc(z,1);
+       end;
+        Inc(m,1);
+        end;
+  end;
+      result:=ausgabe;
+   end;
 {------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
 function alphacode(data:string):string;         //Optimiert das Alphabet, das data nutzt indem es ein neues
