@@ -370,7 +370,7 @@ end;
    result:=copy(entpackt);
 
 end;
- function TForm1.bwt(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
+function TForm1.bwt(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
 var q,k,g:integer;
 begin
 

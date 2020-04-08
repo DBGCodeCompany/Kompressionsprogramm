@@ -390,9 +390,7 @@ begin
         end;
    result:=copy(WerteKomprimiert);
 end;
-// nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
- //möglich, um bwt weiter zu verarbeiten
-function rleencodestring(s:string):TarrayofInt ;
+function rleencodestring(s:string):TarrayofInt ;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
 var
    i,y, j,r: integer;
    letters:string;
