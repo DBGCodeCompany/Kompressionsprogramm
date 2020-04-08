@@ -93,25 +93,25 @@ begin
      else result[i]:=str[index+i];
    end;
 end;
-function permute2(str:string;index:integer;pos:integer):char;
+function permute2(str:string;index:integer;pos:integer):char;   //gibt die permutation als einzelnen char zurück
 var l:integer;
 begin
    l:=length(str);
     if (pos+index)>l then result:=str[pos+index-l]
      else result:=str[index+pos];
 end;
-{alternative zur einfachen tauschfunktion}
+{alternative zur einfachen tauschfunktion, vorteil, da nicht die gesamte permutation erstellt wird}
 {deklaration als tform.funktion und listung unter tform}
 {rekursiv: sind die chars gleich, ruft sich die funktion}
 {selbst auf, dabei werden die nächsten chars verglichen etc}
-function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
+function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen , übergabewerte sind für rekursion notwendig
 begin
  result:=false;                                            //Damit result auch gesetzt ist, wenn die strings gleich sind
      if (ord(char1)=ord(char2)) AND (pos<=max) then begin
        result:=tausch2(permute2(str,index1,pos+1),permute2(str,index2,pos+1),str,index1,index2,pos+1,max);
       end
     else
-    if ord(char1)>ord(char2) then begin        //ASCII indizes der Stringzeichen an der stelle i vergleichen
+    if ord(char1)>ord(char2) then begin        //ASCII indizes der chars vergleichen
       result:=true;                                //und danach entscheiden                                      //...wenn sie geleich sind, dann eine position weiter gehen
     end;                                           //im string und wieder vergleichen.
     if ord(char1)<ord(char2) then begin
@@ -392,42 +392,42 @@ begin
 end;
 function rleencodestring(s:string):TarrayofInt ;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
 var
-   i,y, j,r: integer;
-   letters:string;
-   counts:array of integer;
+   i,y, j,r: integer;      //hauptsächlich laufvariablen
+   letters:string;          //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
+   counts:array of integer;   //speichert, wie oft welcher char vorkommt
    ausgabe:array of integer;
  begin
 
    j := 0;
    setLength(counts,1);
    setlength(letters,1);
-     letters[1]:=s[1];
-     counts[0] := 1;
+     letters[1]:=s[1];       //erster char wird eingelesen
+     counts[0] := 1;         //dieser kommt mind. einmal vor
 
 
      for i := 1 to (length(s)-1) do
-       if s[i] = s[i+1]  then
-         inc(counts[j])
+       if s[i] = s[i+1]  then      //wenn gleich, dann
+         inc(counts[j])            //zähle einen mehr
        else
-       begin
-       setlength(counts,length(counts)+1);
+       begin                        //wenn nicht
+       setlength(counts,length(counts)+1);       //array-erweiterung
          setlength(letters,length(letters)+1);
-         letters[j+2]:=s[i+1];
+         letters[j+2]:=s[i+1];        //nächster char wird gespeichert
          inc(j);
-         counts[j] := 1;
+         counts[j] := 1;              //auch dieser kommt mind. einmal vor
        end;
 
-   setLength(ausgabe,length(counts)+length(letters));
+   setLength(ausgabe,length(counts)+length(letters));  //ausgabe setzt sich aus beiden array zusammen
 
     r:=1;
    y:=0;
 
    for i:=0 to Length(ausgabe) do begin
-      if (i mod 2) = 0 then  begin
+      if (i mod 2) = 0 then  begin     //in alle geraden plätze wird der asciicode der chars geschrieben
       ausgabe[i]:=ord(letters[r]);
      inc(r,1);
       end
-       else  begin
+       else  begin                    //in alle ungeraden plätze wird die anzahl geschrieben
      ausgabe[i]:=counts[y];
     inc(y,1);
    end;
@@ -474,37 +474,36 @@ end;
    result:=copy(entpackt);
 
 end;
- function rledecodestring(werte:TArrayofInt):string;
+ function rledecodestring(werte:TArrayofInt):string;      //entpackt einen mit rleencodestring verpackten string
    var
-
-      z,y,m,n,i:integer;
-      ausgabe:string;
-      chars:string;
+      z,y,m,n,i:integer;   //hauptsächlich laufvariablen
+      ausgabe:string;      //entpackter string
+      chars:string;        //die chars, aus denen der ex-string bestand
    begin
     n:=0;
     i:=1;
     z:=1;
     m:=1;
 
-    setlength(chars,(length(werte) div 2));
+    setlength(chars,(length(werte) div 2));  //array ist immer durch 2 teilbar, da jedem char eine zahl zugeordnet wird
 
       for i:=0 to (Length(Werte)-1) do begin
-       if (i mod 2) = 0 then  begin
-         chars[m]:=chr(werte[i]);
+       if (i mod 2) = 0 then  begin    //hinter den geraden zahlen verstecken sich die buchstaben in asciicode
+         chars[m]:=chr(werte[i]);      //aus asciicode wird wieder ein char
          inc(m,1);
        end
         else  begin
-         n:=n+werte[i];
+         n:=n+werte[i];      //zählen, wie lang der string ehemalig war (jede 2. Zahl gibt an, wie oft ein buchstabe vorhanden ist)
       end;
     end;
 
-    setLength(ausgabe,n);
+    setLength(ausgabe,n);  //ausgabe auf finale länge setzen
 
    m:=1;
 
    for i:=0 to (Length(Werte)-1) do begin
-    if (i mod 2) <> 0 then  begin
-         for y:=1 to Werte[i]do  begin
+    if (i mod 2) <> 0 then  begin        //bei ungeraden zahlen ausführen
+         for y:=1 to Werte[i]do  begin   //der buchstabe wird sooft in die ausgabe geschrieben, wie es der ihm zugeordnete wert vorgibt
           ausgabe[z]:=chars[m];
           Inc(z,1);
        end;
@@ -611,12 +610,12 @@ begin
 
    q:=-1;
 
-
+    //bwt findet allein anhand des arrays indizes statt, sodass weniger speicher benötigt wird
    //neue prozedur
-   for g:=1 to origlaenge do begin                                             //bubblesort
+   for g:=1 to origlaenge do begin                                             //basiert auf bubblesort
    repeat
-   q:=q+1;
-   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
+   q:=q+1;                //hier wird überprüft, ob getauscht werden soll
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin //vergleichen
    k:=indizes[q+1];                                                                     //dreieckstausch
    indizes[q+1]:=indizes[q];
    indizes[q]:=k;
@@ -627,7 +626,7 @@ begin
   end;
 
 
-   result:=indizes;
+   result:=indizes;   //ausgabe des nun 'sortierten' arrays
 end;
 {------------------------------------------------------------------------------}
 {-----------------Burrows-Wheeler-Transformation-Decodierung-------------------}
@@ -795,9 +794,9 @@ if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox
 {-------------------------BURROWS-WHEELER--------------------------------------}
 if BWTCheckBox.checked=true then begin
    data:=Memo.lines[0];
-   Memo.lines.add(bwt(data));
+  //alter bwt Memo.lines.add(bwt(data));
    //bwt verbessert
-   { q:=-1;
+    q:=-1;
 
 
     origstr:=data;//einlesen?!
@@ -808,7 +807,7 @@ if BWTCheckBox.checked=true then begin
     indizes[i]:=i;
    end;
 
-   indizes:=bwt2(indizes,origlaenge,orig);
+   indizes:=bwt2(indizes,origlaenge,orig);  //ersetzt unten auskommentierte schleife als funbktion
   { for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
@@ -822,14 +821,14 @@ if BWTCheckBox.checked=true then begin
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
   end;}
 
-  for i:=0 to (origlaenge-1) do begin
-  hilf:=permute(origstr,indizes[i]);
+  for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
+  hilf:=permute(origstr,indizes[i]);       //erstellen der vollständigen permutation
  // memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
   if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-  verpackt[i+1]:=hilf[origlaenge];
+  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
   end;
-  Memo.lines.add(verpackt+inttostr(index)); }
-  //rleencodestring mit ergebnis (verpackt+inttostr(index))
+  Memo.lines.add(verpackt+inttostr(index));
+  //rleencodestring mit bwt-ergebnis (verpackt+inttostr(index))
   //direkt möglich (vorherige kontrolle, ob rle auch haken?
   end;
 end;
