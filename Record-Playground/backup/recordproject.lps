@@ -9,13 +9,12 @@
         <Filename Value="recordproject.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="33"/>
-        <CursorPos X="3" Y="42"/>
-        <UsageCount Value="20"/>
+        <CursorPos X="26" Y="9"/>
+        <UsageCount Value="25"/>
         <Loaded Value="True"/>
       </Unit0>
     </Units>
-    <JumpHistory Count="8" HistoryIndex="7">
+    <JumpHistory Count="17" HistoryIndex="16">
       <Position1>
         <Filename Value="recordproject.lpr"/>
         <Caret Line="31" Column="12" TopLine="6"/>
@@ -48,6 +47,42 @@
         <Filename Value="recordproject.lpr"/>
         <Caret Line="34" Column="12" TopLine="15"/>
       </Position8>
+      <Position9>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="42" Column="3" TopLine="33"/>
+      </Position9>
+      <Position10>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="31" Column="81" TopLine="14"/>
+      </Position10>
+      <Position11>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="45" Column="32" TopLine="30"/>
+      </Position11>
+      <Position12>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="62" Column="49" TopLine="43"/>
+      </Position12>
+      <Position13>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="70" Column="16" TopLine="46"/>
+      </Position13>
+      <Position14>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="68" Column="15" TopLine="50"/>
+      </Position14>
+      <Position15>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="30" Column="31" TopLine="7"/>
+      </Position15>
+      <Position16>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="27" Column="16" TopLine="12"/>
+      </Position16>
+      <Position17>
+        <Filename Value="recordproject.lpr"/>
+        <Caret Line="66" Column="29" TopLine="46"/>
+      </Position17>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

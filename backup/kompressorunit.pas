@@ -19,9 +19,15 @@ uses
 type
   Tarrayofreal= array of real;
   Tarrayofbyte= array of byte;
-  Tarrayofstring= array of string;
+  Tarrayofstring= array of shortstring;
   Tarrayofbool= array of boolean;
   TArrayofInt= Array of integer;
+  TDatensatz= record
+    stringdaten: string;
+    bytedaten:Tarrayofbyte;
+    alphabet:string;
+    codealphabet: array of shortstring;
+  end;
 
   { TKompressorForm }
 
@@ -50,6 +56,7 @@ type
     procedure OpenSpeedButtonClick(Sender: TObject);
     procedure SaveSpeedButtonClick(Sender: TObject);
     procedure save(data:String; const Path:String);
+    procedure saverecord(data:TDatensatz; Path:string);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
     function bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
     function getRunmode():integer;
@@ -61,7 +68,7 @@ type
 
 var
   KompressorForm: TKompressorForm;
-  codealpha: array of string;
+  codealpha: array of shortstring;
   bits:TBits;
 
 implementation
@@ -352,6 +359,44 @@ begin
   for i:=0 to high(bytes) do result:=result+binStr(bytes[i],8);
 end;
 
+function loadrecord(path:string):TDatensatz;
+var
+  i:integer;
+  FS:TFilestream;
+begin
+ FS:= TFileStream.Create(path, fmOpenRead or fmShareDenyWrite);
+    try
+      FS.Position:=0;
+      i:=0;
+      //stringDaten lesen
+      FS.Read(i,sizeof(integer));        //länge des kommenden String auslesen
+      if i>0 then begin
+      Setlength(result.stringdaten,i);              //und länge setzen
+      FS.Read(result.stringdaten,(i*sizeof(char))); //String lesen
+      end;
+      //byteDaten lesen
+      FS.read(i,sizeOf(integer));         //länge des kommenden arrays auslesen
+      if i>0 then begin
+      Setlength(result.bytedaten,i);       //setzen
+      FS.read(result.bytedaten,(i*sizeOf(byte))); //und array auslesen
+      end;
+      //Alphabet lesen
+      FS.Read(i,sizeof(integer));        //länge des kommenden String auslesen
+      if i>0 then begin
+      Setlength(result.alphabet,i);              //und länge setzen
+      FS.Read(result.alphabet[1],(i*sizeof(char))); //String lesen
+      end;
+      //CodeAlphabet lesen
+      FS.Read(i,sizeof(integer));                      //länge des kommenden Arrays auslesen
+      if i>0 then begin
+      Setlength(result.codealphabet,i);                           //und setzen
+      FS.Read(result.codealphabet[0],(i*Sizeof(shortstring))); //Array lesen
+      end;
+    finally
+      FS.free;
+    end;
+end;
+
 {------------------------HUFFMAN-CODING----------------------------------------}
 function huffman(s,alpha:string;wahrsch:Tarrayofreal):String;
 var
@@ -359,7 +404,7 @@ var
  i,n:integer;
   hilf:real;
   nullen:string;
-  kompdata:array of string;
+  kompdata:array of shortstring;
   begin
     {-------Codealphabet finden--mit Alphabet und Wahrscheinlichkeiten---------}
     nullen:='';
@@ -570,7 +615,7 @@ function alphacode(data:string):string;         //Optimiert das Alphabet, das da
 var                                             //generiert, das nur die notwenige anzahl an zeichen hat
     i,n:integer;
     alphabet,bits:string;
-    bitdata,bitalpha:array of string;
+    bitdata,bitalpha:array of shortstring;
     len:byte;
 begin
   alphabet:=getalpha(data);                  //Alphabet, das data nutzt generieren
@@ -607,7 +652,7 @@ function dealphacode(bitstr:string):string;
 var
     i,n:integer;
     str,daten,alphabet:string;
-    bitalpha:Array of string;
+    bitalpha:Array of shortstring;
     len:byte;
 begin
  len:=strtoint(StringAusDatei('blocklänge.txt'));//Die Zeichenlänge der Codierung rausholen
@@ -721,6 +766,35 @@ end;
 
 { TKompressorForm }
 
+procedure TKompressorform.saverecord(data:TDatensatz; Path:string);
+var
+  i:integer;
+  FS:TFileStream;
+begin
+ FS:=TFileStream.Create(path,fmCreate);
+    try
+      FS.Position:=0;
+      //stringDaten schreiben
+      i:=length(data.stringdaten);
+      FS.write(i,sizeOf(i)); //länge des String schreiben
+      if i>0 then FS.Write(data.stringdaten[1],i); //String schreiben
+      //byteDaten schreiben
+      i:=length(data.bytedaten);
+      FS.write(i,sizeOf(i)); //länge des Array schreiben
+      if i>0 then FS.write(data.bytedaten[0],(i*sizeof(byte))); //array schreiben
+      //Alphabet schreiben
+      i:=length(data.alphabet);
+      FS.Write(i,sizeOf(i)); //länge des String schreiben
+      FS.Write(data.alphabet[1],i); //String schreiben
+      //Codealphabet schreiben
+      i:=length(data.codealphabet);
+      FS.Write(i,sizeOf(i));       //länge des Arrays schreiben
+      FS.Write(data.codealphabet[0],i*sizeOf(shortstring)); //array schreiben
+    finally
+      FS.free;
+    end;
+end;
+
 procedure TKompressorform.save(data:String; const Path:String);
 var
   fs: TFileStream;
@@ -737,6 +811,7 @@ begin
 
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
+  datensatz:TDatensatz;
   Data,alpha,kompdata:string;
   wahrsch:array of real;
   summe:real;
@@ -750,7 +825,7 @@ var
   origlaenge:integer;
   hilf:string;
   indizes:array of integer;
-  g,q,k:integer;
+  //g,q,k:integer; hier nicht nötig, in der funktion drin
   verpackt:string;
   index:integer;
 
@@ -784,8 +859,10 @@ if (HaffCheckbox.Checked=true) then begin
   end;
 
   kompdata:=huffman(data,alpha,wahrsch);
-  Stringindatei(alpha,'Alphabet.txt');
-  Sarrayindatei(codealpha,'Codealphabet.txt');
+  //Stringindatei(alpha,'Alphabet.txt');
+  //Sarrayindatei(codealpha,'Codealphabet.txt');
+  Datensatz.alphabet:=alpha;
+  Datensatz.codealphabet:=codealpha;
 
   If MemoAusgabeRadioButton.checked=true then begin
   Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
@@ -835,7 +912,10 @@ if (HaffCheckBox.checked=false) and (RLCheckBox.checked=true) then begin
   end;
 //Wenn nicht noch mit RLE komprimieren:
 if (RLCheckbox.checked=false) and (HaffCheckBox.checked=true) then begin
-save(kompdata,SavePathEdit.text);    //Den Bitstring, den huffman generiert hat abspeichern.
+//save(kompdata,SavePathEdit.text);    //Den Bitstring, den huffman generiert hat abspeichern.
+  datensatz.bytedaten:=bittobyte(kompdata);
+  datensatz.stringdaten:='';                 //nur damit der string initialisiert ist
+  saverecord(datensatz,SavePathEdit.text);
 end;
 {------------------------------------------------------------------------------}
 {--------------------------Alpha-Codierung-------------------------------------}
@@ -850,7 +930,7 @@ if BWTCheckBox.checked=true then begin
    data:=Memo.lines[0];
   //alter bwt Memo.lines.add(bwt(data));
    //bwt verbessert
-    q:=-1;
+    //q:=-1;
 
 
     origstr:=data;//einlesen?!
@@ -889,7 +969,8 @@ end;
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
-  codealpha,readdata:array of string;
+  datensatz:TDatensatz;
+  codealpha,readdata:array of shortstring;
   alpha,sw,rledata,entpacktstr,a:string;
   entpackt:array of byte;
   verpackt:array of integer;
@@ -937,7 +1018,9 @@ begin
 
   //Wenn nicht mit RLE dekomprimiert werden soll, dann:
   if (haffcheckbox.Checked=true) and (rlCheckbox.checked=false) and (alphacheckbox.checked=false) then begin
-    rledata:=loadBitString(OpenPathEdit.text);
+    //rledata:=loadBitString(OpenPathEdit.text);
+    datensatz:=loadrecord(OpenPathEdit.text);
+    for i:=0 to high(datensatz.bytedaten) do rledata:=rledata+binStr(datensatz.bytedaten[i],8);
     If MemoAusgabeRadioButton.checked=true then begin
     for i:=1 to length(rledata) do Memo.lines[i-1]:=rledata[i];
     end;
@@ -946,9 +1029,13 @@ begin
  {--------------------------HUFFMAN-DEHUFF-------------------------------------}
   if (HaffCheckBox.Checked=true) and (alphacheckbox.checked=false) then begin
 
-  codealpha:=SarrayAusDatei('Codealphabet.txt');
-  alpha:=StringAusDatei('Alphabet.txt');
-  entpacktstr:=dehuff(rledata,codealpha,alpha);              //hier wird die Huffmankomprimierung aufgehoben
+  //codealpha:=SarrayAusDatei('Codealphabet.txt');
+  //alpha:=StringAusDatei('Alphabet.txt');
+
+  codealpha:=datensatz.codealphabet;
+  alpha:=datensatz.alphabet;
+  //entpacktstr:=dehuff(rledata,codealpha,alpha);              //hier wird die Huffmankomprimierung aufgehoben
+  entpacktstr:=dehuff(datensatz.
   StringinDatei(entpacktstr,SavePathEdit.text);              //und abgespeichert
 
   If MemoAusgabeRadioButton.checked=true then begin
