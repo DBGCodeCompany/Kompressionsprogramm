@@ -19,9 +19,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="444"/>
-        <CursorPos X="16" Y="482"/>
-        <FoldState Value=" T4E02 TLxB25 T8iB211 T3iO0F7 pibjQ0C6]9ZjI0H3]9djP0k11[B4em00N]m]BXo603]v6iP01I17 T1iR0CA[c4kQ09[.4fkF0M21312]-T0iTU9L]NZmVX6E]9YkEQ5G]9dk1y32231]sj0kTa471C TMq5010814"/>
+        <TopLine Value="689"/>
+        <CursorPos X="3" Y="702"/>
+        <FoldState Value=" T4E02 T8iB211 T3iO0F7 pibjQ0C6]9ZjI0H3]9djN0k3 T6iP01I1]A1iR0CA]RekQ09612[L40iTU9L[v4mVX6E]9YkCQ5G/"/>
         <UsageCount Value="92"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -47,12 +47,12 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="500"/>
-        <CursorPos X="4" Y="505"/>
+        <TopLine Value="493"/>
+        <CursorPos X="59" Y="506"/>
         <FoldState Value=" T4602 TLj20N045 picsf1H T7GBJ T8V211 T3iA0A]TjVkc1g3]9KkN0N3[S46iB019 T1iD07[a4Ikf1a[a46kJ0L[a50iGK3G piXn3D2C]9aj7d84 TMuf[X42uT24V"/>
-        <UsageCount Value="11"/>
+        <ComponentState Value="1"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit4>
@@ -172,11 +172,11 @@
       </Position28>
       <Position29>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="54" Column="14" TopLine="831"/>
+        <Caret Line="707" TopLine="689"/>
       </Position29>
       <Position30>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="707" TopLine="689"/>
+        <Caret Line="393" Column="116" TopLine="363"/>
       </Position30>
     </JumpHistory>
     <RunParams>

@@ -694,12 +694,14 @@ var
   Komprimiert: array of integer;
   rledata,startdata:Tarrayofstring;
   //für bwt:
-  {origstr:string;
+  origstr:string;
   origlaenge:integer;
   hilf:string;
   indizes:array of integer;
   g,q,k:integer;
-  }
+  verpackt:string;
+  index:integer;
+
 begin
 //DATEN LADEN:
  startdata:=SarrayausDAtei(OpenPathEdit.text);
@@ -807,7 +809,7 @@ if BWTCheckBox.checked=true then begin
     indizes[i]:=i;
    end;
 
-   indizes:=bwt2(indizes,origlaenge,orig);  //ersetzt unten auskommentierte schleife als funbktion
+   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
   { for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
