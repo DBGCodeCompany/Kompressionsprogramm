@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ButtonPanel,
-  ComCtrls;
+  ComCtrls, Buttons;
 
 type
   TArrayofByte= array of byte;
@@ -20,15 +20,21 @@ type
     Button3: TButton;
     Edit1: TEdit;
     Edit2: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
     Memo1: TMemo;
     Memo2: TMemo;
+    OpenDialog1: TOpenDialog;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+    procedure SpeedButton2Click(Sender: TObject);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
-    function bwt(indizes:array of integer;origlaenge:integer;orig:string):TArrayofInt;
+    function bwt(indizes:TArrayofInt;origlaenge:integer;orig:string):TArrayofInt;
   private
 
   public
@@ -370,7 +376,18 @@ end;
    result:=copy(entpackt);
 
 end;
- function TForm1.bwt(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
+
+procedure TForm1.SpeedButton2Click(Sender: TObject);
+begin
+   if opendialog1.Execute then
+  begin
+    Label1.caption:=opendialog1.FileName;
+    Label2.caption:=inttostr(filesize(opendialog1.FileName))+'bytes';
+    //DateiEingabeEdit.OnExit(DateiEingabeEdit);
+  end;
+end;
+
+function TForm1.bwt(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
 var q,k,g:integer;
 begin
 

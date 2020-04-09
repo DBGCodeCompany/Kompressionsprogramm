@@ -52,6 +52,7 @@ type
     procedure save(data:String; const Path:String);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
     function bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
+    function getRunmode():integer;
   private
 
   public
@@ -64,6 +65,57 @@ var
   bits:TBits;
 
 implementation
+
+function TKompressorform.getRunmode():integer;  //überprüfen, welche algorithmen verwendet werden sollen; Reihenfolge komprimieren vs. entpacken
+var bwt,rle,huff,alpha:boolean;                  //einleseart muss an runmode und algorithmus angepasst werden
+begin
+ if AlphaCheckBox.checked=true then
+   alpha:=true
+   else
+   alpha:=false;
+ if BWTCheckBox.checked=true then
+   bwt:=true
+   else bwt:=false;
+ if RLCheckBox.checked=true then
+   rle:=true
+   else rle:=false;
+ if HaffCheckBox.checked=true then
+   huff:=true
+   else huff:=false;
+
+ if alpha=true and bwt=false and rle=false and huff=false then
+   result:=1; //nur alpha
+ if alpha=true and bwt=true and rle=false and huff=false then
+   result:=2; //nur bwt
+ if alpha=true and bwt=false and rle=true and huff=false then
+   result:=3; //nur rle  ->rlebinär
+ if alpha=true and bwt=false and rle=false and huff=true then
+   result:=4; //nur huff
+ if alpha=true and bwt=true and rle=false and huff=false then
+   result:=5; //alpha und bwt  ->?
+ if alpha=true and bwt=false and rle=true and huff=false then
+   result:=6; //alpha und rle  ->?
+ if alpha=true and bwt=false and rle=false and huff=true then
+   result:=7; //alpha und huff  ->?
+ if alpha=false and bwt=true and rle=true and huff=false then
+   result:=8; //bwt und rle ->erst bwt, dann rlestring
+ if alpha=true and bwt=true and rle=false and huff=true then
+   result:=9; //bwt und huff ->erst bwt, dann huff
+ if alpha=false and bwt=false and rle=true and huff=true then
+   result:=10;//rle und huff  ->erst huff, dann rle?
+ if alpha=true and bwt=true and rle=true and huff=false then
+   result:=11;//alpha,bwt und rle ->? bwt, dann rlestring
+ if alpha=true and bwt=true and rle=false and huff=true then
+   result:=12;//alpha, rle und huff ->huff und alpha, dann rlebinär?
+ if alpha=true and bwt=true and rle=false and huff=true then
+   result:=13;//alpha, bwt und huff  ->bwt, dann huff und alpha?
+ if alpha=true and bwt=true and rle=true and huff=false then
+   result:=14;//alpha,bwt und rle ->bwt und rlestring, dann alpha?
+ if alpha=false and bwt=true and rle=true and huff=true then
+   result:=15;//bwt, rle und huff ->erst bwt, dann rlestring und huff?
+ if alpha=true and bwt=true and rle=true and huff=true then
+   result:=16;//alles ->erst bwt, dann rlestring und huff? alpha?
+end;
 
 function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
 var
@@ -699,6 +751,8 @@ var
   hilf:string;
   indizes:array of integer;
   g,q,k:integer;
+  verpackt:string;
+  index:integer;
 
 begin
 //DATEN LADEN:
@@ -807,7 +861,7 @@ if BWTCheckBox.checked=true then begin
     indizes[i]:=i;
    end;
 
-   indizes:=bwt2(indizes,origlaenge,orig);  //ersetzt unten auskommentierte schleife als funbktion
+   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
   { for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
    q:=q+1;
