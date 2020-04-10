@@ -60,6 +60,10 @@ type
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
     function bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
     function getRunmode():integer;
+    function rleencode(Werte:TArrayofbyte):TArrayofInt;
+    function rleencodestring(s:string):TarrayofInt;
+    function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+    function TKompressorForm.rledecodestring(werte:TArrayofInt):string;
   private
 
   public
@@ -92,12 +96,16 @@ begin
 
  if alpha=true and bwt=false and rle=false and huff=false then
    result:=1; //nur alpha
+ //  Memo.lines.add('Gewählte Komprimierung: Alphabet-Komprimierung');
  if alpha=true and bwt=true and rle=false and huff=false then
    result:=2; //nur bwt
+ //  Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler-Transformierung');
  if alpha=true and bwt=false and rle=true and huff=false then
    result:=3; //nur rle  ->rlebinär
+ //  Memo.lines.add('Gewählte Komprimierung: RunLengthEncoding');
  if alpha=true and bwt=false and rle=false and huff=true then
    result:=4; //nur huff
+  // Memo.lines.add('Gewählte Komprimierung: Huffman-Coding');
  if alpha=true and bwt=true and rle=false and huff=false then
    result:=5; //alpha und bwt  ->?
  if alpha=true and bwt=false and rle=true and huff=false then
@@ -106,6 +114,7 @@ begin
    result:=7; //alpha und huff  ->?
  if alpha=false and bwt=true and rle=true and huff=false then
    result:=8; //bwt und rle ->erst bwt, dann rlestring
+ //  Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit RleString');
  if alpha=true and bwt=true and rle=false and huff=true then
    result:=9; //bwt und huff ->erst bwt, dann huff
  if alpha=false and bwt=false and rle=true and huff=true then
@@ -160,7 +169,6 @@ begin
      else result:=str[index+pos];
 end;
 {alternative zur einfachen tauschfunktion, vorteil, da nicht die gesamte permutation erstellt wird}
-{deklaration als tform.funktion und listung unter tform}
 {rekursiv: sind die chars gleich, ruft sich die funktion}
 {selbst auf, dabei werden die nächsten chars verglichen etc}
 function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen , übergabewerte sind für rekursion notwendig
@@ -459,13 +467,13 @@ var
   end;
 {------------------------------------------------------------------------------}
 {----------------------Run-Length-Encoding-------------------------------------}
-function rleencode(Werte:TArrayofbyte):TArrayofInt;
+function TKompressorForm.rleencode(Werte:TArrayofbyte):TArrayofInt;
 var i,z:integer;
   WerteKomprimiert: Array of integer;
   wert1:byte;
   wert2:byte;
 begin
-
+  Memo.lines.add('Beginn RLEncoding binär...');
   z:=0;
 
   setLength(WerteKomprimiert,1);
@@ -485,16 +493,18 @@ begin
           WerteKomprimiert[z] := 1;       //auch hier 1 als minimum
         end;
         end;
+   Memo.lines.add('RLE-binär beendet');
    result:=copy(WerteKomprimiert);
+
 end;
-function rleencodestring(s:string):TarrayofInt ;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
+function TKompressorForm.rleencodestring(s:string):TarrayofInt;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
 var
    i,y, j,r: integer;      //hauptsächlich laufvariablen
    letters:string;          //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
    counts:array of integer;   //speichert, wie oft welcher char vorkommt
    ausgabe:array of integer;
  begin
-
+   Memo.lines.add('Beginn RlE-String...');
    j := 0;
    setLength(counts,1);
    setlength(letters,1);
@@ -530,18 +540,19 @@ var
    end;
    end;
 
-  result:=copy(ausgabe);
+   Memo.lines.add('RlE-String beendet');
+   result:=copy(ausgabe);
 
 
  end;
 {------------------------------------------------------------------------------}
 {-----------------Run-Length-Encoding entpacken--------------------------------}
- function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+ function TKompressorForm.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
 var entpackt:array of byte;
     x:byte;
     z,n,i,y:integer;
 begin
-
+   Memo.lines.add('RLE-binär wird entpackt...');
    if Startwert=0 then x:=1 else x:=0;   //festlegen, wann 0/1 geschrieben werden muss
 
    z:=0;
@@ -568,10 +579,11 @@ begin
        end;
 
 end;
+   Memo.lines.add('RLE fertig entpackt');
    result:=copy(entpackt);
 
 end;
- function rledecodestring(werte:TArrayofInt):string;      //entpackt einen mit rleencodestring verpackten string
+ function TKompressorForm.rledecodestring(werte:TArrayofInt):string;      //entpackt einen mit rleencodestring verpackten string
    var
       z,y,m,n,i:integer;   //hauptsächlich laufvariablen
       ausgabe:string;      //entpackter string
@@ -581,7 +593,7 @@ end;
     i:=1;
     z:=1;
     m:=1;
-
+    Memo.lines.add('RLE-String wird entpackt...');
     setlength(chars,(length(werte) div 2));  //array ist immer durch 2 teilbar, da jedem char eine zahl zugeordnet wird
 
       for i:=0 to (Length(Werte)-1) do begin
@@ -607,7 +619,8 @@ end;
         Inc(m,1);
         end;
   end;
-      result:=ausgabe;
+   Memo.lines.add('RLE-String entpackt');
+   result:=ausgabe;
    end;
 {------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
@@ -706,7 +719,7 @@ var q,k,g:integer;
 begin
 
    q:=-1;
-
+    Memo.lines.add('Beginn der BWT-Sortierung...');
     //bwt findet allein anhand des arrays indizes statt, sodass weniger speicher benötigt wird
    //neue prozedur
    for g:=1 to origlaenge do begin                                             //basiert auf bubblesort
@@ -721,8 +734,7 @@ begin
   until q=origlaenge-2;
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
   end;
-
-
+  Memo.lines.add('Sortierung beendet');
    result:=indizes;   //ausgabe des nun 'sortierten' arrays
 end;
 {------------------------------------------------------------------------------}
@@ -734,6 +746,7 @@ var
   indizes:array of integer;
   chr:char;
 begin
+  //Memo.lines.add('BWT wird entpackt...');
    len:=length(trans);
    orig:=trans;                                         //die originaldaten speichern
    setlength(indizes,len);                                 //für die indizes in den originaldaten
@@ -761,6 +774,7 @@ begin
    result:=result+orig[index];
    index:=indizes[index-1];
   end;
+  //Memo.lines.add('BWt entpackt');
 end;
 {$R *.lfm}
 
@@ -835,6 +849,60 @@ begin
  If MemoAusgabeRadioButton.checked=true then begin
  for i:=0 to high(Startdata) do Memo.lines[i]:=Startdata[i];
  end;
+{------------------------------------------------------------------------------}
+{---------------------------RunMode--------------------------------------------}
+{
+ if getRunMode=1 then begin
+ //Memo.lines.add('Beginn der Komprimierung');
+ erst dies, dann das
+ end;
+ if getRunMode=2 then begin
+ erst dies, dann das
+ end;
+ if getRunMode=3 then begin
+erst dies, dann das
+end;
+ if getRunMode=4 then begin
+ erst dies, dann das
+ end;
+ if getRunMode=5 then begin
+erst dies, dann das
+end;
+ if getRunMode=6 then begin
+ erst dies, dann das
+ end;
+ if getRunMode=7 then begin
+erst dies, dann das
+end;
+ if getRunMode=8 then begin
+ erst dies, dann das
+ end;
+ if getRunMode=9 then begin
+erst dies, dann das
+end;
+ if getRunMode=10 then begin
+ erst dies, dann das
+ end;
+ if getRunMode=11 then begin
+erst dies, dann das
+end;
+ if getRunMode=12 then begin
+ erst dies, dann das
+ end;
+ if getRunMode=13 then begin
+erst dies, dann das
+end;
+ if getRunMode=14 then begin
+ erst dies, dann das
+ end;
+ if getRunMode=15 then begin
+erst dies, dann das
+end;
+ if getRunMode=16 then begin
+ erst dies, dann das
+ end;
+
+}
 {------------------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 if (HaffCheckbox.Checked=true) then begin
@@ -1034,8 +1102,7 @@ begin
 
   codealpha:=datensatz.codealphabet;
   alpha:=datensatz.alphabet;
-  //entpacktstr:=dehuff(rledata,codealpha,alpha);              //hier wird die Huffmankomprimierung aufgehoben
-  entpacktstr:=dehuff(datensatz.
+  entpacktstr:=dehuff(rledata,codealpha,alpha);              //hier wird die Huffmankomprimierung aufgehoben
   StringinDatei(entpacktstr,SavePathEdit.text);              //und abgespeichert
 
   If MemoAusgabeRadioButton.checked=true then begin
