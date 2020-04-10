@@ -27,6 +27,7 @@ type
     bytedaten:Tarrayofbyte;
     alphabet:string;
     codealphabet: array of shortstring;
+    blocklaenge: byte;
   end;
 
   { TKompressorForm }
@@ -64,16 +65,16 @@ type
     function rleencodestring(s:string):TarrayofInt;
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
     function rledecodestring(werte:TArrayofInt):string;
-   { procedure bwtverpacken();
-    procedure huffverpacken();
-    procedure alphaverpacken();
-    procedure rlebinaerverpacken();
-    procedure rlestringverpacken();
-     procedure bwtentpacken();
-    procedure huffentpacken();
-    procedure alphaentpacken();
-    procedure rlebinaerentpacken();
-    procedure rlestringentpacken();}
+   { function bwtverpacken();
+    function huffverpacken();
+    function alphaverpacken();
+    function rlebinaerverpacken();
+    function rlestringverpacken();
+     function bwtentpacken();
+    function huffentpacken();
+    function alphaentpacken();
+    function rlebinaerentpacken();
+    function rlestringentpacken();}
   private
 
   public
@@ -104,43 +105,70 @@ begin
    huff:=true
    else huff:=false;
 
- if alpha=true and bwt=false and rle=false and huff=false then
+ if alpha=true and bwt=false and rle=false and huff=false then  begin
    result:=1; //nur alpha
- //  Memo.lines.add('Gewählte Komprimierung: Alphabet-Komprimierung');
- if alpha=true and bwt=true and rle=false and huff=false then
+   Memo.lines.add('Gewählte Komprimierung: Alphabet-Komprimierung');
+ end;
+ if alpha=true and bwt=true and rle=false and huff=false then  begin
    result:=2; //nur bwt
- //  Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler-Transformierung');
- if alpha=true and bwt=false and rle=true and huff=false then
+   Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler-Transformierung');
+ end;
+ if alpha=true and bwt=false and rle=true and huff=false then  begin
    result:=3; //nur rle  ->rlebinär
- //  Memo.lines.add('Gewählte Komprimierung: RunLengthEncoding');
- if alpha=true and bwt=false and rle=false and huff=true then
+   Memo.lines.add('Gewählte Komprimierung: RunLengthEncoding');
+ end;
+ if alpha=true and bwt=false and rle=false and huff=true then begin
    result:=4; //nur huff
-  // Memo.lines.add('Gewählte Komprimierung: Huffman-Coding');
- if alpha=true and bwt=true and rle=false and huff=false then
+   Memo.lines.add('Gewählte Komprimierung: Huffman-Coding');
+ end;
+ if alpha=true and bwt=true and rle=false and huff=false then begin
    result:=5; //alpha und bwt  ->?
- if alpha=true and bwt=false and rle=true and huff=false then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wälen Sie etwas anderes.');
+ end;
+ if alpha=true and bwt=false and rle=true and huff=false then begin
    result:=6; //alpha und rle  ->?
- if alpha=true and bwt=false and rle=false and huff=true then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=true and bwt=false and rle=false and huff=true then begin
    result:=7; //alpha und huff  ->?
- if alpha=false and bwt=true and rle=true and huff=false then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=false and bwt=true and rle=true and huff=false then begin
    result:=8; //bwt und rle ->erst bwt, dann rlestring
- //  Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit RleString');
- if alpha=true and bwt=true and rle=false and huff=true then
+   Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding');
+ end;
+ if alpha=true and bwt=true and rle=false and huff=true then begin
    result:=9; //bwt und huff ->erst bwt, dann huff
- if alpha=false and bwt=false and rle=true and huff=true then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=false and bwt=false and rle=true and huff=true then begin
    result:=10;//rle und huff  ->erst huff, dann rle?
- if alpha=true and bwt=true and rle=true and huff=false then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=true and bwt=true and rle=true and huff=false then begin
    result:=11;//alpha,bwt und rle ->? bwt, dann rlestring
- if alpha=true and bwt=true and rle=false and huff=true then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=true and bwt=true and rle=false and huff=true then begin
    result:=12;//alpha, rle und huff ->huff und alpha, dann rlebinär?
- if alpha=true and bwt=true and rle=false and huff=true then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=true and bwt=true and rle=false and huff=true then begin
    result:=13;//alpha, bwt und huff  ->bwt, dann huff und alpha?
- if alpha=true and bwt=true and rle=true and huff=false then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=true and bwt=true and rle=true and huff=false then begin
    result:=14;//alpha,bwt und rle ->bwt und rlestring, dann alpha?
- if alpha=false and bwt=true and rle=true and huff=true then
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
+ if alpha=false and bwt=true and rle=true and huff=true then begin
    result:=15;//bwt, rle und huff ->erst bwt, dann rlestring und huff?
- if alpha=true and bwt=true and rle=true and huff=true then
+   Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding und Huffmancodierung');
+ end;
+ if alpha=true and bwt=true and rle=true and huff=true then begin
    result:=16;//alles ->erst bwt, dann rlestring und huff? alpha?
+   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+ end;
 end;
 
 function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
@@ -410,6 +438,8 @@ begin
       Setlength(result.codealphabet,i);                           //und setzen
       FS.Read(result.codealphabet[0],(i*Sizeof(shortstring))); //Array lesen
       end;
+      //Blocklaenge lesen
+      FS.read(result.blocklaenge,sizeOf(byte));
     finally
       FS.free;
     end;
@@ -634,7 +664,7 @@ end;
    end;
 {------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
-function alphacode(data:string):string;         //Optimiert das Alphabet, das data nutzt indem es ein neues
+function alphacode(data:string):TDatensatz;         //Optimiert das Alphabet, das data nutzt indem es ein neues
 var                                             //generiert, das nur die notwenige anzahl an zeichen hat
     i,n:integer;
     alphabet,bits:string;
@@ -663,25 +693,35 @@ begin
   end;
 
   bits:=Sarraytostring(bitdata,false);      //alle Bits hintereinander schreiben (zum auseinandernehmen hat man len als
-  result:=bits;                             //Zeichen länge! --also kein problem
+  //result:=bits;                             //Zeichen länge! --also kein problem
+  If MemoAusgabeRadioButton.checked=true then Showmessage('Bits: '+bits);
 
-  StringinDAtei(inttostr(len),'blocklänge.txt');  //die Zeichenlänge mit abspeichern!!
+ { StringinDAtei(inttostr(len),'blocklänge.txt');  //die Zeichenlänge mit abspeichern!!
   SarrayinDatei(bitalpha,'BitAlphabet.txt');      //Das Bitalphabet abspeichern
-  StringinDatei(alphabet,'Alphabet.txt');         //Das Klare Alphabet abspeichern
+  StringinDatei(alphabet,'Alphabet.txt');         //Das Klare Alphabet abspeichern     }
+  result.blocklaenge:=len;
+  result.alphabet:=alphabet;
+  result.codealphabet:=bitalpha;
+  result.bytedaten:=bittobyte(bits);
 end;
 {------------------------------------------------------------------------------}
 {------------------Alphabet-DECodierung----------------------------------------}
-function dealphacode(bitstr:string):string;
+function dealphacode(data:TDatensatz):string;
 var
     i,n:integer;
-    str,daten,alphabet:string;
+    str,daten,alphabet,bitstr:string;
     bitalpha:Array of shortstring;
     len:byte;
 begin
- len:=strtoint(StringAusDatei('blocklänge.txt'));//Die Zeichenlänge der Codierung rausholen
+ {len:=strtoint(StringAusDatei('blocklänge.txt'));//Die Zeichenlänge der Codierung rausholen
  bitalpha:=Sarrayausdatei('BitAlphabet.txt');  //Das CodeAlphabet laden
- alphabet:=StringausDatei('Alphabet.txt');     //Das KlareAlphabet laden
+ alphabet:=StringausDatei('Alphabet.txt');     //Das KlareAlphabet laden      }
 
+   len:=data.blocklaenge;
+   bitalpha:=data.codealphabet;
+   alphabet:=data.alphabet;
+   bitstr:='';
+ for i:=0 to high(data.bytedaten) do bitstr:=bitstr+binStr(data.bytedaten[i],8);
  daten:='';
  for i:=1 to (length(bitstr) div len) do begin
    str:='';
@@ -786,6 +826,7 @@ begin
   end;
   //Memo.lines.add('BWt entpackt');
 end;
+{------------------------------------------------------------------------------}
 {$R *.lfm}
 
 { TKompressorForm }
@@ -814,6 +855,8 @@ begin
       i:=length(data.codealphabet);
       FS.Write(i,sizeOf(i));       //länge des Arrays schreiben
       FS.Write(data.codealphabet[0],i*sizeOf(shortstring)); //array schreiben
+      //Blocklaenge schreiben
+      FS.Write(data.blocklaenge,SizeOf(byte));
     finally
       FS.free;
     end;
@@ -836,7 +879,7 @@ begin
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   datensatz:TDatensatz;
-  Data,alpha,kompdata:string;
+  Data,alpha,kompdata,startstring:string;
   wahrsch:array of real;
   summe:real;
   i,y:integer;
@@ -856,17 +899,21 @@ var
 begin
 //DATEN LADEN:
  startdata:=SarrayausDAtei(OpenPathEdit.text);
+ startstring:='';
+ for i:=0 to high(startdata) do startstring:=startstring+startdata[i];          //das Array in einen String schreiben
  If MemoAusgabeRadioButton.checked=true then begin
  for i:=0 to high(Startdata) do Memo.lines[i]:=Startdata[i];
  end;
 {------------------------------------------------------------------------------}
 {---------------------------RunMode--------------------------------------------}
-{
+
  if getRunMode=1 then begin
- //Memo.lines.add('Beginn der Komprimierung');
- erst dies, dann das
+ Memo.lines.add('Beginn der Komprimierung mit AlphaCode');
+ datensatz:=alphacode(startstring);
+ saverecord(datensatz,SavePathEdit.text);
+ Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
- if getRunMode=2 then begin
+{ if getRunMode=2 then begin
  erst dies, dann das
  end;
  if getRunMode=3 then begin
@@ -1116,12 +1163,6 @@ begin
   end;
 end;
 }
-{procedure TKompressorForm.alphaverpacken();
-begin
-  data:=alphacode(sarraytostring(startdata,false));
-  If MemoAusgabeRadioButton.checked=true then Showmessage('Bits: '+data);
-  save(data,SavePathEdit.text);
-end;}
 {procedure TKompressorForm.rlebinaerverpacken();
 begin
   Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
@@ -1159,10 +1200,6 @@ end;
 begin
 
 end;
-procedure TKompressorForm.alphaentpacken();
-begin
-
-end;
 procedure TKompressorForm.rlebinaerentpacken();
 begin
 
@@ -1186,6 +1223,61 @@ var
   startwert:byte;
   i:integer;
 begin
+//Daten Laden
+  datensatz:=loadrecord(OpenPathEdit.text);
+
+if getRunMode=1 then begin
+Memo.lines.add('Beginn der Dekomprimierung AlphaCode');
+entpacktstr:=dealphacode(datensatz);
+StringinDatei(entpacktstr,SavePathEdit.text);
+Memo.lines.add('Dekomprimierte Daten abgespeichert');
+end;
+{ if getRunMode=2 then begin
+erst dies, dann das
+end;
+if getRunMode=3 then begin
+erst dies, dann das
+end;
+if getRunMode=4 then begin
+erst dies, dann das
+end;
+if getRunMode=5 then begin
+erst dies, dann das
+end;
+if getRunMode=6 then begin
+erst dies, dann das
+end;
+if getRunMode=7 then begin
+erst dies, dann das
+end;
+if getRunMode=8 then begin
+erst dies, dann das
+end;
+if getRunMode=9 then begin
+erst dies, dann das
+end;
+if getRunMode=10 then begin
+erst dies, dann das
+end;
+if getRunMode=11 then begin
+erst dies, dann das
+end;
+if getRunMode=12 then begin
+erst dies, dann das
+end;
+if getRunMode=13 then begin
+erst dies, dann das
+end;
+if getRunMode=14 then begin
+erst dies, dann das
+end;
+if getRunMode=15 then begin
+erst dies, dann das
+end;
+if getRunMode=16 then begin
+erst dies, dann das
+end;     }
+
  {-------------------------RLE-DeRLE--------------------------------------------}
   if RLCheckBox.Checked=true then begin
 

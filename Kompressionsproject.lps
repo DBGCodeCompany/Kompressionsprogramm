@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="106"/>
+        <UsageCount Value="109"/>
       </Unit0>
       <Unit1>
         <Filename Value="kompressorunit.pas"/>
@@ -19,10 +19,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="90"/>
-        <CursorPos X="88" Y="245"/>
-        <FoldState Value=" T4E02 TCOE5 TLiN390P p0zN0p09114 T8iX211 T3j30s7 pj0kR096 piYjE0D3]I4jR0I2]IXjF1Z[I48kA0R3]Igjb0C1 plcpD0{12 T1kJ0CA]RekP]\]jGkV2E04331]f0xb0!]dMy1410F15]JsZ21 T6kH01R]vf.107 T0kLU9O]GYnNXDF[{15HQ5G]9dk2y3211325B]Fas8YaB T2.P2BT"/>
-        <UsageCount Value="105"/>
+        <TopLine Value="1211"/>
+        <CursorPos X="31" Y="1233"/>
+        <FoldState Value=" T4E02 T8iY211 T3j40{07 pj0lB096 piYjE0D3]I6jT0I2]IXjF1Z2[R5X0R3]9gjd0T]+1l40CA]HekP09322 T0l6U9K4D T6l201I T2@T2B="/>
+        <UsageCount Value="108"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -48,14 +48,14 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="563"/>
+        <TopLine Value="436"/>
         <CursorPos X="25" Y="573"/>
         <ComponentState Value="1"/>
-        <UsageCount Value="18"/>
+        <UsageCount Value="19"/>
         <Loaded Value="True"/>
       </Unit4>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
         <Filename Value="kompressorunit.pas"/>
         <Caret Line="66" Column="33" TopLine="28"/>
@@ -170,12 +170,8 @@
       </Position28>
       <Position29>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="71" Column="32" TopLine="948"/>
-      </Position29>
-      <Position30>
-        <Filename Value="kompressorunit.pas"/>
         <Caret Line="1065" Column="3" TopLine="1057"/>
-      </Position30>
+      </Position29>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
