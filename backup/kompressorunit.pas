@@ -63,7 +63,12 @@ type
     function rleencode(Werte:TArrayofbyte):TArrayofInt;
     function rleencodestring(s:string):TarrayofInt;
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
-    function TKompressorForm.rledecodestring(werte:TArrayofInt):string;
+    function rledecodestring(werte:TArrayofInt):string;
+   { procedure bwtges();
+    procedure huffges();
+    procedure alphages();
+    procedure rlebinaerges();
+    procedure rlestringges(); }
   private
 
   public
@@ -1034,6 +1039,117 @@ if BWTCheckBox.checked=true then begin
   //direkt möglich (vorherige kontrolle, ob rle auch haken?
   end;
 end;
+{procedure TKompressorForm.bwtges(data?,memojanein);
+begin
+   origstr:=data;//einlesen?!
+    origlaenge:=origstr.length;
+    setlength(indizes,origlaenge);
+    setlength(verpackt,origlaenge);
+   for i:=0 to (origlaenge-1) do begin
+    indizes[i]:=i;
+   end;
+
+   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
+  { for g:=1 to origlaenge do begin                                             //bubblesort
+   repeat
+   q:=q+1;
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
+   k:=indizes[q+1];                                                                     //dreieckstausch
+   indizes[q+1]:=indizes[q];
+   indizes[q]:=k;
+                                                                                //erhöhen von n
+   end;
+  until q=origlaenge-2;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;}
+
+  for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
+  hilf:=permute(origstr,indizes[i]);       //erstellen der vollständigen permutation
+ // memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
+  if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
+  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
+  end;
+  Memo.lines.add(verpackt+inttostr(index));
+  //rleencodestring mit bwt-ergebnis (verpackt+inttostr(index))
+  //direkt möglich (vorherige kontrolle, ob rle auch haken?
+end;
+}
+{procedure TKompressorForm.huffges();
+var //fehlen
+begin
+   data:='';
+  for i:=0 to high(startdata) do data:=data+startdata[i];                       //Gelesene Daten in einen String umschreib
+  alpha:=getalpha(Data);
+  wahrsch:=copy(getwahrsch(Data,alpha));
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  Memo.lines.add('Alphabet: '+alpha);
+  Memo.lines.add('Wahrscheinlichkeit: '+aofrealtostr(wahrsch));
+  end;
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  {----------------Zur Kontrolle! Summe muss 1 ergeben-------------------------}
+  summe:=0;
+  for i:=0 to (length(wahrsch)-1) do begin
+    summe:=summe+wahrsch[i];
+    end;
+  Memo.lines.add('Summe der Wahrscheinlichkeiten: '+floattostr(summe));
+  {----------------------------------------------------------------------------}
+  end;
+
+  kompdata:=huffman(data,alpha,wahrsch);
+  //Stringindatei(alpha,'Alphabet.txt');
+  //Sarrayindatei(codealpha,'Codealphabet.txt');
+  Datensatz.alphabet:=alpha;
+  Datensatz.codealphabet:=codealpha;
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
+  Memo.Lines.add('Komprimiert: '+kompdata);
+  Showmessage('Jetzt kommt Run-Length-Encoding.');                              //um dem Nutzer Zeit zu geben die Daten
+                                                                                //Im Memo zu überprüfen (geht eleganter)
+  end;
+end;
+}
+{procedure TKompressorForm.alphages();
+begin
+  data:=alphacode(sarraytostring(startdata,false));
+  If MemoAusgabeRadioButton.checked=true then Showmessage('Bits: '+data);
+  save(data,SavePathEdit.text);
+end;}
+{procedure TKompressorForm.rlebinaerges();
+begin
+  Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  Memo.lines.clear;             //für ausgabe der komprimierten Werte
+  memo.lines[0]:='Erster byte: '+inttostr(startwert);   //erster byte wird mit ausgegeben/abgespeichert, um später zurückzurechnen
+
+  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
+    Memo.lines[y+1]:=inttostr(Komprimiert[y]);
+  end;
+  end;
+
+  setlength(rledata,length(komprimiert)+1);             //Die Daten aus komprimiert als String abspeichern
+  rledata[0]:=inttostr(startwert);
+  for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
+  SarrayInDatei(rledata,SavePathEdit.text);
+  end;
+}
+//end
+{procedure TKompressorForm.rlestringges();
+begin
+ :=rleencodestring1(verpackt+inttostr(index));
+ edit1.text:=inttostr(length(test));
+ memo2.lines.clear;
+ i:=0;
+ repeat
+ Memo2.lines.add(chr(test[i]));
+ Memo2.lines.Add(inttostr(test[i+1]));
+ inc(i,2)
+ until i=(Length(test));
+end;
+}
 
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
