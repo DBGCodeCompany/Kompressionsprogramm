@@ -83,7 +83,6 @@ type
 
 var
   KompressorForm: TKompressorForm;
-  codealpha: array of shortstring;
   bits:TBits;
 
 implementation
@@ -446,14 +445,34 @@ begin
 end;
 
 {------------------------HUFFMAN-CODING----------------------------------------}
-function huffman(s,alpha:string;wahrsch:Tarrayofreal):String;
+function huffman(s:string):TDatensatz;
 var
- index:int64;  // i,n,
+ index:int64;
  i,n:integer;
   hilf:real;
-  nullen:string;
-  kompdata:array of shortstring;
+  summe:real;
+  wahrsch:Tarrayofreal;
+  nullen,alpha:string;
+  kompdata,codealpha:array of shortstring;
   begin
+  alpha:=getalpha(s);
+  wahrsch:=copy(getwahrsch(s,alpha));
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  Memo.lines.add('Alphabet: '+alpha);
+  Memo.lines.add('Wahrscheinlichkeit: '+aofrealtostr(wahrsch));
+  end;
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  {----------------Zur Kontrolle! Summe muss 1 ergeben-------------------------}
+  summe:=0;
+  for i:=0 to (length(wahrsch)-1) do begin
+    summe:=summe+wahrsch[i];
+    end;
+  Memo.lines.add('Summe der Wahrscheinlichkeiten: '+floattostr(summe));
+  {----------------------------------------------------------------------------}
+  end;
+
     {-------Codealphabet finden--mit Alphabet und Wahrscheinlichkeiten---------}
     nullen:='';
     setlength(codealpha,length(alpha));
@@ -482,22 +501,30 @@ var
       end;
     end;
     {--------------------------------------------------------------------------}
-    result:=SArrayToString(kompdata,false);
+  result.alphabet:=alpha;
+  result.codealphabet:=codealpha;
+  result.bytedaten:=bittobyte(Sarraytostring(kompdata,false));
+   If MemoAusgabeRadioButton.checked=true then begin
+    Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
+    Memo.Lines.add('Komprimiert: '+Sarraytostring(kompdata,true));
+   end;
   end;
 {------------------------------------------------------------------------------}
 {-------------------huffmankompriemierung entpacken----------------------------}
-function dehuff(bits:string;codealpha:Tarrayofstring;alpha:string):string;
+function dehuff(datensatz:TDatensatz):string;
 var
   i,index:integer;
-  data,strbits:string;
+  data,strbits,bits:string;
   begin                                                                         //Init
     data:='';                                                                   //Init
     strbits:='';
+    bits:='';
+    for i:=0 to high(datensatz.bytedaten) do bits:=bits+binStr(datensatz.bytedaten[i],8);
     for index:=1 to length(bits) do begin                                       //wenn in den Komprimierten Daten eine 1
      if bits[index]='1' then begin                                              //gefunden wird, wird im Codealphabet nach
         strbits:=strbits+'1';                                                   //der kombination aus den nullen un der 1
-        for i:=0 to high(codealpha) do begin                                    //gesucht und der richtige buchstabe
-          if strbits=codealpha[i] then data:=data+alpha[i+1];                   //aus alpha an das Ergebnis gehängt
+        for i:=0 to high(datensatz.codealphabet) do begin                       //gesucht und der richtige buchstabe
+          if strbits=datensatz.codealphabet[i] then data:=data+datensatz.alphabet[i+1];      //aus alpha an das Ergebnis gehängt
         end;
         strbits:='';
      end
@@ -913,15 +940,18 @@ begin
  saverecord(datensatz,SavePathEdit.text);
  Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
+ if getRunMode=4 then begin
+ Memo.lines.add('Beginn der Komprimierung mit Huffmancodierung');
+ datensatz:=huffman(startstring);
+ saverecord(datensatz,SavePathEdit.text);
+ Memo.lines.add('Komprimierte Daten abgespeichert');
+ end;
 { if getRunMode=2 then begin
  erst dies, dann das
  end;
  if getRunMode=3 then begin
 erst dies, dann das
 end;
- if getRunMode=4 then begin
- erst dies, dann das
- end;
  if getRunMode=5 then begin
 erst dies, dann das
 end;
@@ -1227,18 +1257,21 @@ begin
   datensatz:=loadrecord(OpenPathEdit.text);
 
 if getRunMode=1 then begin
-Memo.lines.add('Beginn der Dekomprimierung AlphaCode');
-entpacktstr:=dealphacode(datensatz);
-StringinDatei(entpacktstr,SavePathEdit.text);
-Memo.lines.add('Dekomprimierte Daten abgespeichert');
+  Memo.lines.add('Beginn der Dekomprimierung AlphaCode');
+  entpacktstr:=dealphacode(datensatz);
+  StringinDatei(entpacktstr,SavePathEdit.text);
+  Memo.lines.add('Dekomprimierte Daten abgespeichert');
+end;
+if getRunMode=4 then begin
+  Memo.lines.add('Beginn der Dekomprimierung Huffmandecodierung');
+  entpacktstr:=dehuff(datensatz);
+  StringinDatei(entpacktstr,SavePathEdit.text);
+  Memo.lines.add('Dekomprimierte Daten abgespeichert');
 end;
 { if getRunMode=2 then begin
 erst dies, dann das
 end;
 if getRunMode=3 then begin
-erst dies, dann das
-end;
-if getRunMode=4 then begin
 erst dies, dann das
 end;
 if getRunMode=5 then begin
