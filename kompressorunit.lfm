@@ -1,13 +1,12 @@
 object KompressorForm: TKompressorForm
   Left = 693
-  Height = 598
+  Height = 399
   Top = 143
-  Width = 946
+  Width = 631
   Caption = 'Kompressor'
-  ClientHeight = 598
-  ClientWidth = 946
+  ClientHeight = 399
+  ClientWidth = 631
   Color = clCream
-  DesignTimePPI = 144
   Icon.Data = {
     3E08010000000100010080800000010020002808010016000000280000008000
     0000000100000100200000000000000001006400000064000000000000000000
@@ -2127,14 +2126,14 @@ object KompressorForm: TKompressorForm
   }
   LCLVersion = '2.0.4.0'
   object TopLabel: TLabel
-    Left = 48
-    Height = 40
-    Top = 32
-    Width = 387
+    Left = 32
+    Height = 25
+    Top = 21
+    Width = 258
     Caption = '...ein Kompressionsprogramm'
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlack
-    Font.Height = -29
+    Font.Height = -19
     Font.Name = 'Segoe UI Semibold'
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
@@ -2143,10 +2142,10 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object Memo: TMemo
-    Left = 516
-    Height = 552
-    Top = 24
-    Width = 405
+    Left = 344
+    Height = 368
+    Top = 16
+    Width = 270
     HideSelection = False
     Lines.Strings = (
       'Bitte geben Sie den Pfad der unverpackten Datei an.'
@@ -2156,19 +2155,19 @@ object KompressorForm: TKompressorForm
     TabOrder = 0
   end
   object BWTCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 96
-    Width = 287
+    Left = 32
+    Height = 19
+    Top = 64
+    Width = 193
     Caption = 'Burrows-Wheeler-Transormation'
     ParentFont = False
     TabOrder = 1
   end
   object RLCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 144
-    Width = 199
+    Left = 32
+    Height = 19
+    Top = 96
+    Width = 135
     Caption = 'Run-length-encoding'
     Checked = True
     ParentFont = False
@@ -2176,10 +2175,10 @@ object KompressorForm: TKompressorForm
     TabOrder = 2
   end
   object HaffCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 192
-    Width = 165
+    Left = 32
+    Height = 19
+    Top = 128
+    Width = 112
     Caption = 'Huffman-Coding'
     Checked = True
     ParentFont = False
@@ -2187,48 +2186,48 @@ object KompressorForm: TKompressorForm
     TabOrder = 3
   end
   object KomprimierenButton: TButton
-    Left = 48
-    Height = 38
-    Top = 416
-    Width = 136
+    Left = 32
+    Height = 25
+    Top = 277
+    Width = 91
     Caption = 'Komprimieren'
     OnClick = KomprimierenButtonClick
     ParentFont = False
     TabOrder = 4
   end
   object DekomprimierenButton: TButton
-    Left = 192
-    Height = 38
-    Top = 416
-    Width = 144
+    Left = 128
+    Height = 25
+    Top = 277
+    Width = 96
     Caption = 'Dekomprimieren'
     OnClick = DekomprimierenButtonClick
     ParentFont = False
     TabOrder = 5
   end
   object OpenPathEdit: TEdit
-    Left = 88
-    Height = 33
-    Top = 280
-    Width = 352
+    Left = 59
+    Height = 23
+    Top = 187
+    Width = 235
     ParentFont = False
     TabOrder = 6
     Text = 'test.txt'
   end
   object SavePathEdit: TEdit
-    Left = 88
-    Height = 33
-    Top = 336
-    Width = 352
+    Left = 59
+    Height = 23
+    Top = 224
+    Width = 235
     ParentFont = False
     TabOrder = 7
     Text = 'saved.txt'
   end
   object OpenSpeedButton: TSpeedButton
-    Left = 448
-    Height = 33
-    Top = 280
-    Width = 34
+    Left = 299
+    Height = 22
+    Top = 187
+    Width = 23
     Glyph.Data = {
       42120000424D4212000000000000360000002800000023000000210000000100
       2000000000000C12000064000000640000000000000000000000F3F3F3FFF3F8
@@ -2382,10 +2381,10 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object SaveSpeedButton: TSpeedButton
-    Left = 448
-    Height = 33
-    Top = 336
-    Width = 34
+    Left = 299
+    Height = 22
+    Top = 224
+    Width = 23
     Glyph.Data = {
       42120000424D4212000000000000360000002800000023000000210000000100
       2000000000000C12000064000000640000000000000000000000F3F3F3FFF3F8
@@ -2539,28 +2538,28 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object inputLabel: TLabel
-    Left = 8
-    Height = 25
-    Top = 280
-    Width = 42
+    Left = 5
+    Height = 15
+    Top = 187
+    Width = 28
     Caption = 'Input'
     ParentColor = False
     ParentFont = False
   end
   object outputLabel: TLabel
-    Left = 8
-    Height = 25
-    Top = 336
-    Width = 57
+    Left = 5
+    Height = 15
+    Top = 224
+    Width = 38
     Caption = 'Output'
     ParentColor = False
     ParentFont = False
   end
   object AusgabeRadioGroup: TRadioGroup
-    Left = 40
-    Height = 102
-    Top = 472
-    Width = 278
+    Left = 27
+    Height = 68
+    Top = 315
+    Width = 185
     AutoFill = True
     Caption = 'Ausgabe wählen:'
     ChildSizing.LeftRightSpacing = 6
@@ -2570,24 +2569,24 @@ object KompressorForm: TKompressorForm
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 72
-    ClientWidth = 274
+    ClientHeight = 48
+    ClientWidth = 181
     ParentFont = False
     TabOrder = 8
     object MemoAusgabeRadioButton: TRadioButton
       Left = 6
-      Height = 36
+      Height = 24
       Top = 0
-      Width = 262
+      Width = 169
       Caption = 'Memo Ausgabe'
       ParentFont = False
       TabOrder = 0
     end
     object keineAusgabeRadioButton: TRadioButton
       Left = 6
-      Height = 36
-      Top = 36
-      Width = 262
+      Height = 24
+      Top = 24
+      Width = 169
       Caption = 'Keine Memo Ausgabe'
       Checked = True
       ParentFont = False
@@ -2596,20 +2595,20 @@ object KompressorForm: TKompressorForm
     end
   end
   object AlphaCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 240
-    Width = 231
+    Left = 32
+    Height = 19
+    Top = 160
+    Width = 155
     Caption = 'Alphabet Komprimierung'
     ParentFont = False
     TabOrder = 9
   end
   object OpenDialog: TOpenDialog
-    left = 432
-    top = 396
+    left = 288
+    top = 264
   end
   object SaveDialog: TSaveDialog
-    left = 348
-    top = 396
+    left = 232
+    top = 264
   end
 end

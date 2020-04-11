@@ -60,21 +60,16 @@ type
     procedure saverecord(data:TDatensatz; Path:string);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
     function bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
-    function getRunmode():integer;
+    //function getRunmode(now:integer):integer;
     function rleencode(Werte:TArrayofbyte):TArrayofInt;
+    //function rleencode(data:string):TArrayofInt;
     function rleencodestring(s:string):TarrayofInt;
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
     function rledecodestring(werte:TArrayofInt):string;
-   { function bwtverpacken();
-    function huffverpacken();
-    function alphaverpacken();
-    function rlebinaerverpacken();
-    function rlestringverpacken();
-     function bwtentpacken();
-    function huffentpacken();
-    function alphaentpacken();
-    function rlebinaerentpacken();
-    function rlestringentpacken();}
+    function huffman(s:string):TDatensatz;
+    function alphacode(data:string):TDatensatz;
+    function getRunMode():integer;
+
   private
 
   public
@@ -87,9 +82,10 @@ var
 
 implementation
 
-function TKompressorform.getRunmode():integer;  //überprüfen, welche algorithmen verwendet werden sollen; Reihenfolge komprimieren vs. entpacken
+ function TKompressorform.getRunmode():integer;  //überprüfen, welche algorithmen verwendet werden sollen; Reihenfolge komprimieren vs. entpacken
 var bwt,rle,huff,alpha:boolean;                  //einleseart muss an runmode und algorithmus angepasst werden
 begin
+
  if AlphaCheckBox.checked=true then
    alpha:=true
    else
@@ -104,72 +100,182 @@ begin
    huff:=true
    else huff:=false;
 
- if alpha=true and bwt=false and rle=false and huff=false then  begin
-   result:=1; //nur alpha
-   Memo.lines.add('Gewählte Komprimierung: Alphabet-Komprimierung');
- end;
- if alpha=true and bwt=true and rle=false and huff=false then  begin
-   result:=2; //nur bwt
-   Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler-Transformierung');
- end;
- if alpha=true and bwt=false and rle=true and huff=false then  begin
-   result:=3; //nur rle  ->rlebinär
-   Memo.lines.add('Gewählte Komprimierung: RunLengthEncoding');
- end;
- if alpha=true and bwt=false and rle=false and huff=true then begin
-   result:=4; //nur huff
-   Memo.lines.add('Gewählte Komprimierung: Huffman-Coding');
- end;
- if alpha=true and bwt=true and rle=false and huff=false then begin
-   result:=5; //alpha und bwt  ->?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wälen Sie etwas anderes.');
- end;
- if alpha=true and bwt=false and rle=true and huff=false then begin
-   result:=6; //alpha und rle  ->?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=true and bwt=false and rle=false and huff=true then begin
-   result:=7; //alpha und huff  ->?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=false and bwt=true and rle=true and huff=false then begin
-   result:=8; //bwt und rle ->erst bwt, dann rlestring
-   Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding');
- end;
- if alpha=true and bwt=true and rle=false and huff=true then begin
-   result:=9; //bwt und huff ->erst bwt, dann huff
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=false and bwt=false and rle=true and huff=true then begin
-   result:=10;//rle und huff  ->erst huff, dann rle?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=true and bwt=true and rle=true and huff=false then begin
-   result:=11;//alpha,bwt und rle ->? bwt, dann rlestring
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=true and bwt=true and rle=false and huff=true then begin
-   result:=12;//alpha, rle und huff ->huff und alpha, dann rlebinär?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=true and bwt=true and rle=false and huff=true then begin
-   result:=13;//alpha, bwt und huff  ->bwt, dann huff und alpha?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=true and bwt=true and rle=true and huff=false then begin
-   result:=14;//alpha,bwt und rle ->bwt und rlestring, dann alpha?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
- if alpha=false and bwt=true and rle=true and huff=true then begin
-   result:=15;//bwt, rle und huff ->erst bwt, dann rlestring und huff?
-   Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding und Huffmancodierung');
- end;
- if alpha=true and bwt=true and rle=true and huff=true then begin
-   result:=16;//alles ->erst bwt, dann rlestring und huff? alpha?
-   Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
- end;
-end;
+  if alpha=true then begin
+   if bwt=false then begin
+     if rle=false then begin
+       if huff=false then begin
+       result:=1;
+       Memo.lines.add('Gewählte Komprimierung: Alphabet-Komprimierung');
+       end;
+      end;
+     end;
+   end;
 
+   if alpha=false then begin
+   if bwt=true then begin
+     if rle=false then begin
+       if huff=false then begin
+       result:=2;
+       Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler-Transformierung');
+       end;
+      end;
+     end;
+   end;
+
+ if alpha=false then begin
+   if bwt=false then begin
+     if rle=true then begin
+       if huff=false then begin
+       result:=3;
+       Memo.lines.add('Gewählte Komprimierung: RunLengthEncoding');
+       end;
+      end;
+     end;
+   end;
+
+  if alpha=false then begin
+   if bwt=false then begin
+     if rle=false then begin
+       if huff=true then begin
+       result:=4;
+       Memo.lines.add('Gewählte Komprimierung: Huffman-Coding');
+       end;
+      end;
+     end;
+   end;
+
+    if alpha=true then begin
+   if bwt=true then begin
+     if rle=false then begin
+       if huff=false then begin
+       result:=5;
+       Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+       end;
+      end;
+     end;
+   end;
+
+   if alpha=true then begin
+   if bwt=true then begin
+     if rle=true then begin
+       if huff=false then begin
+       result:=6;
+       Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+       end;
+      end;
+     end;
+   end;
+
+   if alpha=true then begin
+   if bwt=true then begin
+     if rle=false then begin
+       if huff=true then begin
+       result:=7;
+       Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+       end;
+      end;
+     end;
+   end;
+
+   if alpha=false then begin
+      if bwt=true then begin
+        if rle=true then begin
+          if huff=false then begin
+          result:=8;
+          Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding');
+          end;
+         end;
+        end;
+      end;
+
+    if alpha=true then begin
+      if bwt=true then begin
+        if rle=false then begin
+          if huff=true then begin
+          result:=9;
+          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+          end;
+         end;
+        end;
+      end;
+
+     if alpha=false then begin
+      if bwt=false then begin
+        if rle=true then begin
+          if huff=true then begin
+          result:=10;
+          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+          end;
+         end;
+        end;
+      end;
+
+   if alpha=true then begin          //11 und 14 sind gleich?!
+      if bwt=true then begin
+        if rle=true then begin
+          if huff=false then begin
+          result:=11;
+          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+          end;
+         end;
+        end;
+      end;
+
+   if alpha=true then begin    //12 und 13 sind gleich?!
+      if bwt=true then begin
+        if rle=false then begin
+          if huff=true then begin
+          result:=12;
+          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+          end;
+         end;
+        end;
+      end;
+
+  if alpha=true then begin
+      if bwt=true then begin
+        if rle=false then begin
+          if huff=true then begin
+          result:=13;
+          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+          end;
+         end;
+        end;
+      end;
+
+  if alpha=true then begin
+      if bwt=true then begin
+        if rle=true then begin
+          if huff=false then begin
+          result:=14;
+          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+          end;
+         end;
+        end;
+      end;
+
+  if alpha=false then begin
+      if bwt=true then begin
+        if rle=true then begin
+          if huff=true then begin
+          result:=15;
+          Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding und Huffmancodierung');
+          end;
+         end;
+        end;
+      end;
+
+  if alpha=true then begin
+      if bwt=true then begin
+        if rle=true then begin
+          if huff=true then begin
+          result:=16;
+          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+          end;
+         end;
+        end;
+      end;
+end;
 function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
 var
   i:integer;
@@ -445,7 +551,7 @@ begin
 end;
 
 {------------------------HUFFMAN-CODING----------------------------------------}
-function huffman(s:string):TDatensatz;
+function TKompressorForm.huffman(s:string):TDatensatz;
 var
  index:int64;
  i,n:integer;
@@ -564,6 +670,60 @@ begin
    result:=copy(WerteKomprimiert);
 
 end;
+
+{function TKompressorForm.rleencode(data: string):TArrayofInt;
+var i,z,y:integer;
+  werte:array of byte;
+  WerteKomprimiert: Array of integer;
+  wert1:byte;
+  wert2:byte;
+  startwert:byte;
+  komprimiert:array of integer;
+begin
+  Memo.lines.add('Beginn RLEncoding binär...');
+  z:=0;
+
+   startwert:=strtoint(data[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
+                                                                                //ausgelesene Daten nehmen.
+   setLength(werte,length(data)-1);    //übernahme der werte aus startdata
+  for i:=2 to length(data) do begin
+    werte[i-2]:=strtoint(data[i]);
+  end;
+   If MemoAusgabeRadioButton.checked=true then begin
+  for i:=1 to high(data) do Memo.lines[i-1]:=data[i];
+  end;
+
+  setLength(WerteKomprimiert,1);
+
+  WerteKomprimiert[0]:=1;  //anfangswert, falls sofort ein wechsel auftritt
+
+  //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
+
+     for i:=0 to (Length(werte)-2) do begin
+         wert1:=(werte[i]);       //werte miteinander vergleichen,ob wechsel (01) vorliegt
+         wert2:=(werte[i+1]);
+        if wert1=wert2 then
+          inc(WerteKomprimiert[z],1) //es wird gezählt, wie oft etwas hintereinander steht
+        else begin
+          inc(z,1);                   //hier liegt ein wechsel vor und greifen auf den nächsten platz des array zu
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);  //dynamische erweiterung des arrays
+          WerteKomprimiert[z] := 1;       //auch hier 1 als minimum
+        end;
+        end;
+   Memo.lines.add('RLE-binär beendet');
+   result:=copy(WerteKomprimiert);
+
+   If MemoAusgabeRadioButton.checked=true then begin
+  Memo.lines.clear;             //für ausgabe der komprimierten Werte
+  memo.lines[0]:='Erster byte: '+inttostr(startwert);   //erster byte wird mit ausgegeben/abgespeichert, um später zurückzurechnen
+
+  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
+    Memo.lines[y+1]:=inttostr(Komprimiert[y]);
+  end;
+  end;
+
+end;
+}
 function TKompressorForm.rleencodestring(s:string):TarrayofInt;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
 var
    i,y, j,r: integer;      //hauptsächlich laufvariablen
@@ -691,7 +851,7 @@ end;
    end;
 {------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
-function alphacode(data:string):TDatensatz;         //Optimiert das Alphabet, das data nutzt indem es ein neues
+function TKompressorForm.alphacode(data:string):TDatensatz;         //Optimiert das Alphabet, das data nutzt indem es ein neues
 var                                             //generiert, das nur die notwenige anzahl an zeichen hat
     i,n:integer;
     alphabet,bits:string;
@@ -858,6 +1018,9 @@ end;
 
 { TKompressorForm }
 
+
+
+
 procedure TKompressorform.saverecord(data:TDatensatz; Path:string);
 var
   i:integer;
@@ -905,6 +1068,7 @@ begin
 
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
+  runmode:integer;
   datensatz:TDatensatz;
   Data,alpha,kompdata,startstring:string;
   wahrsch:array of real;
@@ -931,68 +1095,74 @@ begin
  If MemoAusgabeRadioButton.checked=true then begin
  for i:=0 to high(Startdata) do Memo.lines[i]:=Startdata[i];
  end;
+ runmode:=getrunmode;
 {------------------------------------------------------------------------------}
 {---------------------------RunMode--------------------------------------------}
 
- if getRunMode=1 then begin
+ if runmode=1 then begin
  Memo.lines.add('Beginn der Komprimierung mit AlphaCode');
  datensatz:=alphacode(startstring);
  saverecord(datensatz,SavePathEdit.text);
  Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
- if getRunMode=4 then begin
+ if runmode=2 then begin
+    origstr:=startstring;
+    origlaenge:=origstr.length;
+    setlength(indizes,origlaenge);
+    setlength(verpackt,origlaenge);
+   for i:=0 to (origlaenge-1) do begin
+    indizes[i]:=i;
+   end;
+
+   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
+   for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
+  hilf:=permute(origstr,indizes[i]);       //erstellen der vollständigen permutation
+ if MemoAusgabeRadioButton.checked=true then memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
+  if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
+  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
+  end;
+  Memo.lines.add(verpackt+inttostr(index));
+ end;
+ if runmode=3 then begin
+   data:=loadBitString(OpenPathEdit.text);
+   //Komprimiert:=rleencode(data);
+   //startwert:=strtoint(data[1]);
+   startwert:=strtoint(data[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
+                                                                                //ausgelesene Daten nehmen.
+   setLength(origdata,length(data)-1);    //übernahme der werte aus startdata
+  for i:=2 to length(data) do begin
+    origdata[i-2]:=strtoint(data[i]);
+  end;
+   If MemoAusgabeRadioButton.checked=true then begin
+  for i:=1 to high(data) do Memo.lines[i-1]:=data[i];
+  end;
+
+  Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
+
+  If MemoAusgabeRadioButton.checked=true then begin
+  //Memo.lines.clear;             //für ausgabe der komprimierten Werte
+  Memo.lines.add('Verpackt:');
+  memo.lines.add('Erster byte: '+inttostr(startwert));   //erster byte wird mit ausgegeben/abgespeichert, um später zurückzurechnen
+
+  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
+    Memo.lines.add(inttostr(Komprimiert[y]));
+  end;
+  end;
+
+  setlength(rledata,length(komprimiert)+1);             //Die Daten aus komprimiert als String abspeichern
+  rledata[0]:=inttostr(startwert);
+  for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
+  SarrayInDatei(rledata,SavePathEdit.text);
+  end;
+ if runmode=4 then begin
  Memo.lines.add('Beginn der Komprimierung mit Huffmancodierung');
  datensatz:=huffman(startstring);
  saverecord(datensatz,SavePathEdit.text);
  Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
-{ if getRunMode=2 then begin
- erst dies, dann das
- end;
- if getRunMode=3 then begin
-erst dies, dann das
-end;
- if getRunMode=5 then begin
-erst dies, dann das
-end;
- if getRunMode=6 then begin
- erst dies, dann das
- end;
- if getRunMode=7 then begin
-erst dies, dann das
-end;
- if getRunMode=8 then begin
- erst dies, dann das
- end;
- if getRunMode=9 then begin
-erst dies, dann das
-end;
- if getRunMode=10 then begin
- erst dies, dann das
- end;
- if getRunMode=11 then begin
-erst dies, dann das
-end;
- if getRunMode=12 then begin
- erst dies, dann das
- end;
- if getRunMode=13 then begin
-erst dies, dann das
-end;
- if getRunMode=14 then begin
- erst dies, dann das
- end;
- if getRunMode=15 then begin
-erst dies, dann das
-end;
- if getRunMode=16 then begin
- erst dies, dann das
- end;
-
-}
-{------------------------------------------------------------------------------}
+{---------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
-if (HaffCheckbox.Checked=true) then begin
+{if (HaffCheckbox.Checked=true) then begin
   data:='';
   for i:=0 to high(startdata) do data:=data+startdata[i];                       //Gelesene Daten in einen String umschreib
   alpha:=getalpha(Data);
@@ -1027,8 +1197,9 @@ if (HaffCheckbox.Checked=true) then begin
   end;
 
   end;
+  }
 {---------------------RLE------------------------------------------------------}
-if (RLCheckBox.Checked=true) then begin
+{if (RLCheckBox.Checked=true) then begin
 
 if (HaffCheckBox.Checked=true) then begin;
   startwert:=strtoint(kompdata[1]);
@@ -1072,16 +1243,17 @@ if (RLCheckbox.checked=false) and (HaffCheckBox.checked=true) then begin
   datensatz.stringdaten:='';                 //nur damit der string initialisiert ist
   saverecord(datensatz,SavePathEdit.text);
 end;
+}
 {------------------------------------------------------------------------------}
 {--------------------------Alpha-Codierung-------------------------------------}
-if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox.checked=false) then begin
+{if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox.checked=false) then begin
   data:=alphacode(sarraytostring(startdata,false));
   If MemoAusgabeRadioButton.checked=true then Showmessage('Bits: '+data);
   save(data,SavePathEdit.text);
-  end;
+  end;}
 {------------------------------------------------------------------------------}
 {-------------------------BURROWS-WHEELER--------------------------------------}
-if BWTCheckBox.checked=true then begin
+{if BWTCheckBox.checked=true then begin
    data:=Memo.lines[0];
   //alter bwt Memo.lines.add(bwt(data));
    //bwt verbessert
@@ -1119,132 +1291,12 @@ if BWTCheckBox.checked=true then begin
   Memo.lines.add(verpackt+inttostr(index));
   //rleencodestring mit bwt-ergebnis (verpackt+inttostr(index))
   //direkt möglich (vorherige kontrolle, ob rle auch haken?
-  end;
+  end; }
 end;
-{procedure TKompressorForm.bwtverpacken(data?,memojanein);
-begin
-   origstr:=data;//einlesen?!
-    origlaenge:=origstr.length;
-    setlength(indizes,origlaenge);
-    setlength(verpackt,origlaenge);
-   for i:=0 to (origlaenge-1) do begin
-    indizes[i]:=i;
-   end;
 
-   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
-  { for g:=1 to origlaenge do begin                                             //bubblesort
-   repeat
-   q:=q+1;
-   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
-   k:=indizes[q+1];                                                                     //dreieckstausch
-   indizes[q+1]:=indizes[q];
-   indizes[q]:=k;
-                                                                                //erhöhen von n
-   end;
-  until q=origlaenge-2;
-  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
-  end;}
-
-  for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
-  hilf:=permute(origstr,indizes[i]);       //erstellen der vollständigen permutation
- // memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
-  if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
-  end;
-  Memo.lines.add(verpackt+inttostr(index));
-  //rleencodestring mit bwt-ergebnis (verpackt+inttostr(index))
-  //direkt möglich (vorherige kontrolle, ob rle auch haken?
-end;
-}
-{procedure TKompressorForm.huffverpacken();
-var //fehlen
-begin
-   data:='';
-  for i:=0 to high(startdata) do data:=data+startdata[i];                       //Gelesene Daten in einen String umschreib
-  alpha:=getalpha(Data);
-  wahrsch:=copy(getwahrsch(Data,alpha));
-
-  If MemoAusgabeRadioButton.checked=true then begin
-  Memo.lines.add('Alphabet: '+alpha);
-  Memo.lines.add('Wahrscheinlichkeit: '+aofrealtostr(wahrsch));
-  end;
-
-  If MemoAusgabeRadioButton.checked=true then begin
-  {----------------Zur Kontrolle! Summe muss 1 ergeben-------------------------}
-  summe:=0;
-  for i:=0 to (length(wahrsch)-1) do begin
-    summe:=summe+wahrsch[i];
-    end;
-  Memo.lines.add('Summe der Wahrscheinlichkeiten: '+floattostr(summe));
-  {----------------------------------------------------------------------------}
-  end;
-
-  kompdata:=huffman(data,alpha,wahrsch);
-  //Stringindatei(alpha,'Alphabet.txt');
-  //Sarrayindatei(codealpha,'Codealphabet.txt');
-  Datensatz.alphabet:=alpha;
-  Datensatz.codealphabet:=codealpha;
-
-  If MemoAusgabeRadioButton.checked=true then begin
-  Memo.Lines.add('Codealpha: '+Sarraytostring(codealpha,true));
-  Memo.Lines.add('Komprimiert: '+kompdata);
-  Showmessage('Jetzt kommt Run-Length-Encoding.');                              //um dem Nutzer Zeit zu geben die Daten
-                                                                                //Im Memo zu überprüfen (geht eleganter)
-  end;
-end;
-}
-{procedure TKompressorForm.rlebinaerverpacken();
-begin
-  Komprimiert:=rleencode(origdata);     //erstellen des kompr. arrays
-
-  If MemoAusgabeRadioButton.checked=true then begin
-  Memo.lines.clear;             //für ausgabe der komprimierten Werte
-  memo.lines[0]:='Erster byte: '+inttostr(startwert);   //erster byte wird mit ausgegeben/abgespeichert, um später zurückzurechnen
-
-  for y:=0 to (Length(Komprimiert)-1) do begin     //ausgabe der kompr. werte
-    Memo.lines[y+1]:=inttostr(Komprimiert[y]);
-  end;
-  end;
-
-  setlength(rledata,length(komprimiert)+1);             //Die Daten aus komprimiert als String abspeichern
-  rledata[0]:=inttostr(startwert);
-  for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
-  SarrayInDatei(rledata,SavePathEdit.text);
-  end;
-}
-
-{procedure TKompressorForm.rlestringverpacken();
-begin
- :=rleencodestring1(verpackt+inttostr(index));
- edit1.text:=inttostr(length(test));
- memo2.lines.clear;
- i:=0;
- repeat
- Memo2.lines.add(chr(test[i]));
- Memo2.lines.Add(inttostr(test[i+1]));
- inc(i,2)
- until i=(Length(test));
-end;
-}
-{procedure TKompressorForm.huffentpacken();
-begin
-
-end;
-procedure TKompressorForm.rlebinaerentpacken();
-begin
-
-end;
-procedure TKompressorForm.rlestringentpacken();
-begin
-
-end;
-procedure TKompressorForm.bwtentpacken();
-begin
-
-end;
-}
 procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
+  runmode:integer;
   datensatz:TDatensatz;
   codealpha,readdata:array of shortstring;
   alpha,sw,rledata,entpacktstr,a:string;
@@ -1255,14 +1307,14 @@ var
 begin
 //Daten Laden
   datensatz:=loadrecord(OpenPathEdit.text);
-
-if getRunMode=1 then begin
+    runmode:=getrunmode;
+if runmode=1 then begin
   Memo.lines.add('Beginn der Dekomprimierung AlphaCode');
   entpacktstr:=dealphacode(datensatz);
   StringinDatei(entpacktstr,SavePathEdit.text);
   Memo.lines.add('Dekomprimierte Daten abgespeichert');
 end;
-if getRunMode=4 then begin
+if runmode=4 then begin
   Memo.lines.add('Beginn der Dekomprimierung Huffmandecodierung');
   entpacktstr:=dehuff(datensatz);
   StringinDatei(entpacktstr,SavePathEdit.text);
@@ -1361,7 +1413,7 @@ end;     }
  end;
 {------------------------------------------------------------------------------}
  {--------------------------HUFFMAN-DEHUFF-------------------------------------}
-  if (HaffCheckBox.Checked=true) and (alphacheckbox.checked=false) then begin
+{  if (HaffCheckBox.Checked=true) and (alphacheckbox.checked=false) then begin
 
   //codealpha:=SarrayAusDatei('Codealphabet.txt');
   //alpha:=StringAusDatei('Alphabet.txt');
@@ -1376,12 +1428,12 @@ end;     }
   Memo.lines.add('gelesenes Alphabet: '+alpha);
   Memo.lines.add('Entpackt: '+entpacktstr);
   end;
-  end;
+  end;}
 {------------------------------------------------------------------------------}
 {--------------------------Alpha-Codierung-------------------------------------}
-if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox.checked=false) then begin
+{if (alphaCheckBox.checked=true) and (RLCheckbox.checked=false) and (HaffCheckBox.checked=false) then begin
   StringINDatei(dealphacode(loadbitstring(OpenPathEdit.text)),SavePathEdit.text);
-  end;
+  end; }
 {------------------------------------------------------------------------------}
 end;
 
