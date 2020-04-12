@@ -534,13 +534,13 @@ begin
       FS.read(i,sizeOf(integer));         //länge des kommenden arrays auslesen
       if i>0 then begin
       Setlength(result.bytedaten,i);       //setzen
-      FS.read(result.bytedaten,(i*sizeOf(byte))); //und array auslesen
+      FS.read(result.bytedaten[0],(i*sizeOf(byte))); //und array auslesen
       end;
       //Alphabet lesen
       FS.Read(i,sizeof(integer));        //länge des kommenden String auslesen
       if i>0 then begin
       Setlength(result.alphabet,i);              //und länge setzen
-      FS.Read(result.alphabet[1],(i*sizeof(char))); //String lesen
+      FS.Read(result.alphabet[1],(i*sizeOf(char))); //String lesen
       end;
       //CodeAlphabet lesen
       FS.Read(i,sizeof(integer));                      //länge des kommenden Arrays auslesen

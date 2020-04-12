@@ -539,8 +539,8 @@ begin
       //Alphabet lesen
       FS.Read(i,sizeof(integer));        //länge des kommenden String auslesen
       if i>0 then begin
-      Setlength(result.alphabet,i);              //und länge setzen
-      FS.Read(result.alphabet[1],(i*sizeof(char))); //String lesen
+      Setlength(result.alphabet,i+1);              //und länge setzen
+      FS.Read(result.alphabet[1],(i*sizeOf(char))); //String lesen
       end;
       //CodeAlphabet lesen
       FS.Read(i,sizeof(integer));                      //länge des kommenden Arrays auslesen
@@ -1193,7 +1193,7 @@ begin
  end;
 datensatz.bytedaten:=copy(komprimiert);
 datensatz.stringdaten:='';
-datensatz.index:=0;
+datensatz.derindex:=0;
 saverecord(datensatz,SavePathEdit.text);
 end;
  {---------------------------------------------------------------------}
