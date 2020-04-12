@@ -28,7 +28,7 @@ type
     alphabet:string;
     codealphabet: array of shortstring;
     blocklaenge: byte;
-    index:integer;
+    derindex:integer;
   end;
 
   { TKompressorForm }
@@ -551,7 +551,7 @@ begin
       //Blocklaenge lesen
       FS.read(result.blocklaenge,sizeOf(byte));
       //Index lesen
-      FS.read(result.index,sizeOf(integer));
+      FS.read(result.derindex,sizeOf(integer));
     finally
       FS.free;
     end;
@@ -1000,7 +1000,7 @@ begin
   if MemoAusgabeRadioButton.checked=true then Memo.lines.add(verpackt+inttostr(index));
 
   result.stringdaten:=verpackt;
-  result.index:=index;
+  result.derindex:=index;
 end;
 {------------------------------------------------------------------------------}
 {-----------------Burrows-Wheeler-Transformation-Decodierung-------------------}
@@ -1076,7 +1076,7 @@ begin
       //Blocklaenge schreiben
       FS.Write(data.blocklaenge,SizeOf(byte));
       //Index schreiben
-      FS.Write(data.index,SizeOf(integer));
+      FS.Write(data.derindex,SizeOf(integer));
     finally
       FS.free;
     end;
@@ -1182,7 +1182,7 @@ begin
  Memo.lines.add('Beginn der Umsortierung mit Burrows-Wheeler-Tarnsformation');
  datensatz:=bwt2(startstring);
  Memo.lines.add('Beginn der Komprimierung mit Run-Length-Encoding');
-  komprimiert:=rleencodestring(datensatz.stringdaten+inttostr(datensatz.index));
+  komprimiert:=rleencodestring(datensatz.stringdaten+inttostr(datensatz.derindex));
  if MemoAusgabeRadioButton.checked=true then begin
  i:=0;
  repeat
@@ -1193,7 +1193,7 @@ begin
  end;
 datensatz.bytedaten:=copy(komprimiert);
 datensatz.stringdaten:='';
-datensatz.index:=null;
+datensatz.index:=0;
 saverecord(datensatz,SavePathEdit.text);
 end;
  {---------------------------------------------------------------------}
@@ -1361,7 +1361,7 @@ end;
 //De-BWT
  if getRunMode=2 then begin
  Memo.lines.add('Beginn der zurücksortierung der Burrows-Wheeler-Transformation');
- entpacktstr:=debwt(datensatz.stringdaten,datensatz.index);
+ entpacktstr:=debwt(datensatz.stringdaten,datensatz.derindex);
  StringInDatei(entpacktstr,SavePathEdit.text);
  Memo.lines.add('Zurücksortiertes abgespeichert');
 end;
