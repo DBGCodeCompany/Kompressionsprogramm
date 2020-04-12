@@ -327,50 +327,6 @@ var
 
 
  end;
-//funktioniert nicht, wenn anzahl>9
- function rleencodestring2(s:string):string;
-var
-   i, j,r: integer;
-   letters:string;
-   counts:array of integer;
-   hilf,ausgabe:string;
- begin
-   j := 0;
-   setLength(counts,1);
-   setlength(letters,1);
-     letters[1]:=s[1];
-     counts[0] := 1;
-
-
-     for i := 1 to (length(s)-1) do
-       if s[i] = s[i+1]  then
-         inc(counts[j])
-       else
-       begin
-       setlength(counts,length(counts)+1);
-         setlength(letters,length(letters)+1);
-         letters[j+2]:=s[i+1];
-         inc(j);
-         counts[j] := 1;
-       end;
-
-   setLength(ausgabe,length(counts)+length(letters));
-
-
-   y:=1;
-   r:=0;
-
-  repeat
-  ausgabe[y]:=letters[r+1];
-  hilf:=inttostr(counts[r]);
-  ausgabe[y+1]:=hilf[1];
-  inc(y,2);
-  inc(r,1);
-  until y>(length(ausgabe));
-
-  result:=ausgabe;
-
- end;
  function rledecodestring(werte:TArrayofInt):string;
  var //n:integer;
     z,y,x,m:integer;
@@ -728,10 +684,8 @@ begin
    memo1.lines.add('mit rle:');
    memo1.lines.add(rleencodestring3(verpackt));
 
- // geht nicht: memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
  //alt rlestring:
  {test:=rleencodestring1(verpackt+inttostr(index));
- edit1.text:=inttostr(length(test));
  memo2.lines.clear;
  i:=0;
  repeat
@@ -748,43 +702,6 @@ begin
 // memo1.lines.add(rledecodestring(test));
 
 
-
-
-
-    //alte bwt
- { tabelle:=TStringlist.Create;
-   testtext:=edit2.text;
-   orig:=testtext;
-   origlaenge:=testtext.length;
-   testtext:=testtext+testtext; //als hilfe, keine sorge um zu großes n+m
-
-
-    m:=0;
-   setlength(hilf,origlaenge);
-  for i:=0 to (origlaenge-1) do begin
-      for n:=1 to origlaenge do begin
-        hilf[n]:=testtext[n+m];
-      end;
-      inc(m);
-     tabelle.Add(hilf);
-  end;
-
-  tabelle.Sort;
-  memo1.lines.Assign(tabelle);    //mit memoausgabe
-  setlength(verpackt,origlaenge);
-  {for i:=0 to (origlaenge-1) do begin
-  hilf2:=memo1.lines[i];
-  if hilf2=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-  verpackt[i+1]:=hilf2[origlaenge];
-  end;}
-    for i:=0 to (origlaenge-1) do begin   //ohne ausgabe
-  hilf2:=tabelle[i];
-  if hilf2=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-  verpackt[i+1]:=hilf2[origlaenge];
-  end;
-  }
-
- // edit1.text:=verpackt+inttostr(index);
  //altes rle
  { startwert:=strtoint(memo1.lines[0]);
 

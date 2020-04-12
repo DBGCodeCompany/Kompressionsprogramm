@@ -327,50 +327,6 @@ var
 
 
  end;
-//funktioniert nicht, wenn anzahl>9
- function rleencodestring2(s:string):string;
-var
-   i, j,r: integer;
-   letters:string;
-   counts:array of integer;
-   hilf,ausgabe:string;
- begin
-   j := 0;
-   setLength(counts,1);
-   setlength(letters,1);
-     letters[1]:=s[1];
-     counts[0] := 1;
-
-
-     for i := 1 to (length(s)-1) do
-       if s[i] = s[i+1]  then
-         inc(counts[j])
-       else
-       begin
-       setlength(counts,length(counts)+1);
-         setlength(letters,length(letters)+1);
-         letters[j+2]:=s[i+1];
-         inc(j);
-         counts[j] := 1;
-       end;
-
-   setLength(ausgabe,length(counts)+length(letters));
-
-
-   y:=1;
-   r:=0;
-
-  repeat
-  ausgabe[y]:=letters[r+1];
-  hilf:=inttostr(counts[r]);
-  ausgabe[y+1]:=hilf[1];
-  inc(y,2);
-  inc(r,1);
-  until y>(length(ausgabe));
-
-  result:=ausgabe;
-
- end;
  function rledecodestring(werte:TArrayofInt):string;
  var //n:integer;
     z,y,x,m:integer;
@@ -676,6 +632,7 @@ begin
     setlength(indizes,origlaenge);
     setlength(verpackt,origlaenge);
    tick1:=gettickcount64;
+   //alt bwt
   { for i:=0 to (origlaenge-1) do begin
     indizes[i]:=i;
    end;}
@@ -715,18 +672,20 @@ begin
   verpackt[i+1]:=hilf2[origlaenge];
   end;
 
-  Memo1.lines.add(verpackt+inttostr(index)); }
+  Memo1.lines.add(verpackt+inttostr(index)); } //bwt endet hier
   //memo1.lines[origlaenge]:=verpackt+inttostr(index);
   tick2:=gettickcount64-tick1;
-  verpackt:=bwt2(origlaenge,orig);
+  verpackt:=bwt2(origlaenge,orig); //bwtneu
   memo1.lines.add(verpackt);
   memo1.lines.add(inttostr(tick2)+'ms');
 
   memo1.lines.add('detransformiert: ');
-  //memo1.lines.add(debwt(verpackt,index));
+  //memo1.lines.add(debwt(verpackt,index));   //geht nicht mit neuer bwt
    memo1.lines.add('mit rle:');
    memo1.lines.add(rleencodestring3(verpackt));
- // memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
+
+ // geht nicht: memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
+ //alt rlestring:
  {test:=rleencodestring1(verpackt+inttostr(index));
  edit1.text:=inttostr(length(test));
  memo2.lines.clear;
@@ -736,7 +695,8 @@ begin
  Memo2.lines.Add(inttostr(test[i+1]));
  inc(i,2)
  until i=(Length(test)); }
-
+ //rlestring endet
+ //rledecodestring,läuft nicht mit neuer version
  { memo1.lines.Add('rle detransformiert:');
  hilf:=rledecodestring2(test);
  memo1.lines.add(hilf);

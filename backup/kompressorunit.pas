@@ -731,7 +731,7 @@ var
    counts:array of integer;   //speichert, wie oft welcher char vorkommt
    ausgabe:array of integer;
  begin
-   Memo.lines.add('Beginn RlE-String...');
+   Memo.lines.add('Beginn RLE-String...');
    j := 0;
    setLength(counts,1);
    setlength(letters,1);
@@ -767,7 +767,7 @@ var
    end;
    end;
 
-   Memo.lines.add('RlE-String beendet');
+   Memo.lines.add('RLE-String beendet');
    result:=copy(ausgabe);
 
 
@@ -1087,6 +1087,7 @@ var
   verpackt:string;
   index:integer;
 
+
 begin
 //DATEN LADEN:
  startdata:=SarrayausDAtei(OpenPathEdit.text);
@@ -1098,13 +1099,14 @@ begin
  runmode:=getrunmode;
 {------------------------------------------------------------------------------}
 {---------------------------RunMode--------------------------------------------}
-
+ //nur alpha
  if runmode=1 then begin
  Memo.lines.add('Beginn der Komprimierung mit AlphaCode');
  datensatz:=alphacode(startstring);
  saverecord(datensatz,SavePathEdit.text);
  Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
+ //nur bwt
  if runmode=2 then begin
     origstr:=startstring;
     origlaenge:=origstr.length;
@@ -1122,7 +1124,9 @@ begin
   verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
   end;
   Memo.lines.add(verpackt+inttostr(index));
+  //savetofile
  end;
+ //nur rlebinär
  if runmode=3 then begin
    data:=loadBitString(OpenPathEdit.text);
    //Komprimiert:=rleencode(data);
@@ -1154,13 +1158,45 @@ begin
   for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
   SarrayInDatei(rledata,SavePathEdit.text);
   end;
+ //nur huffmann
  if runmode=4 then begin
  Memo.lines.add('Beginn der Komprimierung mit Huffmancodierung');
  datensatz:=huffman(startstring);
  saverecord(datensatz,SavePathEdit.text);
  Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
-{---------------------------------------------------------------------}
+ //bwt und rlestring
+ if runmode=8 then begin
+  origstr:=startstring;
+    origlaenge:=origstr.length;
+    setlength(indizes,origlaenge);
+    setlength(verpackt,origlaenge);
+   for i:=0 to (origlaenge-1) do begin
+    indizes[i]:=i;
+   end;
+
+   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
+   for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
+  hilf:=permute(origstr,indizes[i]);       //erstellen der vollständigen permutation
+ if MemoAusgabeRadioButton.checked=true then memo.lines.add(hilf);    //ausgabe im memo/ abfragen?
+  if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
+  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
+  end;
+  Memo.lines.add(verpackt+inttostr(index));
+
+  komprimiert:=rleencodestring(verpackt+inttostr(index));
+ if MemoAusgabeRadioButton.checked=true then begin
+ i:=0;
+ repeat
+ Memo.lines.add(chr(komprimiert[i]));
+ Memo.lines.Add(inttostr(komprimiert[i+1]));
+ inc(i,2)
+ until i=(Length(komprimiert));
+ end;
+
+ //savetofile
+ end;
+ {---------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 {if (HaffCheckbox.Checked=true) then begin
   data:='';
@@ -1307,7 +1343,7 @@ var
 begin
 //Daten Laden
   datensatz:=loadrecord(OpenPathEdit.text);
-    runmode:getrunmode;
+    runmode:=getrunmode;
 if runmode=1 then begin
   Memo.lines.add('Beginn der Dekomprimierung AlphaCode');
   entpacktstr:=dealphacode(datensatz);
