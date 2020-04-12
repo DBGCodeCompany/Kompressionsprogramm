@@ -35,6 +35,7 @@ type
     procedure SpeedButton2Click(Sender: TObject);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
     function bwt(indizes:TArrayofInt;origlaenge:integer;orig:string):TArrayofInt;
+    function bwt2(origlaenge:integer;orig:string):string;
   private
 
   public
@@ -514,7 +515,43 @@ begin
 
    result:=indizes;
 end;
+function Tform1.bwt2(origlaenge:integer;orig:string):string;
+var q,k,g:integer;
+  indizes:array of integer;
+  hilf2:string;
+  verpackt:string;
+  index:integer;
+begin
+    setlength(indizes,origlaenge);
+    setlength(verpackt,origlaenge);
+   q:=-1;
+    for i:=0 to (origlaenge-1) do begin
+    indizes[i]:=i;
+   end;
 
+   //neue prozedur
+   for g:=1 to origlaenge do begin                                             //bubblesort
+   repeat
+   q:=q+1;
+   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin                                               //vergleichen
+   k:=indizes[q+1];                                                                     //dreieckstausch
+   indizes[q+1]:=indizes[q];
+   indizes[q]:=k;
+                                                                                //erhöhen von n
+   end;
+  until q=origlaenge-2;
+  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
+  end;
+
+   for i:=0 to (origlaenge-1) do begin
+  hilf2:=permute(orig,indizes[i]);
+  memo1.lines[i]:=hilf2;    //ausgabe im memo
+  if hilf2=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
+  verpackt[i+1]:=hilf2[origlaenge];
+  end;
+  result:=verpackt+inttostr(index);
+  // result:=indizes;
+end;
 function debwt(trans:string;index:integer):string;
 var
   i,n,len,k:integer;
@@ -639,11 +676,12 @@ begin
     setlength(indizes,origlaenge);
     setlength(verpackt,origlaenge);
    tick1:=gettickcount64;
-   for i:=0 to (origlaenge-1) do begin
+   //alt bwt
+  { for i:=0 to (origlaenge-1) do begin
     indizes[i]:=i;
-   end;
+   end;}
 
-   indizes:=bwt(indizes,origlaenge,orig);
+  // indizes:=bwt(indizes,origlaenge,orig);
    //neue prozedur
    {for g:=1 to origlaenge do begin                                             //bubblesort
    repeat
@@ -671,22 +709,27 @@ begin
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
   end; }
 
-  for i:=0 to (origlaenge-1) do begin
+  {for i:=0 to (origlaenge-1) do begin
   hilf2:=permute(orig,indizes[i]);
   memo1.lines[i]:=hilf2;    //ausgabe im memo
   if hilf2=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
   verpackt[i+1]:=hilf2[origlaenge];
   end;
-  tick2:=gettickcount64-tick1;
-  Memo1.lines.add(verpackt+inttostr(index));
+
+  Memo1.lines.add(verpackt+inttostr(index)); } //bwt endet hier
   //memo1.lines[origlaenge]:=verpackt+inttostr(index);
+  tick2:=gettickcount64-tick1;
+  verpackt:=bwt2(origlaenge,orig); //bwtneu
+  memo1.lines.add(verpackt);
   memo1.lines.add(inttostr(tick2)+'ms');
 
   memo1.lines.add('detransformiert: ');
-  memo1.lines.add(debwt(verpackt,index));
+  //memo1.lines.add(debwt(verpackt,index));   //geht nicht mit neuer bwt
    memo1.lines.add('mit rle:');
-   memo1.lines.add(rleencodestring3(verpackt+inttostr(index)));
- // memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
+   memo1.lines.add(rleencodestring3(verpackt));
+
+ // geht nicht: memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
+ //alt rlestring:
  {test:=rleencodestring1(verpackt+inttostr(index));
  edit1.text:=inttostr(length(test));
  memo2.lines.clear;
@@ -696,7 +739,8 @@ begin
  Memo2.lines.Add(inttostr(test[i+1]));
  inc(i,2)
  until i=(Length(test)); }
-
+ //rlestring endet
+ //rledecodestring,läuft nicht mit neuer version
  { memo1.lines.Add('rle detransformiert:');
  hilf:=rledecodestring2(test);
  memo1.lines.add(hilf);
