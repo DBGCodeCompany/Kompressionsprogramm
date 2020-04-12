@@ -28,6 +28,7 @@ type
     alphabet:string;
     codealphabet: array of shortstring;
     blocklaenge: byte;
+    index:integer;
   end;
 
   { TKompressorForm }
@@ -59,11 +60,11 @@ type
     procedure save(data:String; const Path:String);
     procedure saverecord(data:TDatensatz; Path:string);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
-    function bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
+    function bwt2(orig:string):TDatensatz;
     //function getRunmode(now:integer):integer;
-    function rleencode(Werte:TArrayofbyte):TArrayofInt;
+    function rleencode(Werte:TArrayofbyte):Tarrayofbyte;
     //function rleencode(data:string):TArrayofInt;
-    function rleencodestring(s:string):TarrayofInt;
+    function rleencodestring(s:string):Tarrayofbyte;
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
     function rledecodestring(werte:TArrayofInt):string;
     function huffman(s:string):TDatensatz;
@@ -276,6 +277,7 @@ begin
         end;
       end;
 end;
+
 function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
 var
   i:integer;
@@ -304,6 +306,7 @@ begin
      else result[i]:=str[index+i];
    end;
 end;
+
 function permute2(str:string;index:integer;pos:integer):char;   //gibt die permutation als einzelnen char zurück
 var l:integer;
 begin
@@ -311,6 +314,7 @@ begin
     if (pos+index)>l then result:=str[pos+index-l]
      else result:=str[index+pos];
 end;
+
 {alternative zur einfachen tauschfunktion, vorteil, da nicht die gesamte permutation erstellt wird}
 {rekursiv: sind die chars gleich, ruft sich die funktion}
 {selbst auf, dabei werden die nächsten chars verglichen etc}
@@ -328,6 +332,7 @@ begin
       result:=false;
     end;
   end;
+
 function potenz(basis,exponent:integer):byte;                  //Potenz halt
 var
 i:integer;
@@ -545,6 +550,8 @@ begin
       end;
       //Blocklaenge lesen
       FS.read(result.blocklaenge,sizeOf(byte));
+      //Index lesen
+      FS.read(result.index,sizeOf(integer));
     finally
       FS.free;
     end;
@@ -640,9 +647,9 @@ var
   end;
 {------------------------------------------------------------------------------}
 {----------------------Run-Length-Encoding-------------------------------------}
-function TKompressorForm.rleencode(Werte:TArrayofbyte):TArrayofInt;
+function TKompressorForm.rleencode(Werte:TArrayofbyte):TArrayofbyte;
 var i,z:integer;
-  WerteKomprimiert: Array of integer;
+  WerteKomprimiert: Array of byte;
   wert1:byte;
   wert2:byte;
 begin
@@ -724,12 +731,12 @@ begin
 
 end;
 }
-function TKompressorForm.rleencodestring(s:string):TarrayofInt;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
+function TKompressorForm.rleencodestring(s:string):Tarrayofbyte;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
 var
    i,y, j,r: integer;      //hauptsächlich laufvariablen
    letters:string;          //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
-   counts:array of integer;   //speichert, wie oft welcher char vorkommt
-   ausgabe:array of integer;
+   counts:array of byte;   //speichert, wie oft welcher char vorkommt
+   ausgabe:array of byte;
  begin
    Memo.lines.add('Beginn RLE-String...');
    j := 0;
@@ -951,9 +958,20 @@ for i:=0 to high(indizes) do begin
     result:=result+str[length(str)];                         //den letzten Buchstaben der Tabbelenzeile abspeichern
  end;
 end;
-function TKompressorForm.bwt2(indizes:Tarrayofint;origlaenge:integer;orig:string):TArrayofInt;
-var q,k,g:integer;
+
+function TKompressorForm.bwt2(orig:string):TDatensatz;
+var
+  q,k,g,i,index:integer;
+  indizes:Tarrayofint;
+  origlaenge:integer;
+  hilf,verpackt:string;
 begin
+     origlaenge:=orig.length;
+     setlength(indizes,origlaenge);
+     setlength(verpackt,origlaenge);
+    for i:=0 to (origlaenge-1) do begin
+     indizes[i]:=i;
+    end;
 
    q:=-1;
     Memo.lines.add('Beginn der BWT-Sortierung...');
@@ -971,7 +989,18 @@ begin
   if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
   end;
   Memo.lines.add('Sortierung beendet');
-   result:=indizes;   //ausgabe des nun 'sortierten' arrays
+
+  for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
+  hilf:=permute(orig,indizes[i]);       //erstellen der vollständigen permutation
+ if MemoAusgabeRadioButton.checked=true then memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
+  if hilf=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
+  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
+  end;
+
+  if MemoAusgabeRadioButton.checked=true then Memo.lines.add(verpackt+inttostr(index));
+
+  result.stringdaten:=verpackt;
+  result.index:=index;
 end;
 {------------------------------------------------------------------------------}
 {-----------------Burrows-Wheeler-Transformation-Decodierung-------------------}
@@ -1046,6 +1075,8 @@ begin
       FS.Write(data.codealphabet[0],i*sizeOf(shortstring)); //array schreiben
       //Blocklaenge schreiben
       FS.Write(data.blocklaenge,SizeOf(byte));
+      //Index schreiben
+      FS.Write(data.index,SizeOf(integer));
     finally
       FS.free;
     end;
@@ -1075,14 +1106,8 @@ var
   i,y:integer;
   startwert:byte;
   origdata: array of byte;
-  Komprimiert: array of integer;
+  Komprimiert: Tarrayofbyte;
   rledata,startdata:Tarrayofstring;
-  //für bwt:
-  origstr:string;
-  origlaenge:integer;
-  hilf:string;
-  indizes:array of integer;
-  //g,q,k:integer; hier nicht nötig, in der funktion drin
   verpackt:string;
   index:integer;
 
@@ -1100,30 +1125,17 @@ begin
 {---------------------------RunMode--------------------------------------------}
  //nur alpha
  if runmode=1 then begin
- Memo.lines.add('Beginn der Komprimierung mit AlphaCode');
- datensatz:=alphacode(startstring);
- saverecord(datensatz,SavePathEdit.text);
- Memo.lines.add('Komprimierte Daten abgespeichert');
+   Memo.lines.add('Beginn der Komprimierung mit AlphaCode');
+   datensatz:=alphacode(startstring);
+   saverecord(datensatz,SavePathEdit.text);
+   Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
  //nur bwt
  if runmode=2 then begin
-    origstr:=startstring;
-    origlaenge:=origstr.length;
-    setlength(indizes,origlaenge);
-    setlength(verpackt,origlaenge);
-   for i:=0 to (origlaenge-1) do begin
-    indizes[i]:=i;
-   end;
-
-   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
-   for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
-  hilf:=permute(origstr,indizes[i]);       //erstellen der vollständigen permutation
- if MemoAusgabeRadioButton.checked=true then memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
-  if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
-  end;
-  Memo.lines.add(verpackt+inttostr(index));
-  //savetofile
+   Memo.lines.add('Beginn der Umsortierung mit Burrows-Wheeler-Tarnsformation');
+   datensatz:=bwt2(startstring);
+   saverecord(datensatz,SavePathEdit.text);
+   Memo.lines.add('Umsortierte Daten abgespeichert');
  end;
  //nur rlebinär
  if runmode=3 then begin
@@ -1166,24 +1178,11 @@ begin
  end;
  //bwt und rlestring
  if runmode=8 then begin
-  origstr:=startstring;
-    origlaenge:=origstr.length;
-    setlength(indizes,origlaenge);
-    setlength(verpackt,origlaenge);
-   for i:=0 to (origlaenge-1) do begin
-    indizes[i]:=i;
-   end;
-
-   indizes:=bwt2(indizes,origlaenge,origstr);  //ersetzt unten auskommentierte schleife als funbktion
-   for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
-  hilf:=permute(origstr,indizes[i]);       //erstellen der vollständigen permutation
- if MemoAusgabeRadioButton.checked=true then memo.lines.add(hilf);    //ausgabe im memo/ abfragen?
-  if hilf=origstr then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
-  end;
-  Memo.lines.add(verpackt+inttostr(index));
-
-  komprimiert:=rleencodestring(verpackt+inttostr(index));
+ Memo.lines.add('Erst BWT und dann Run-Length-Encoding');
+ Memo.lines.add('Beginn der Umsortierung mit Burrows-Wheeler-Tarnsformation');
+ datensatz:=bwt2(startstring);
+ Memo.lines.add('Beginn der Komprimierung mit Run-Length-Encoding');
+  komprimiert:=rleencodestring(datensatz.stringdaten+inttostr(datensatz.index));
  if MemoAusgabeRadioButton.checked=true then begin
  i:=0;
  repeat
@@ -1192,9 +1191,11 @@ begin
  inc(i,2)
  until i=(Length(komprimiert));
  end;
-
- //savetofile
- end;
+datensatz.bytedaten:=copy(komprimiert);
+datensatz.stringdaten:='';
+datensatz.index:=0;
+saverecord(datensatz,SavePathEdit.text);
+end;
  {---------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 {if (HaffCheckbox.Checked=true) then begin
@@ -1343,21 +1344,28 @@ begin
 //Daten Laden
   datensatz:=loadrecord(OpenPathEdit.text);
     runmode:=getrunmode;
+//De-Alphacode
 if runmode=1 then begin
   Memo.lines.add('Beginn der Dekomprimierung AlphaCode');
   entpacktstr:=dealphacode(datensatz);
   StringinDatei(entpacktstr,SavePathEdit.text);
   Memo.lines.add('Dekomprimierte Daten abgespeichert');
 end;
+//De-Huffman
 if runmode=4 then begin
   Memo.lines.add('Beginn der Dekomprimierung Huffmandecodierung');
   entpacktstr:=dehuff(datensatz);
   StringinDatei(entpacktstr,SavePathEdit.text);
   Memo.lines.add('Dekomprimierte Daten abgespeichert');
 end;
-{ if getRunMode=2 then begin
-erst dies, dann das
+//De-BWT
+ if getRunMode=2 then begin
+ Memo.lines.add('Beginn der zurücksortierung der Burrows-Wheeler-Transformation');
+ entpacktstr:=debwt(datensatz.stringdaten,datensatz.index);
+ StringInDatei(entpacktstr,SavePathEdit.text);
+ Memo.lines.add('Zurücksortiertes abgespeichert');
 end;
+ {
 if getRunMode=3 then begin
 erst dies, dann das
 end;
