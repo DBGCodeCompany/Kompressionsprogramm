@@ -157,6 +157,42 @@ begin
         end;
    result:=copy(WerteKomprimiert);
 end;
+function rleencode2(Werte:TArrayofByte;startwert:integer):string;
+var wertestring:string;
+    hilf:string;
+
+begin
+   z:=0;
+
+  setLength(WerteKomprimiert,1);
+  WerteKomprimiert[0]:=1;
+
+  //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
+     for i:=0 to (Length(werte)-2) do begin
+         wert1:=(werte[i]);       //werte miteinander vergleichen,ob wechsel (01) vorliegt
+         wert2:=(werte[i+1]);
+        if wert1=wert2 then
+          inc(WerteKomprimiert[z],1)
+        else begin
+          inc(z,1);
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);
+          WerteKomprimiert[z] := 1;
+        end;
+        end;
+
+    setlength(wertestring,2);
+     z:=2;
+    wertestring[1]:=inttostr(startwert)[1];
+   for i:=0 to (length(WerteKomprimiert)-1) do begin
+      hilf:=inttostr(Wertekomprimiert[i]);
+       for y:=1 to length(hilf)  do begin
+          wertestring[z]:=hilf[y];
+          setlength(wertestring,length(wertestring)+1);
+          inc(z,1);
+       end;
+   end;
+   result:=Wertestring;
+end;
 // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal
  //möglich, um bwt weiter zu verarbeiten
 function rleencodestring1(s:string):TarrayofInt ;
@@ -223,7 +259,74 @@ var
 
 
  end;
- //funktioniert nicht, wenn anzahl>9
+function rleencodestring3(s:string):string ;
+var
+   i, j,r: integer;
+   letters:string;
+   counts:array of integer;
+   ausgabe:array of integer;
+   stringausgabe:string;
+   hilf:string;
+ begin
+
+   j := 0;
+   setLength(counts,1);
+   setlength(letters,1);
+     letters[1]:=s[1];
+     counts[0] := 1;
+
+
+     for i := 1 to (length(s)-1) do
+       if s[i] = s[i+1]  then
+         inc(counts[j])
+       else
+       begin
+       setlength(counts,length(counts)+1);
+         setlength(letters,length(letters)+1);
+         letters[j+2]:=s[i+1];
+         inc(j);
+         counts[j] := 1;
+       end;
+
+   setLength(ausgabe,length(counts)+length(letters));
+
+    r:=1;
+   y:=0;
+
+   for i:=0 to Length(ausgabe) do begin
+      if (i mod 2) = 0 then  begin
+      ausgabe[i]:=ord(letters[r]);
+     inc(r,1);
+      end
+       else  begin
+     ausgabe[i]:=counts[y];
+    inc(y,1);
+   end;
+   end;
+
+ setlength(stringausgabe,1);
+     z:=1;
+
+   for i:=0 to (length(ausgabe)-1) do begin
+    if (i mod 2)=0 then begin
+    stringausgabe[z]:=chr(ausgabe[i]);
+    setlength(stringausgabe,length(stringausgabe)+1);
+    inc(z,1);
+    end;
+    if (i mod 2)<>0 then begin
+    hilf:=inttostr(ausgabe[i]);
+       for y:=1 to length(hilf)  do begin
+          stringausgabe[z]:=hilf[y];
+          setlength(stringausgabe,length(stringausgabe)+1);
+          inc(z,1);
+       end;
+    end;
+   end;
+  result:=stringausgabe;
+
+
+ end;
+//funktioniert nicht, wenn anzahl>9
  function rleencodestring2(s:string):string;
 var
    i, j,r: integer;
@@ -449,14 +552,35 @@ begin
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
+var ausgabe:string;
+test2:array of byte;
 begin
-
+  memo1.lines.clear;
 
  setLength(Werterandom,(strtoint(Edit1.text)-1));
   for i:=0 to (strtoint(Edit1.text)-1) do begin
     Werterandom[i]:=random(2);
     Memo1.lines[i]:=inttostr(Werterandom[i])
   end;
+
+
+  startwert:=strtoint(memo1.lines[0]);
+
+  setLength(test2,memo1.lines.count);
+
+  for i:=0 to (memo1.lines.count-1) do begin
+    test2[i]:=strtoint(Memo1.lines[i]);
+  end;
+  ausgabe:=rleencode2(test2,startwert);
+
+  //memo1.lines.clear;
+  memo1.lines.add('länge'+inttostr(length(ausgabe)));
+  memo1.lines.add('Erster byte: '+inttostr(startwert));
+ // memo1.lines[1]:='Orig. Größe: '+ inttostr(Length(Test2))+'; Verpackt: '+Inttostr(Length(test));//bezieht sich auf das array
+
+    for i:=1 to (Length(ausgabe)) do begin
+    Memo1.lines.add(ausgabe[i]);
+    end;
 
 end;
 
@@ -561,8 +685,9 @@ begin
   memo1.lines.add('detransformiert: ');
   memo1.lines.add(debwt(verpackt,index));
    memo1.lines.add('mit rle:');
-  memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
- test:=rleencodestring1(verpackt+inttostr(index));
+   memo1.lines.add(rleencodestring3(verpackt+inttostr(index)));
+ // memo1.lines.add(rleencodestring2(verpackt+inttostr(index)));
+ {test:=rleencodestring1(verpackt+inttostr(index));
  edit1.text:=inttostr(length(test));
  memo2.lines.clear;
  i:=0;
@@ -570,12 +695,12 @@ begin
  Memo2.lines.add(chr(test[i]));
  Memo2.lines.Add(inttostr(test[i+1]));
  inc(i,2)
- until i=(Length(test));
+ until i=(Length(test)); }
 
-  memo1.lines.Add('rle detransformiert:');
+ { memo1.lines.Add('rle detransformiert:');
  hilf:=rledecodestring2(test);
  memo1.lines.add(hilf);
- edit1.text:=inttostr(length(hilf));
+ edit1.text:=inttostr(length(hilf));  }
 // memo1.lines.add(rledecodestring(test));
 
 
