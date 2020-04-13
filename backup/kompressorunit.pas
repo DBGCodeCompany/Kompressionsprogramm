@@ -14,7 +14,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,
-  ExtCtrls;
+  ExtCtrls,FileUtil;
 
 type
   Tarrayofreal= array of real;
@@ -534,12 +534,12 @@ begin
       FS.read(i,sizeOf(integer));         //länge des kommenden arrays auslesen
       if i>0 then begin
       Setlength(result.bytedaten,i);       //setzen
-      FS.read(result.bytedaten,(i*sizeOf(byte))); //und array auslesen
+      FS.read(result.bytedaten[0],(i*sizeOf(byte))); //und array auslesen
       end;
       //Alphabet lesen
       FS.Read(i,sizeof(integer));        //länge des kommenden String auslesen
       if i>0 then begin
-      Setlength(result.alphabet,i+1);              //und länge setzen
+      Setlength(result.alphabet,i);              //und länge setzen
       FS.Read(result.alphabet[1],(i*sizeOf(char))); //String lesen
       end;
       //CodeAlphabet lesen
@@ -738,7 +738,7 @@ var
    counts:array of byte;   //speichert, wie oft welcher char vorkommt
    ausgabe:array of byte;
  begin
-   Memo.lines.add('Beginn RLE-String...');
+
    j := 0;
    setLength(counts,1);
    setlength(letters,1);
@@ -974,7 +974,6 @@ begin
     end;
 
    q:=-1;
-    Memo.lines.add('Beginn der BWT-Sortierung...');
     //bwt findet allein anhand des arrays indizes statt, sodass weniger speicher benötigt wird
    for g:=1 to origlaenge do begin                                             //basiert auf bubblesort
    repeat
@@ -1078,7 +1077,8 @@ begin
       //Index schreiben
       FS.Write(data.derindex,SizeOf(integer));
     finally
-      FS.free;
+       Memo.lines.add(inttostr(FS.Size));
+       FS.free;
     end;
 end;
 
@@ -1483,6 +1483,7 @@ end;
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);
 begin
     If OpenDialog.execute then OpenPathEdit.text:= OpenDialog.Filename;
+    Memo.lines.add('Größe vorher: '+inttostr(filesize(opendialog.FileName))+'bytes');
 end;
 
 procedure TKompressorForm.SaveSpeedButtonClick(Sender: TObject);
