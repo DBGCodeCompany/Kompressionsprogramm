@@ -2,7 +2,7 @@
 {PROGRAMM DER DBG-CODE-COMPANY                                       13.03.2020}
 {Kopression von Daten durch:                                                   }
 {Burrows-Wheeler-Transformation;                                               }
-{One-length-encoding;                                                          }
+{Run-length-encoding;                                                          }
 {Huffman-Coding;                                                               }
 {------------------------------------------------------------------------------}
 
@@ -101,181 +101,181 @@ begin
    huff:=true
    else huff:=false;
 
-  if alpha=true then begin
-   if bwt=false then begin
-     if rle=false then begin
-       if huff=false then begin
-       result:=1;
-       Memo.lines.add('Gewählte Komprimierung: Alphabet-Komprimierung');
-       end;
-      end;
-     end;
-   end;
-
-   if alpha=false then begin
-   if bwt=true then begin
-     if rle=false then begin
-       if huff=false then begin
-       result:=2;
-       Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler-Transformierung');
-       end;
-      end;
-     end;
-   end;
-
- if alpha=false then begin
-   if bwt=false then begin
-     if rle=true then begin
-       if huff=false then begin
-       result:=3;
-       Memo.lines.add('Gewählte Komprimierung: RunLengthEncoding');
-       end;
-      end;
-     end;
-   end;
-
-  if alpha=false then begin
-   if bwt=false then begin
-     if rle=false then begin
-       if huff=true then begin
-       result:=4;
-       Memo.lines.add('Gewählte Komprimierung: Huffman-Coding');
-       end;
-      end;
-     end;
-   end;
-
-    if alpha=true then begin
-   if bwt=true then begin
-     if rle=false then begin
-       if huff=false then begin
-       result:=5;
-       Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-       end;
-      end;
-     end;
-   end;
-
-   if alpha=true then begin
-   if bwt=true then begin
-     if rle=true then begin
-       if huff=false then begin
-       result:=6;
-       Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-       end;
-      end;
-     end;
-   end;
-
-   if alpha=true then begin
-   if bwt=true then begin
-     if rle=false then begin
-       if huff=true then begin
-       result:=7;
-       Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-       end;
-      end;
-     end;
-   end;
-
-   if alpha=false then begin
-      if bwt=true then begin
-        if rle=true then begin
-          if huff=false then begin
-          result:=8;
-          Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding');
-          end;
-         end;
-        end;
-      end;
-
-    if alpha=true then begin
-      if bwt=true then begin
-        if rle=false then begin
-          if huff=true then begin
-          result:=9;
-          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-          end;
-         end;
-        end;
-      end;
-
-     if alpha=false then begin
+   if alpha=true then begin  //nur alpha
       if bwt=false then begin
-        if rle=true then begin
-          if huff=true then begin
-          result:=10;
-          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-          end;
+         if rle=false then begin
+            if huff=false then begin
+            result:=1;
+            Memo.lines.add('Gewählte Komprimierung: Alphabet-Komprimierung');
+            end;
          end;
-        end;
       end;
+   end;
 
-   if alpha=true then begin          //11 und 14 sind gleich?!
+   if alpha=false then begin  //nur bwt
       if bwt=true then begin
-        if rle=true then begin
-          if huff=false then begin
-          result:=11;
-          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-          end;
+         if rle=false then begin
+            if huff=false then begin
+            result:=2;
+            Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler-Transformierung');
+            end;
          end;
-        end;
       end;
+   end;
 
-   if alpha=true then begin    //12 und 13 sind gleich?!
-      if bwt=true then begin
-        if rle=false then begin
-          if huff=true then begin
-          result:=12;
-          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-          end;
+   if alpha=false then begin //nur rle
+      if bwt=false then begin
+         if rle=true then begin
+            if huff=false then begin
+            result:=3;
+            Memo.lines.add('Gewählte Komprimierung: RunLengthEncoding');
+            end;
          end;
-        end;
       end;
+   end;
 
-  if alpha=true then begin
-      if bwt=true then begin
-        if rle=false then begin
-          if huff=true then begin
-          result:=13;
-          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-          end;
+   if alpha=false then begin  //nur huff
+      if bwt=false then begin
+         if rle=false then begin
+            if huff=true then begin
+            result:=4;
+            Memo.lines.add('Gewählte Komprimierung: Huffman-Coding');
+            end;
          end;
-        end;
-      end;
+     end;
+   end;
 
-  if alpha=true then begin
+   if alpha=true then begin  //alpha/bwt - nicht wählbar
       if bwt=true then begin
-        if rle=true then begin
-          if huff=false then begin
-          result:=14;
-          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-          end;
+         if rle=false then begin
+            if huff=false then begin
+            result:=5;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
          end;
-        end;
-      end;
+     end;
+   end;
 
-  if alpha=false then begin
+   if alpha=true then begin //alpha/bwt/rle - nicht wählbar
       if bwt=true then begin
-        if rle=true then begin
-          if huff=true then begin
-          result:=15;
-          Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding und Huffmancodierung');
-          end;
+         if rle=true then begin
+            if huff=false then begin
+            result:=6;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
          end;
-        end;
-      end;
+     end;
+   end;
 
-  if alpha=true then begin
+   if alpha=true then begin   //alpha/bwt/huff - nicht wählbar
       if bwt=true then begin
-        if rle=true then begin
-          if huff=true then begin
-          result:=16;
-          Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
-          end;
+         if rle=false then begin
+            if huff=true then begin
+            result:=7;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
          end;
-        end;
+     end;
+   end;
+
+   if alpha=false then begin //bwt/rlestring
+      if bwt=true then begin
+         if rle=true then begin
+            if huff=false then begin
+            result:=8;
+            Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding');
+            end;
+         end;
       end;
+   end;
+
+   if alpha=false then begin //nichts ausgewählt
+      if bwt=false then begin
+         if rle=false then begin
+            if huff=false then begin
+            result:=9;
+            Memo.lines.add('Bitte mindestens ein Verfahren auswählen.');
+            end;
+         end;
+      end;
+   end;
+
+   if alpha=false then begin //rle/huff - nicht wählbar
+      if bwt=false then begin
+         if rle=true then begin
+            if huff=true then begin
+            result:=10;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
+         end;
+      end;
+   end;
+
+   if alpha=false then begin  //bwt/huff ?
+      if bwt=true then begin
+         if rle=false then begin
+            if huff=true then begin
+            result:=11;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
+         end;
+      end;
+   end;
+
+   if alpha=true then begin    //alpha / huff?
+      if bwt=false then begin
+         if rle=false then begin
+            if huff=true then begin
+            result:=12;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
+         end;
+      end;
+   end;
+
+   if alpha=true then begin  //alpha/ rle ?
+      if bwt=false then begin
+         if rle=true then begin
+            if huff=false then begin
+            result:=13;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
+         end;
+      end;
+   end;
+
+   if alpha=true then begin   //alpha/rle/huff - nicht wählbar
+      if bwt=false then begin
+         if rle=true then begin
+            if huff=true then begin
+            result:=14;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
+         end;
+      end;
+   end;
+
+   if alpha=false then begin //bwt/rlestring/huff ?
+      if bwt=true then begin
+         if rle=true then begin
+            if huff=true then begin
+            result:=15;
+            Memo.lines.add('Gewählte Komprimierung: Burrows-Wheeler mit anschließendem String- Run-Length-Encoding und Huffmancodierung');
+            end;
+         end;
+      end;
+   end;
+
+   if alpha=true then begin   //alpha/bwt/rle/huff - nicht wählbar
+      if bwt=true then begin
+         if rle=true then begin
+            if huff=true then begin
+            result:=16;
+            Memo.lines.add('Diese Kombination ist nicht so sinnvoll, wählen Sie etwas anderes.');
+            end;
+         end;
+      end;
+   end;
 end;
 
 function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
@@ -1077,7 +1077,7 @@ begin
       //Index schreiben
       FS.Write(data.derindex,SizeOf(integer));
     finally
-       Memo.lines.add(inttostr(FS.Size));
+       Memo.lines.add('Größe nachher: '+inttostr(FS.Size)+'bytes');
        FS.free;
     end;
 end;
@@ -1196,7 +1196,7 @@ datensatz.stringdaten:='';
 datensatz.derindex:=0;
 saverecord(datensatz,SavePathEdit.text);
 end;
- {---------------------------------------------------------------------}
+{---------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 {if (HaffCheckbox.Checked=true) then begin
   data:='';
