@@ -70,6 +70,7 @@ type
     function huffman(s:string):TDatensatz;
     function alphacode(data:string):TDatensatz;
     function getRunMode():integer;
+    //function rledecodestring2(werte2:TArrayofByte):TDatensatz;
 
   private
 
@@ -86,6 +87,20 @@ implementation
  function TKompressorform.getRunmode():integer;  //überprüfen, welche algorithmen verwendet werden sollen; Reihenfolge komprimieren vs. entpacken
 var bwt,rle,huff,alpha:boolean;                  //einleseart muss an runmode und algorithmus angepasst werden
 begin
+  {//evtl auch möglich:
+  result := 0;
+  if AlphaCheckBox.checked=true then result := result + 8; //8 nur huff
+
+ if BWTCheckBox.checked=true then result := result +4; //4 nur bwt
+
+ if RLCheckBox.checked=true then  result := result +2; // 2 nur rle
+
+ if HaffCheckBox.checked=true then result := result +1; //1 nur huff
+
+ if result=0 then Showmessage('nö');
+ //6 bwt/rlestring
+  }
+
 
  if AlphaCheckBox.checked=true then
    alpha:=true
@@ -276,6 +291,8 @@ begin
          end;
       end;
    end;
+
+
 end;
 
 function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
@@ -738,7 +755,6 @@ var
    counts:array of byte;   //speichert, wie oft welcher char vorkommt
    ausgabe:array of byte;
  begin
-
    j := 0;
    setLength(counts,1);
    setlength(letters,1);
@@ -856,7 +872,64 @@ end;
    Memo.lines.add('RLE-String entpackt');
    result:=ausgabe;
    end;
-{------------------------------------------------------------------------------}
+{ function TKompressorForm.rledecodestring2(werte2:TArrayofByte):TDatensatz;      //entpackt einen mit rleencodestring verpackten string
+   var
+      z,y,m,n,i:integer;   //hauptsächlich laufvariablen
+      ausgabe:string;      //entpackter string
+      chars:string;        //die chars, aus denen der ex-string bestand
+      index1,index2: string;
+   begin
+    n:=0;
+    i:=1;
+    z:=1;
+    m:=1;
+    Memo.lines.add('RLE-String wird entpackt...');
+    setlength(chars,(length(werte2) div 2));  //array ist immer durch 2 teilbar, da jedem char eine zahl zugeordnet wird
+
+      for i:=0 to (Length(Werte2)-1) do begin
+       if (i mod 2) = 0 then  begin    //hinter den geraden zahlen verstecken sich die buchstaben in asciicode
+         chars[m]:=chr(werte2[i]);      //aus asciicode wird wieder ein char
+         inc(m,1);
+       end
+        else  begin
+         n:=n+werte2[i];      //zählen, wie lang der string ehemalig war (jede 2. Zahl gibt an, wie oft ein buchstabe vorhanden ist)
+      end;
+    end;
+
+    setLength(ausgabe,n);  //ausgabe auf finale länge setzen
+
+   m:=1;
+
+   for i:=0 to (Length(Werte2)-1) do begin
+    if (i mod 2) <> 0 then  begin        //bei ungeraden zahlen ausführen
+         for y:=1 to Werte2[i]do  begin   //der buchstabe wird sooft in die ausgabe geschrieben, wie es der ihm zugeordnete wert vorgibt
+          ausgabe[z]:=chars[m];
+          Inc(z,1);
+       end;
+        Inc(m,1);
+        end;
+  end;
+   index1:='';
+   index2:='';
+   Memo.lines.add('RLE-String entpackt');
+   i:=length(ausgabe)-1;
+   n:=0;
+   setLength(index1,1);
+   repeat
+   if  (ord(ausgabe[i])>=48) AND (ord(ausgabe[i])<= 57) then begin
+   index1[n]:=ausgabe[i];
+   Inc(n,1);
+   Setlength(index1, Length(index1)+1);
+   end;
+   until (ord(ausgabe[i])<48) OR (ord(ausgabe[i])>57);
+   setlength(index2,Length(index1));
+   for i:=0 to Length(index1)-1 do begin
+    index2[i]:=index1[Length(index1)-1-i];
+    end;
+   result.stringdaten:=ausgabe;
+   result.derindex:=strtoint(index2);
+   end; }
+ {------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
 function TKompressorForm.alphacode(data:string):TDatensatz;         //Optimiert das Alphabet, das data nutzt indem es ein neues
 var                                             //generiert, das nur die notwenige anzahl an zeichen hat
@@ -955,7 +1028,7 @@ result:='';
 for i:=0 to high(indizes) do begin
     if indizes[i]=0 then index:=i;                           //Ort der original Permutation im Array speichern
     str:=permute(data,i);
-    result:=result+str[length(str)];                         //den letzten Buchstaben der Tabbelenzeile abspeichern
+    result:=result+str[length(str)];                         //den letzten Buchstaben der Tabellenzeile abspeichern
  end;
 end;
 
@@ -1100,14 +1173,19 @@ procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   runmode:integer;
   datensatz:TDatensatz;
-  Data,alpha,kompdata,startstring:string;
+  Data:string;
+  alpha:string;
+  kompdata:string;
+  startstring:string;
   wahrsch:array of real;
   summe:real;
-  i,y:integer;
+  i:integer;
+  y:integer;
   startwert:byte;
   origdata: array of byte;
   Komprimiert: Tarrayofbyte;
-  rledata,startdata:Tarrayofstring;
+  rledata:Tarrayofstring;
+  startdata:Tarrayofstring;
   verpackt:string;
   index:integer;
 
@@ -1334,16 +1412,25 @@ procedure TKompressorForm.DekomprimierenButtonClick(Sender: TObject);
 var
   runmode:integer;
   datensatz:TDatensatz;
-  codealpha,readdata:array of shortstring;
-  alpha,sw,rledata,entpacktstr,a:string;
+  codealpha:array of shortstring;
+  readdata:array of shortstring;
+  alpha:string;
+  sw:string;
+  rledata:string;
+  entpacktstr:string;
+  rlestring:string;
+  bwtstring:string;
+  a:string;
   entpackt:array of byte;
   verpackt:array of integer;
   startwert:byte;
   i:integer;
+
+  datensatz2:TDatensatz;
 begin
-//Daten Laden
   datensatz:=loadrecord(OpenPathEdit.text);
-    runmode:=getrunmode;
+ runmode:=getRunMode;
+
 //De-Alphacode
 if runmode=1 then begin
   Memo.lines.add('Beginn der Dekomprimierung AlphaCode');
@@ -1359,53 +1446,50 @@ if runmode=4 then begin
   Memo.lines.add('Dekomprimierte Daten abgespeichert');
 end;
 //De-BWT
- if getRunMode=2 then begin
+ if runmode=2 then begin
  Memo.lines.add('Beginn der zurücksortierung der Burrows-Wheeler-Transformation');
  entpacktstr:=debwt(datensatz.stringdaten,datensatz.derindex);
  StringInDatei(entpacktstr,SavePathEdit.text);
  Memo.lines.add('Zurücksortiertes abgespeichert');
 end;
- {
-if getRunMode=3 then begin
-erst dies, dann das
-end;
-if getRunMode=5 then begin
-erst dies, dann das
-end;
-if getRunMode=6 then begin
-erst dies, dann das
-end;
-if getRunMode=7 then begin
-erst dies, dann das
-end;
-if getRunMode=8 then begin
-erst dies, dann das
-end;
-if getRunMode=9 then begin
-erst dies, dann das
-end;
-if getRunMode=10 then begin
-erst dies, dann das
-end;
-if getRunMode=11 then begin
-erst dies, dann das
-end;
-if getRunMode=12 then begin
-erst dies, dann das
-end;
-if getRunMode=13 then begin
-erst dies, dann das
-end;
-if getRunMode=14 then begin
-erst dies, dann das
-end;
-if getRunMode=15 then begin
-erst dies, dann das
-end;
-if getRunMode=16 then begin
-erst dies, dann das
-end;     }
+if runmode=8 then begin
+{
+ //Memo.lines.add('Beginn der RLE-String-Decodierung');
+    //array of int erzeugen:;
+  {readdata:=SarrayausDatei(OpenPathEdit.text);
 
+  setLength(verpackt,Length(readdata));       //anlegen des arrays zum Einlesen
+
+
+  memo.lines.clear;
+  for i:=0 to high(readdata) do Memo.Lines[i]:=readdata[i];  //und ins Array schreiben
+   Memo.lines.add(IntToStr(Length(readdata)));
+
+  for i:=0 to high(readdata) do begin    //einlesen der zu entpackenden werte
+  Memo.Lines.add(inttostr(i));
+  verpackt[i]:=strtoint(readdata[i]);
+  end;  }
+  datensatz:=loadrecord(OpenPathEdit.text);
+
+
+ // rlestring:=rledecodestring(datensatz.bytedaten);
+  try
+  datensatz2:=rledecodestring2(datensatz.bytedaten);
+  except
+  Showmessage('rle');
+  end;
+
+  try
+  bwtstring:=debwt(datensatz2.stringdaten,datensatz2.derindex);
+  except
+  ShowMessage('bwt');
+  end;
+  //StringInDatei(bwtstring,SavePathEdit.text);
+
+ end;  }
+
+
+ {
  {-------------------------RLE-DeRLE--------------------------------------------}
   if RLCheckBox.Checked=true then begin
 
@@ -1478,6 +1562,8 @@ end;     }
   StringINDatei(dealphacode(loadbitstring(OpenPathEdit.text)),SavePathEdit.text);
   end; }
 {------------------------------------------------------------------------------}
+
+}
 end;
 
 procedure TKompressorForm.OpenSpeedButtonClick(Sender: TObject);

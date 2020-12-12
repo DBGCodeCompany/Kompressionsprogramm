@@ -1,7 +1,7 @@
 object KompressorForm: TKompressorForm
-  Left = 2004
+  Left = 1641
   Height = 798
-  Top = 211
+  Top = 318
   Width = 1262
   Caption = 'Kompressor'
   ClientHeight = 798
