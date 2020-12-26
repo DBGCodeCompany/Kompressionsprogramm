@@ -84,22 +84,43 @@ var
   bits:TBits;
 
 implementation
-
- function TKompressorform.getRunmode():integer;  //überprüfen, welche algorithmen verwendet werden sollen; Reihenfolge komprimieren vs. entpacken
-var bwt,rle,huff,alpha:boolean;                  //einleseart muss an runmode und algorithmus angepasst werden
+{------------------------------------------------------------------------------}
+{------------überprüft, welche algorithmen verwendet werden sollen-------------}
+function TKompressorform.getRunmode():integer;
+var bwt,rle,huff,alpha:boolean;
 begin
-  {//evtl auch möglich:
+  {
+  // auch möglich:
   result := 0;
-  if AlphaCheckBox.checked=true then result := result + 8; //8 nur huff
+  if AlphaCheckBox.checked=true then result := result + 8;
 
- if BWTCheckBox.checked=true then result := result +4; //4 nur bwt
+ if BWTCheckBox.checked=true then result := result +4;
 
- if RLCheckBox.checked=true then  result := result +2; // 2 nur rle
+ if RLCheckBox.checked=true then  result := result +2;
 
- if HaffCheckBox.checked=true then result := result +1; //1 nur huff
+ if HaffCheckBox.checked=true then result := result +1;
 
  if result=0 then Showmessage('nö');
- //6 bwt/rlestring
+ {
+ vorteil: nicht so umständlich
+ nachteil: abfrage der nicht wählbaren fälle?
+ 0  nichts
+ 1  huff
+ 2  rle
+ 3  huff rle
+ 4  bwt
+ 5  bwt huff
+ 6  bwt rle
+ 7  bwt rle huff
+ 8  alpha
+ 9  alpha huff
+ 10 alpha rle
+ 11 alpha rle huff
+ 12 alpha bwt
+ 13 alpha bwt huff
+ 14 alpha bwt rle
+ 15 alpha bwt rle huff
+ }
   }
 
 
@@ -295,8 +316,9 @@ begin
 
 
 end;
-
-function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
+{------------------------------------------------------------------------------}
+{-------------untersucht ob str1 und str2 getauscht werden sollen--------------}
+function tausch(str1,str2:string):boolean;
 var
   i:integer;
 begin
@@ -312,8 +334,9 @@ begin
     end;
   end;
 end;
-
-function permute(str:string;index:integer):string; //Gibt die Permutation von str zurück, die bei str[index] beginnt
+{------------------------------------------------------------------------------}
+{------Gibt die Permutation von str zurück, die bei str[index] beginnt---------}
+function permute(str:string;index:integer):string;
 var
   i,l:integer;
 begin
@@ -324,19 +347,23 @@ begin
      else result[i]:=str[index+i];
    end;
 end;
-
-function permute2(str:string;index:integer;pos:integer):char;   //gibt die permutation als einzelnen char zurück
+{------------------------------------------------------------------------------}
+{----------gibt die permutation als einzelnen char zurück----------------------}
+function permute2(str:string;index:integer;pos:integer):char;
 var l:integer;
 begin
    l:=length(str);
     if (pos+index)>l then result:=str[pos+index-l]
      else result:=str[index+pos];
 end;
-
-{alternative zur einfachen tauschfunktion, vorteil, da nicht die gesamte permutation erstellt wird}
-{rekursiv: sind die chars gleich, ruft sich die funktion}
-{selbst auf, dabei werden die nächsten chars verglichen etc}
-function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen , übergabewerte sind für rekursion notwendig
+{------------------------------------------------------------------------------}
+{-------------Alternative zur einfachen Tauschfunktion-------------------------}
+{---------Vorteil, da nicht die gesamte Permutation erstellt wird--------------}
+{---------rekursiv: sind die chars gleich, ruft sich die Funktion--------------}
+{-------selbst auf, dabei werden die nächsten chars verglichen etc-------------}
+{------------untersucht ob str1 und str2 getauscht werden sollen---------------}
+{----------------Übergabewerte sind für rekursion notwendig--------------------}
+function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
 begin
  result:=false;                                            //Damit result auch gesetzt ist, wenn die strings gleich sind
      if (ord(char1)=ord(char2)) AND (pos<=max) then begin
@@ -350,8 +377,9 @@ begin
       result:=false;
     end;
   end;
-
-function potenz(basis,exponent:integer):byte;                  //Potenz halt
+{------------------------------------------------------------------------------}
+{------------------------------Potenz halt-------------------------------------}
+function potenz(basis,exponent:integer):byte;
 var
 i:integer;
 begin
@@ -361,9 +389,11 @@ begin
     for i:=1 to exponent do result:=result*basis;
     end;
   end;
-
-function bittobyte(bits:string):Tarrayofbyte;        //schreibt ein string mit 1/0 in ein Tarrayofbyte um. Dabei werden
-var                                                  //immer 8 zeichen des Strings zu einem byte-Wert zusammengefasst
+{------------------------------------------------------------------------------}
+{------schreibt ein string mit 1/0 in ein Tarrayofbyte um. Dabei werden--------}
+{------immer 8 zeichen des Strings zu einem byte-Wert zusammengefasst----------}
+function bittobyte(bits:string):Tarrayofbyte;
+var
   i,n,lenge:integer;                                 //(bsp.: '101'->5
   abyte:byte;
 begin                                                       //länge des zukünftigen array of byte festlegen:
@@ -385,8 +415,9 @@ begin                                                       //länge des zukünf
     result[n]:=abyte;                                       //jeweiliges ergebnis in das ergebnis schreiben
   end;
 end;
-
-function SArrayToString(a:Tarrayofstring;kommata:boolean):String; //Schreibt ein Tarrayofstring in einen string um (Huffman)
+{------------------------------------------------------------------------------}
+{------------Schreibt ein Tarrayofstring in einen string um (Huffman)----------}
+function SArrayToString(a:Tarrayofstring;kommata:boolean):String;
 var
  i:Integer;
  begin
@@ -398,8 +429,9 @@ var
    For i:=0 to (length(a)-1) do result:=result+a[i];
    end;
   end;
-
-function aofrealtostr(a:Tarrayofreal):string;   //schreibt ein array of real in einen String um
+{------------------------------------------------------------------------------}
+{-------------schreibt ein array of real in einen String um--------------------}
+function aofrealtostr(a:Tarrayofreal):string;
 var
   //i:int64;
  i:integer;
@@ -409,8 +441,9 @@ var
       result:=result+ floattostr(a[i])+' ';
       end;
     end;
-
-function instring(s:string; a:char):boolean;     //prüfen ob ein Buchstabe in einem String ist
+{------------------------------------------------------------------------------}
+{---------------prüfen ob ein Buchstabe in einem String ist--------------------}
+function instring(s:string; a:char):boolean;
 var
  // i:int64;
  i:integer;
@@ -423,8 +456,9 @@ var
       end;
     end;
   end;
-
-function getalpha(s:string):string;       //generiert das Alphabet, das s nutzt
+{------------------------------------------------------------------------------}
+{-----------------generiert das Alphabet, das s nutzt--------------------------}
+function getalpha(s:string):string;
 var
  // i:int64;
  i:integer;
@@ -452,8 +486,9 @@ lenge:int64;  // i, n,
     end;                                                             //aufsummieren für jedes gefundene mal plus 1/lenge
     result:=copy(wahrsch);
   end;
-
-function StringInDatei(a,Path:string):boolean;              //Schreibt einen einzelnen String in eine Text datei
+{------------------------------------------------------------------------------}
+{---------Schreibt einen einzelnen String in eine Text datei-------------------}
+function StringInDatei(a,Path:string):boolean;
 var                                                         //(als .txt lesbar, nicht kryptisch)
   List:TStringList;
 begin
@@ -466,8 +501,9 @@ begin
   finally
   end;
 end;
-
-function StringausDatei(Path:string):string;                 //Läd einen einzelnen String aus einer Text datei
+{------------------------------------------------------------------------------}
+{-----------Lädt einen einzelnen String aus einer Text datei-------------------}
+function StringausDatei(Path:string):string;
 var                                                          //(als .txt lesbar, nicht kryptisch)
   List:TStringList;
   s:string;
@@ -483,8 +519,9 @@ begin
    Showmessage('Fehler beim Laden mit "StringausDate()"');
  end;
 end;
-
-function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;    //Schreibt ein Array of String in eine Datei
+{------------------------------------------------------------------------------}
+{--------------Schreibt ein Array of String in eine Datei----------------------}
+function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;
 var                                                                 //(als .txt lesbar, nicht kryptisch!)
   List:TStringList;                                                 //Jedes Feld des Arrays ist eine neue Zeile der
   i:integer;                                                        //Text Datei.
@@ -498,10 +535,13 @@ begin
      List.free;
   end;
 end;
-
-function SarrayAusDatei(Path:string):Tarrayofstring;    //Läd ein array of String aus einer Datei (.txt), in der
-var                                                     //Text gespeichert ist. Jede neue Zeile der Datei ist
-  List:TStringList;                                     //ein neues Feld des Arrays
+{------------------------------------------------------------------------------}
+{----------Lädt ein array of String aus einer Datei (.txt), in der-------------}
+{----------Text gespeichert ist. Jede neue Zeile der Datei ist-----------------}
+{--------------------ein neues Feld des Arrays---------------------------------}
+function SarrayAusDatei(Path:string):Tarrayofstring;
+var
+  List:TStringList;
   i:integer;
 begin
  List:=TStringlist.create;
@@ -513,9 +553,10 @@ begin
    list.free;
  end;
 end;
-
-function LoadBitString(const Path: string): string;     //Läd einen BitString (1/0) aus der Datei unter Path
-var                                                     //Diese Datei kann von allen Möglichen Typen sein!
+{------------------------------------------------------------------------------}
+{---Lädt einen BitString (1/0) aus der Datei eines beleibiegen Typ unter Path--}
+function LoadBitString(const Path: string): string;
+var
   fs: TFileStream;
   DataLeft,i: Integer;
   bytes:Tarrayofbyte;
@@ -580,8 +621,9 @@ begin
       FS.free;
     end;
 end;
-
+{------------------------------------------------------------------------------}
 {------------------------HUFFMAN-CODING----------------------------------------}
+{------------------------------------------------------------------------------}
 function TKompressorForm.huffman(s:string):TDatensatz;
 var
  index:int64;
@@ -648,6 +690,7 @@ var
   end;
 {------------------------------------------------------------------------------}
 {-------------------huffmankompriemierung entpacken----------------------------}
+{------------------------------------------------------------------------------}
 function dehuff(datensatz:TDatensatz):string;
 var
   i,index:integer;
@@ -671,6 +714,7 @@ var
   end;
 {------------------------------------------------------------------------------}
 {----------------------Run-Length-Encoding-------------------------------------}
+{------------------------------------------------------------------------------}
 function rleencode(Werte:TArrayofbyte):TArrayofbyte;
 var i,z:integer;
   WerteKomprimiert: Array of byte;
@@ -802,7 +846,10 @@ var
 
 
  end; }
-function rleencodestring(s:string;index:integer):TDatensatz;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
+
+{-------nach https://rosettacode.org/wiki/Run-length_encoding#Pascal-----------}
+{------------------möglich, um bwt weiter zu verarbeiten-----------------------}
+function rleencodestring(s:string;index:integer):TDatensatz;
 var
    i,y, j,r: integer;      //hauptsächlich laufvariablen
    letters:string;          //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
@@ -851,7 +898,8 @@ var
  end;
 {------------------------------------------------------------------------------}
 {-----------------Run-Length-Encoding entpacken--------------------------------}
- function TKompressorForm.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+{------------------------------------------------------------------------------}
+function TKompressorForm.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
 var entpackt:array of byte;
     x:byte;
     z,n,i,y:integer;
@@ -887,7 +935,8 @@ end;
    result:=copy(entpackt);
 
 end;
- function TKompressorForm.rledecodestring(werte:TArrayofInt):string;      //entpackt einen mit rleencodestring verpackten string
+{---------entpackt einen mit rleencodestring verpackten string-----------------}
+function TKompressorForm.rledecodestring(werte:TArrayofInt):string;
    var
       z,y,m,n,i:integer;   //hauptsächlich laufvariablen
       ausgabe:string;      //entpackter string
@@ -926,10 +975,13 @@ end;
    Memo.lines.add('RLE-String entpackt');
    result:=ausgabe;
    end;
- {------------------------------------------------------------------------------}
+{------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
-function TKompressorForm.alphacode(data:string):TDatensatz;         //Optimiert das Alphabet, das data nutzt indem es ein neues
-var                                             //generiert, das nur die notwenige anzahl an zeichen hat
+{------------------------------------------------------------------------------}
+{--------Optimiert das Alphabet, das data nutzt indem es ein neues-------------}
+{---------generiert, das nur die notwenige anzahl an zeichen hat---------------}
+function TKompressorForm.alphacode(data:string):TDatensatz;
+var
     i,n:integer;
     alphabet,bits:string;
     bitdata,bitalpha:array of shortstring;
@@ -970,6 +1022,7 @@ begin
 end;
 {------------------------------------------------------------------------------}
 {------------------Alphabet-DECodierung----------------------------------------}
+{------------------------------------------------------------------------------}
 function dealphacode(data:TDatensatz):string;
 var
     i,n:integer;
@@ -1000,6 +1053,7 @@ begin
 end;
 {------------------------------------------------------------------------------}
 {------------------------Burrows-Wheeler-Transformation------------------------}
+{------------------------------------------------------------------------------}
 function bwt(data:string):string;
 var
     str:string;
@@ -1073,6 +1127,7 @@ begin
 end;
 {------------------------------------------------------------------------------}
 {-----------------Burrows-Wheeler-Transformation-Decodierung-------------------}
+{------------------------------------------------------------------------------}
 function debwt(trans:string;index:integer):string;
 var
   i,n,len,k:integer;

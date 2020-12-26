@@ -88,18 +88,38 @@ implementation
  function TKompressorform.getRunmode():integer;  //überprüfen, welche algorithmen verwendet werden sollen; Reihenfolge komprimieren vs. entpacken
 var bwt,rle,huff,alpha:boolean;                  //einleseart muss an runmode und algorithmus angepasst werden
 begin
-  {//evtl auch möglich:
+  {
+  // auch möglich:
   result := 0;
-  if AlphaCheckBox.checked=true then result := result + 8; //8 nur huff
+  if AlphaCheckBox.checked=true then result := result + 8;
 
- if BWTCheckBox.checked=true then result := result +4; //4 nur bwt
+ if BWTCheckBox.checked=true then result := result +4;
 
- if RLCheckBox.checked=true then  result := result +2; // 2 nur rle
+ if RLCheckBox.checked=true then  result := result +2;
 
- if HaffCheckBox.checked=true then result := result +1; //1 nur huff
+ if HaffCheckBox.checked=true then result := result +1;
 
  if result=0 then Showmessage('nö');
- //6 bwt/rlestring
+ {
+ vorteil: nicht so umständlich
+ nachteil: abfrage der nicht wählbaren fälle?
+ 0  nichts
+ 1  huff
+ 2  rle
+ 3  huff rle
+ 4  bwt
+ 5  bwt huff
+ 6  bwt rle
+ 7  bwt rle huff
+ 8  alpha
+ 9  alpha huff
+ 10 alpha rle
+ 11 alpha rle huff
+ 12 alpha bwt
+ 13 alpha bwt huff
+ 14 alpha bwt rle
+ 15 alpha bwt rle huff
+ }
   }
 
 
@@ -1187,8 +1207,8 @@ var
   Komprimiert: Tarrayofbyte;
   rledata:Tarrayofstring;
   startdata:Tarrayofstring;
-  verpackt:string;
-  index:integer;
+  //verpackt:string;
+  //index:integer;
   origstr:string;
 
 

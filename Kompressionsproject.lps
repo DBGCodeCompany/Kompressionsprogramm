@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="131"/>
+        <UsageCount Value="132"/>
       </Unit0>
       <Unit1>
         <Filename Value="kompressorunit.pas"/>
@@ -19,10 +19,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="402"/>
-        <CursorPos X="33" Y="705"/>
-        <FoldState Value=" T4E02 TLj42C0E p0vC0q171A]Bu70Z0112121 TM/I3]78iW21]83j11}g7 pj0oD096 piYjE0D3]IekK0K[94OmO1c[947kD0f32 p0sX04]+1j30}e9]sbof2661221[V4tV0L31[B5u1031 T0jXM9D]faZR5E]8fi0N7[H4YZU3[84cgN7G]8XjFL2D2F[J4rUY9E2[U5mgd8A1[}E56nf01H p0td028 T2$12B05]T%"/>
-        <UsageCount Value="130"/>
+        <TopLine Value="80"/>
+        <CursorPos X="81" Y="556"/>
+        <FoldState Value=" T4E02 TLyH0q1F1C p0uI0Z0112121 TM\U3]78iW21]83j20}-7 pj0p1096 piYjM0D3]IekN0K[94OmU0c[947kI0f32 p0sY04]+1oM0C119]tclF0A31221[W4t50L31[B5u3031 T2%D2B05[{q50kBM9D]raZR5E]8fi0N733D[\4iCO7[94YZU3M[84nRI312F[S4nVY9E2D[B57d8A1[}U56oK01B24 p0uM028s"/>
+        <UsageCount Value="131"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -60,7 +60,7 @@
         <TopLine Value="530"/>
         <CursorPos X="86" Y="559"/>
         <FoldState Value=" T4601 TLm10q02]A7SMK T8i121]E3iE0F513 pjOnd1b212 T6iF03517 T1iJ0A511[X5Ar50U0[X40j6K371E piZnME2A:"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit5>
     </Units>
