@@ -29,6 +29,7 @@ type
     codealphabet: array of shortstring;
     blocklaenge: byte;
     derindex:integer;
+    intdaten: Array of integer;
   end;
 
   { TKompressorForm }
@@ -62,9 +63,9 @@ type
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
     function bwt2(orig:string):TDatensatz;
     //function getRunmode(now:integer):integer;
-    function rleencode(Werte:TArrayofbyte):Tarrayofbyte;
+    //function rleencode(Werte:TArrayofbyte):Tarrayofbyte;
     //function rleencode(data:string):TArrayofInt;
-    function rleencodestring(s:string):Tarrayofbyte;
+    //function rleencodestring(s:string):Tarrayofbyte;
     function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
     function rledecodestring(werte:TArrayofInt):string;
     function huffman(s:string):TDatensatz;
@@ -565,6 +566,12 @@ begin
       Setlength(result.codealphabet,i);                           //und setzen
       FS.Read(result.codealphabet[0],(i*Sizeof(shortstring))); //Array lesen
       end;
+      //array of int lesen
+      FS.Read(i,sizeof(integer));                      //länge des kommenden Arrays auslesen
+      if i>0 then begin
+      Setlength(result.intdaten,i);                           //und setzen
+      FS.Read(result.intdaten[0],(i*Sizeof(integer))); //Array lesen
+      end;
       //Blocklaenge lesen
       FS.read(result.blocklaenge,sizeOf(byte));
       //Index lesen
@@ -664,13 +671,13 @@ var
   end;
 {------------------------------------------------------------------------------}
 {----------------------Run-Length-Encoding-------------------------------------}
-function TKompressorForm.rleencode(Werte:TArrayofbyte):TArrayofbyte;
+function rleencode(Werte:TArrayofbyte):TArrayofbyte;
 var i,z:integer;
   WerteKomprimiert: Array of byte;
   wert1:byte;
   wert2:byte;
 begin
-  Memo.lines.add('Beginn RLEncoding binär...');
+
   z:=0;
 
   setLength(WerteKomprimiert,1);
@@ -690,7 +697,7 @@ begin
           WerteKomprimiert[z] := 1;       //auch hier 1 als minimum
         end;
         end;
-   Memo.lines.add('RLE-binär beendet');
+
    result:=copy(WerteKomprimiert);
 
 end;
@@ -748,7 +755,7 @@ begin
 
 end;
 }
-function TKompressorForm.rleencodestring(s:string):Tarrayofbyte;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
+{function TKompressorForm.rleencodestring(s:string):Tarrayofbyte;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
 var
    i,y, j,r: integer;      //hauptsächlich laufvariablen
    letters:string;          //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
@@ -792,6 +799,53 @@ var
 
    Memo.lines.add('RLE-String beendet');
    result:=copy(ausgabe);
+
+
+ end; }
+function rleencodestring(s:string;index:integer):TDatensatz;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
+var
+   i,y, j,r: integer;      //hauptsächlich laufvariablen
+   letters:string;          //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
+   counts:array of integer;   //speichert, wie oft welcher char vorkommt
+   ausgabe:array of integer;
+ begin
+   j := 0;
+   setLength(counts,1);
+   setlength(letters,1);
+     letters[1]:=s[1];       //erster char wird eingelesen
+     counts[0] := 1;         //dieser kommt mind. einmal vor
+
+
+     for i := 1 to (length(s)-1) do
+       if s[i] = s[i+1]  then      //wenn gleich, dann
+         inc(counts[j])            //zähle einen mehr
+       else
+       begin                        //wenn nicht
+       setlength(counts,length(counts)+1);       //array-erweiterung
+         setlength(letters,length(letters)+1);
+         letters[j+2]:=s[i+1];        //nächster char wird gespeichert
+         inc(j);
+         counts[j] := 1;              //auch dieser kommt mind. einmal vor
+       end;
+
+   setLength(ausgabe,length(counts)+length(letters));  //ausgabe setzt sich aus beiden array zusammen
+
+    r:=1;
+   y:=0;
+
+   for i:=0 to Length(ausgabe) do begin
+      if (i mod 2) = 0 then  begin     //in alle geraden plätze wird der asciicode der chars geschrieben
+      ausgabe[i]:=ord(letters[r]);
+     inc(r,1);
+      end
+       else  begin                    //in alle ungeraden plätze wird die anzahl geschrieben
+     ausgabe[i]:=counts[y];
+    inc(y,1);
+   end;
+   end;
+
+   result.intdaten:=ausgabe;
+   result.derindex:=index; //nimmt den integer index nur von der vorherigen bwt auf, damit er auf jeden Fall gespeichert wird
 
 
  end;
@@ -872,63 +926,6 @@ end;
    Memo.lines.add('RLE-String entpackt');
    result:=ausgabe;
    end;
-{ function TKompressorForm.rledecodestring2(werte2:TArrayofByte):TDatensatz;      //entpackt einen mit rleencodestring verpackten string
-   var
-      z,y,m,n,i:integer;   //hauptsächlich laufvariablen
-      ausgabe:string;      //entpackter string
-      chars:string;        //die chars, aus denen der ex-string bestand
-      index1,index2: string;
-   begin
-    n:=0;
-    i:=1;
-    z:=1;
-    m:=1;
-    Memo.lines.add('RLE-String wird entpackt...');
-    setlength(chars,(length(werte2) div 2));  //array ist immer durch 2 teilbar, da jedem char eine zahl zugeordnet wird
-
-      for i:=0 to (Length(Werte2)-1) do begin
-       if (i mod 2) = 0 then  begin    //hinter den geraden zahlen verstecken sich die buchstaben in asciicode
-         chars[m]:=chr(werte2[i]);      //aus asciicode wird wieder ein char
-         inc(m,1);
-       end
-        else  begin
-         n:=n+werte2[i];      //zählen, wie lang der string ehemalig war (jede 2. Zahl gibt an, wie oft ein buchstabe vorhanden ist)
-      end;
-    end;
-
-    setLength(ausgabe,n);  //ausgabe auf finale länge setzen
-
-   m:=1;
-
-   for i:=0 to (Length(Werte2)-1) do begin
-    if (i mod 2) <> 0 then  begin        //bei ungeraden zahlen ausführen
-         for y:=1 to Werte2[i]do  begin   //der buchstabe wird sooft in die ausgabe geschrieben, wie es der ihm zugeordnete wert vorgibt
-          ausgabe[z]:=chars[m];
-          Inc(z,1);
-       end;
-        Inc(m,1);
-        end;
-  end;
-   index1:='';
-   index2:='';
-   Memo.lines.add('RLE-String entpackt');
-   i:=length(ausgabe)-1;
-   n:=0;
-   setLength(index1,1);
-   repeat
-   if  (ord(ausgabe[i])>=48) AND (ord(ausgabe[i])<= 57) then begin
-   index1[n]:=ausgabe[i];
-   Inc(n,1);
-   Setlength(index1, Length(index1)+1);
-   end;
-   until (ord(ausgabe[i])<48) OR (ord(ausgabe[i])>57);
-   setlength(index2,Length(index1));
-   for i:=0 to Length(index1)-1 do begin
-    index2[i]:=index1[Length(index1)-1-i];
-    end;
-   result.stringdaten:=ausgabe;
-   result.derindex:=strtoint(index2);
-   end; }
  {------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
 function TKompressorForm.alphacode(data:string):TDatensatz;         //Optimiert das Alphabet, das data nutzt indem es ein neues
@@ -1145,6 +1142,10 @@ begin
       i:=length(data.codealphabet);
       FS.Write(i,sizeOf(i));       //länge des Arrays schreiben
       FS.Write(data.codealphabet[0],i*sizeOf(shortstring)); //array schreiben
+      //intDaten schreiben
+      i:=length(data.intdaten);
+      FS.write(i,sizeOf(i)); //länge des Array schreiben
+      if i>0 then FS.write(data.intdaten[0],(i*sizeof(integer))); //array schreiben
       //Blocklaenge schreiben
       FS.Write(data.blocklaenge,SizeOf(byte));
       //Index schreiben
@@ -1172,7 +1173,7 @@ begin
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   runmode:integer;
-  datensatz:TDatensatz;
+  datensatz,datensatz2:TDatensatz;
   Data:string;
   alpha:string;
   kompdata:string;
@@ -1188,6 +1189,7 @@ var
   startdata:Tarrayofstring;
   verpackt:string;
   index:integer;
+  origstr:string;
 
 
 begin
@@ -1256,23 +1258,13 @@ begin
  end;
  //bwt und rlestring
  if runmode=8 then begin
+ origstr:=StringausDatei(OpenPathEdit.text);
  Memo.lines.add('Erst BWT und dann Run-Length-Encoding');
  Memo.lines.add('Beginn der Umsortierung mit Burrows-Wheeler-Tarnsformation');
- datensatz:=bwt2(startstring);
+ datensatz:=bwt2(origstr);
  Memo.lines.add('Beginn der Komprimierung mit Run-Length-Encoding');
-  komprimiert:=rleencodestring(datensatz.stringdaten+inttostr(datensatz.derindex));
- if MemoAusgabeRadioButton.checked=true then begin
- i:=0;
- repeat
- Memo.lines.add(chr(komprimiert[i]));
- Memo.lines.Add(inttostr(komprimiert[i+1]));
- inc(i,2)
- until i=(Length(komprimiert));
- end;
-datensatz.bytedaten:=copy(komprimiert);
-datensatz.stringdaten:='';
-datensatz.derindex:=0;
-saverecord(datensatz,SavePathEdit.text);
+ datensatz2:=rleencodestring(datensatz.stringdaten,datensatz.derindex);
+saverecord(datensatz2,SavePathEdit.text);
 end;
 {---------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
@@ -1425,8 +1417,8 @@ var
   verpackt:array of integer;
   startwert:byte;
   i:integer;
-
-  datensatz2:TDatensatz;
+  index:integer;
+  trans,textorig:string;
 begin
   datensatz:=loadrecord(OpenPathEdit.text);
  runmode:=getRunMode;
@@ -1452,41 +1444,18 @@ end;
  StringInDatei(entpacktstr,SavePathEdit.text);
  Memo.lines.add('Zurücksortiertes abgespeichert');
 end;
+ //de-rlebinär
+ if runmode=3 then begin
+
+ end;
 if runmode=8 then begin
-{
- //Memo.lines.add('Beginn der RLE-String-Decodierung');
-    //array of int erzeugen:;
-  {readdata:=SarrayausDatei(OpenPathEdit.text);
-
-  setLength(verpackt,Length(readdata));       //anlegen des arrays zum Einlesen
 
 
-  memo.lines.clear;
-  for i:=0 to high(readdata) do Memo.Lines[i]:=readdata[i];  //und ins Array schreiben
-   Memo.lines.add(IntToStr(Length(readdata)));
-
-  for i:=0 to high(readdata) do begin    //einlesen der zu entpackenden werte
-  Memo.Lines.add(inttostr(i));
-  verpackt[i]:=strtoint(readdata[i]);
-  end;  }
-  datensatz:=loadrecord(OpenPathEdit.text);
-
-
- // rlestring:=rledecodestring(datensatz.bytedaten);
-  try
-  datensatz2:=rledecodestring2(datensatz.bytedaten);
-  except
-  Showmessage('rle');
-  end;
-
-  try
-  bwtstring:=debwt(datensatz2.stringdaten,datensatz2.derindex);
-  except
-  ShowMessage('bwt');
-  end;
-  //StringInDatei(bwtstring,SavePathEdit.text);
-
- end;  }
+   index:=datensatz.derindex;;
+   trans:=rledecodestring(datensatz.intdaten);
+   textorig:=debwt(trans,index);
+   StringinDatei(textorig,SavePathEdit.text);
+ end;
 
 
  {
