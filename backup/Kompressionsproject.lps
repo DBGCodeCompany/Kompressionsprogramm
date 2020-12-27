@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="131"/>
+        <UsageCount Value="143"/>
       </Unit0>
       <Unit1>
         <Filename Value="kompressorunit.pas"/>
@@ -19,10 +19,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="402"/>
-        <CursorPos X="33" Y="705"/>
-        <FoldState Value=" T4E02 TLj42C0E p0vC0q171A]Bu70Z0112121 TM/I3]78iW21]83j11}g7 pj0oD096 piYjE0D3]IekK0K[94OmO1c[947kD0f32 p0sX04]+1j30}e9]sbof2661221[V4tV0L31[B5u1031 T0jXM9D]faZR5E]8fi0N7[H4YZU3[84cgN7G]8XjFL2D2F[J4rUY9E2[U5mgd8A1[}E56nf01H p0td028 T2$12B05]T%"/>
-        <UsageCount Value="130"/>
+        <TopLine Value="497"/>
+        <CursorPos X="178" Y="761"/>
+        <FoldState Value=" T4E02 TLj62W0r p0xF0q1B131G]Dw00Z0112121 T3j30}-6 picoa0B7 pj0ja0D3]9gkP0K[94UmY0j2]aekB0R2]I3je0k31])sS04]\1j50}y049]carD092125]Vt40X1412]BwK03]g2jI1J]F%O2B05[{q50kCM9D[w4ZR5E]8fi0N7[H4YZU3[84cgN767L]AXpGb29K5C].x9j2222[.46q201B[{Z6wF04141+"/>
+        <UsageCount Value="142"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -32,7 +32,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="103"/>
         <CursorPos X="14" Y="110"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\..\kompressiontest\kompressiontestunit.pas"/>
@@ -40,7 +40,7 @@
         <TopLine Value="140"/>
         <CursorPos Y="140"/>
         <FoldState Value=" T4602 TLlA2F5 T7GBR T8d211 T3iI0A5 pjVkE1g3]9BkG0V01]Km6nG04 T6iJ019 T1iL07[i4IkH1a]iigkD0S[i5lMnF02 T0iOK3G]RXmLD2B16 TMk811x"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit3>
       <Unit4>
         <Filename Value="kompressiontest\kompressiontestunit.pas"/>
@@ -51,7 +51,7 @@
         <TopLine Value="171"/>
         <CursorPos Y="511"/>
         <ComponentState Value="1"/>
-        <UsageCount Value="30"/>
+        <UsageCount Value="29"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\kompressiontestagain\kompresstestunit.pas"/>
@@ -59,131 +59,130 @@
         <EditorIndex Value="1"/>
         <TopLine Value="530"/>
         <CursorPos X="86" Y="559"/>
-        <FoldState Value=" T4601 TLm10q02]A7SMK T8i121]E3iE0F513 pjOnd1b212 T6iF03517 T1iJ0A511[X5Ar50U0[X40j6K371E piZnME2A:"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="17"/>
         <Loaded Value="True"/>
       </Unit5>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="73" Column="6" TopLine="51"/>
+        <Caret Line="1459" Column="28" TopLine="1443"/>
       </Position1>
       <Position2>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1463" Column="3" TopLine="1450"/>
+        <Caret Line="1463" Column="29" TopLine="1437"/>
       </Position2>
       <Position3>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="919" Column="52" TopLine="897"/>
+        <Caret Line="1466" Column="34" TopLine="1454"/>
       </Position3>
       <Position4>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="920" Column="14" TopLine="898"/>
+        <Caret Line="1459" Column="13" TopLine="1438"/>
       </Position4>
       <Position5>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1466" Column="46" TopLine="1439"/>
+        <Caret Line="1473" Column="8" TopLine="1443"/>
       </Position5>
       <Position6>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1431" Column="22" TopLine="1370"/>
+        <Caret Line="1478" Column="51" TopLine="1442"/>
       </Position6>
       <Position7>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1460" Column="31" TopLine="1440"/>
+        <Caret Line="73" Column="7" TopLine="52"/>
       </Position7>
       <Position8>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1461" Column="39" TopLine="1443"/>
+        <Caret Line="1569" TopLine="1539"/>
       </Position8>
       <Position9>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1460" Column="45" TopLine="1443"/>
+        <Caret Line="1467" Column="25" TopLine="1462"/>
       </Position9>
       <Position10>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1463" Column="35" TopLine="1443"/>
+        <Caret Line="1205" Column="86" TopLine="1088"/>
       </Position10>
       <Position11>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1459" Column="28" TopLine="1443"/>
+        <Caret Line="1514" Column="44" TopLine="1472"/>
       </Position11>
       <Position12>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1463" Column="29" TopLine="1437"/>
+        <Caret Line="890" TopLine="584"/>
       </Position12>
       <Position13>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1466" Column="34" TopLine="1454"/>
+        <Caret Line="1419" Column="3" TopLine="1362"/>
       </Position13>
       <Position14>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1459" Column="13" TopLine="1438"/>
+        <Caret Line="1418" Column="3" TopLine="1362"/>
       </Position14>
       <Position15>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1473" Column="8" TopLine="1443"/>
+        <Caret Line="1416" Column="3" TopLine="1362"/>
       </Position15>
       <Position16>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1478" Column="51" TopLine="1442"/>
+        <Caret Line="1415" Column="3" TopLine="1362"/>
       </Position16>
       <Position17>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="73" Column="7" TopLine="52"/>
+        <Caret Line="1413" Column="3" TopLine="1362"/>
       </Position17>
       <Position18>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1569" TopLine="1539"/>
+        <Caret Line="1411" Column="3" TopLine="1362"/>
       </Position18>
       <Position19>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1467" Column="25" TopLine="1462"/>
+        <Caret Line="1408" Column="3" TopLine="1362"/>
       </Position19>
       <Position20>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1205" Column="86" TopLine="1088"/>
+        <Caret Line="1533" TopLine="1485"/>
       </Position20>
       <Position21>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1514" Column="44" TopLine="1472"/>
+        <Caret Line="88" Column="35" TopLine="355"/>
       </Position21>
       <Position22>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="890" TopLine="584"/>
+        <Caret Line="343" Column="12" TopLine="321"/>
       </Position22>
       <Position23>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1419" Column="3" TopLine="1362"/>
+        <Caret Line="1629" Column="45" TopLine="1598"/>
       </Position23>
       <Position24>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1418" Column="3" TopLine="1362"/>
+        <Caret Line="1306" Column="20" TopLine="1285"/>
       </Position24>
       <Position25>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1416" Column="3" TopLine="1362"/>
+        <Caret Line="1629" Column="24" TopLine="1289"/>
       </Position25>
       <Position26>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1415" Column="3" TopLine="1362"/>
+        <Caret Line="50" Column="22" TopLine="28"/>
       </Position26>
       <Position27>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1413" Column="3" TopLine="1362"/>
+        <Caret Line="51" Column="9" TopLine="28"/>
       </Position27>
       <Position28>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1411" Column="3" TopLine="1362"/>
+        <Caret Line="56" Column="9" TopLine="28"/>
       </Position28>
       <Position29>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1408" Column="3" TopLine="1362"/>
+        <Caret Line="61" Column="19" TopLine="28"/>
       </Position29>
       <Position30>
         <Filename Value="kompressorunit.pas"/>
-        <Caret Line="1533" TopLine="1485"/>
+        <Caret Line="62" Column="19" TopLine="28"/>
       </Position30>
     </JumpHistory>
     <RunParams>

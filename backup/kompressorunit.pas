@@ -30,6 +30,7 @@ type
     blocklaenge: byte;
     derindex:integer;
     intdaten: Array of integer;
+    rlestartwert: byte;
   end;
 
   { TKompressorForm }
@@ -66,8 +67,8 @@ type
     //function rleencode(Werte:TArrayofbyte):Tarrayofbyte;
     //function rleencode(data:string):TArrayofInt;
     //function rleencodestring(s:string):Tarrayofbyte;
-    function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
-    function rledecodestring(werte:TArrayofInt):string;
+    //function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+    //function rledecodestring(werte:TArrayofInt):string;
     function huffman(s:string):TDatensatz;
     function alphacode(data:string):TDatensatz;
     function getRunMode():integer;
@@ -84,9 +85,10 @@ var
   bits:TBits;
 
 implementation
-
- function TKompressorform.getRunmode():integer;  //überprüfen, welche algorithmen verwendet werden sollen; Reihenfolge komprimieren vs. entpacken
-var bwt,rle,huff,alpha:boolean;                  //einleseart muss an runmode und algorithmus angepasst werden
+{------------------------------------------------------------------------------}
+{------------überprüft, welche Algorithmen verwendet werden sollen-------------}
+function TKompressorform.getRunmode():integer;
+var bwt,rle,huff,alpha:boolean;
 begin
   {
   // auch möglich:
@@ -315,27 +317,32 @@ begin
 
 
 end;
-
-function tausch(str1,str2:string):boolean;                //untersucht ob str1 und str2 getauscht werden sollen
+{------------------------------------------------------------------------------}
+{-------------untersucht ob str1 und str2 getauscht werden sollen--------------}
+function tausch(str1,str2:string):boolean;
 var
-  i:integer;
+  i:integer;                                                                    //Zählvariable
 begin
- result:=false;                                    //Damit result auch gesetzt ist, wenn die strings gleich sind
+
+ result:=false;                                                                 //Damit result auch gesetzt ist, wenn die strings gleich sind
   for i:=1 to length(str1) do begin
-    if ord(str1[i])>ord(str2[i]) then begin        //ASCII indizes der Stringzeichen an der stelle i vergleichen
-      result:=true;                                //und danach entscheiden
-      break;                                       //...wenn sie geleich sind, dann eine position weiter gehen
-    end;                                           //im string und wieder vergleichen.
+    if ord(str1[i])>ord(str2[i]) then begin                                     //ASCII indizes der Stringzeichen an der stelle i vergleichen
+      result:=true;                                                             //und danach entscheiden
+      break;                                                                    //...wenn sie geleich sind, dann eine position weiter gehen
+    end;                                                                        //im string und wieder vergleichen.
     if ord(str1[i])<ord(str2[i]) then begin
       result:=false;
       break;
     end;
   end;
-end;
 
-function permute(str:string;index:integer):string; //Gibt die Permutation von str zurück, die bei str[index] beginnt
+end;
+{------------------------------------------------------------------------------}
+{------Gibt die Permutation von str zurück, die bei str[index] beginnt---------}
+function permute(str:string;index:integer):string;
 var
-  i,l:integer;
+  i:integer;                                                                     //Zählvariable
+  l:integer;                                                                    //Länge als int der Einfachheit halber
 begin
    l:=length(str);
    setlength(result,l);
@@ -344,34 +351,42 @@ begin
      else result[i]:=str[index+i];
    end;
 end;
-
-function permute2(str:string;index:integer;pos:integer):char;   //gibt die permutation als einzelnen char zurück
-var l:integer;
+{------------------------------------------------------------------------------}
+{----------gibt die permutation als einzelnen char zurück----------------------}
+function permute2(str:string;index:integer;pos:integer):char;
+var l:integer;                                                                  //Länge als int der Einfachheit halber
 begin
    l:=length(str);
-    if (pos+index)>l then result:=str[pos+index-l]
-     else result:=str[index+pos];
+   if (pos+index)>l then result:=str[pos+index-l]
+   else result:=str[index+pos];
 end;
-
-{alternative zur einfachen tauschfunktion, vorteil, da nicht die gesamte permutation erstellt wird}
-{rekursiv: sind die chars gleich, ruft sich die funktion}
-{selbst auf, dabei werden die nächsten chars verglichen etc}
-function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;                //untersucht ob str1 und str2 getauscht werden sollen , übergabewerte sind für rekursion notwendig
+{------------------------------------------------------------------------------}
+{-------------Alternative zur einfachen Tauschfunktion-------------------------}
+{---------Vorteil, da nicht die gesamte Permutation erstellt wird--------------}
+{---------rekursiv: sind die chars gleich, ruft sich die Funktion--------------}
+{-------selbst auf, dabei werden die nächsten chars verglichen etc-------------}
+{------------untersucht ob str1 und str2 getauscht werden sollen---------------}
+{----------------Übergabewerte sind für rekursion notwendig--------------------}
+function TKompressorForm.tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
 begin
- result:=false;                                            //Damit result auch gesetzt ist, wenn die strings gleich sind
-     if (ord(char1)=ord(char2)) AND (pos<=max) then begin
-       result:=tausch2(permute2(str,index1,pos+1),permute2(str,index2,pos+1),str,index1,index2,pos+1,max);
-      end
-    else
-    if ord(char1)>ord(char2) then begin        //ASCII indizes der chars vergleichen
-      result:=true;                                //und danach entscheiden                                      //...wenn sie geleich sind, dann eine position weiter gehen
-    end;                                           //im string und wieder vergleichen.
-    if ord(char1)<ord(char2) then begin
-      result:=false;
-    end;
-  end;
-
-function potenz(basis,exponent:integer):byte;                  //Potenz halt
+ result:=false;                                                                 //Damit result auch gesetzt ist, wenn die strings gleich sind
+ if (ord(char1)=ord(char2)) AND (pos<=max) then
+    begin
+    result:=tausch2(permute2(str,index1,pos+1),permute2(str,index2,pos+1),str,index1,index2,pos+1,max);
+    end
+ else
+    if ord(char1)>ord(char2) then                                               //ASCII indizes der chars vergleichen
+       begin                                                                    //und danach entscheiden
+       result:=true;                                                            //...wenn sie geleich sind, dann eine position weiter gehen
+       end;                                                                     //im string und wieder vergleichen.
+    if ord(char1)<ord(char2) then
+       begin
+       result:=false;
+       end;
+end;
+{------------------------------------------------------------------------------}
+{------------------------------Potenz halt-------------------------------------}
+function potenz(basis,exponent:integer):byte;
 var
 i:integer;
 begin
@@ -381,9 +396,11 @@ begin
     for i:=1 to exponent do result:=result*basis;
     end;
   end;
-
-function bittobyte(bits:string):Tarrayofbyte;        //schreibt ein string mit 1/0 in ein Tarrayofbyte um. Dabei werden
-var                                                  //immer 8 zeichen des Strings zu einem byte-Wert zusammengefasst
+{------------------------------------------------------------------------------}
+{------schreibt ein string mit 1/0 in ein Tarrayofbyte um. Dabei werden--------}
+{------immer 8 zeichen des Strings zu einem byte-Wert zusammengefasst----------}
+function bittobyte(bits:string):Tarrayofbyte;
+var
   i,n,lenge:integer;                                 //(bsp.: '101'->5
   abyte:byte;
 begin                                                       //länge des zukünftigen array of byte festlegen:
@@ -405,8 +422,9 @@ begin                                                       //länge des zukünf
     result[n]:=abyte;                                       //jeweiliges ergebnis in das ergebnis schreiben
   end;
 end;
-
-function SArrayToString(a:Tarrayofstring;kommata:boolean):String; //Schreibt ein Tarrayofstring in einen string um (Huffman)
+{------------------------------------------------------------------------------}
+{------------Schreibt ein Tarrayofstring in einen string um (Huffman)----------}
+function SArrayToString(a:Tarrayofstring;kommata:boolean):String;
 var
  i:Integer;
  begin
@@ -418,8 +436,9 @@ var
    For i:=0 to (length(a)-1) do result:=result+a[i];
    end;
   end;
-
-function aofrealtostr(a:Tarrayofreal):string;   //schreibt ein array of real in einen String um
+{------------------------------------------------------------------------------}
+{-------------schreibt ein array of real in einen String um--------------------}
+function aofrealtostr(a:Tarrayofreal):string;
 var
   //i:int64;
  i:integer;
@@ -429,8 +448,9 @@ var
       result:=result+ floattostr(a[i])+' ';
       end;
     end;
-
-function instring(s:string; a:char):boolean;     //prüfen ob ein Buchstabe in einem String ist
+{------------------------------------------------------------------------------}
+{---------------prüfen ob ein Buchstabe in einem String ist--------------------}
+function instring(s:string; a:char):boolean;
 var
  // i:int64;
  i:integer;
@@ -443,8 +463,9 @@ var
       end;
     end;
   end;
-
-function getalpha(s:string):string;       //generiert das Alphabet, das s nutzt
+{------------------------------------------------------------------------------}
+{-----------------generiert das Alphabet, das s nutzt--------------------------}
+function getalpha(s:string):string;
 var
  // i:int64;
  i:integer;
@@ -472,8 +493,9 @@ lenge:int64;  // i, n,
     end;                                                             //aufsummieren für jedes gefundene mal plus 1/lenge
     result:=copy(wahrsch);
   end;
-
-function StringInDatei(a,Path:string):boolean;              //Schreibt einen einzelnen String in eine Text datei
+{------------------------------------------------------------------------------}
+{---------Schreibt einen einzelnen String in eine Text datei-------------------}
+function StringInDatei(a,Path:string):boolean;
 var                                                         //(als .txt lesbar, nicht kryptisch)
   List:TStringList;
 begin
@@ -486,8 +508,9 @@ begin
   finally
   end;
 end;
-
-function StringausDatei(Path:string):string;                 //Läd einen einzelnen String aus einer Text datei
+{------------------------------------------------------------------------------}
+{-----------Lädt einen einzelnen String aus einer Text datei-------------------}
+function StringausDatei(Path:string):string;
 var                                                          //(als .txt lesbar, nicht kryptisch)
   List:TStringList;
   s:string;
@@ -503,8 +526,9 @@ begin
    Showmessage('Fehler beim Laden mit "StringausDate()"');
  end;
 end;
-
-function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;    //Schreibt ein Array of String in eine Datei
+{------------------------------------------------------------------------------}
+{--------------Schreibt ein Array of String in eine Datei----------------------}
+function SarrayInDatei(data:Tarrayofstring;Path:string):boolean;
 var                                                                 //(als .txt lesbar, nicht kryptisch!)
   List:TStringList;                                                 //Jedes Feld des Arrays ist eine neue Zeile der
   i:integer;                                                        //Text Datei.
@@ -518,10 +542,13 @@ begin
      List.free;
   end;
 end;
-
-function SarrayAusDatei(Path:string):Tarrayofstring;    //Läd ein array of String aus einer Datei (.txt), in der
-var                                                     //Text gespeichert ist. Jede neue Zeile der Datei ist
-  List:TStringList;                                     //ein neues Feld des Arrays
+{------------------------------------------------------------------------------}
+{----------Lädt ein array of String aus einer Datei (.txt), in der-------------}
+{----------Text gespeichert ist. Jede neue Zeile der Datei ist-----------------}
+{--------------------ein neues Feld des Arrays---------------------------------}
+function SarrayAusDatei(Path:string):Tarrayofstring;
+var
+  List:TStringList;
   i:integer;
 begin
  List:=TStringlist.create;
@@ -533,9 +560,10 @@ begin
    list.free;
  end;
 end;
-
-function LoadBitString(const Path: string): string;     //Läd einen BitString (1/0) aus der Datei unter Path
-var                                                     //Diese Datei kann von allen Möglichen Typen sein!
+{------------------------------------------------------------------------------}
+{---Lädt einen BitString (1/0) aus der Datei eines beleibiegen Typ unter Path--}
+function LoadBitString(const Path: string): string;
+var
   fs: TFileStream;
   DataLeft,i: Integer;
   bytes:Tarrayofbyte;
@@ -596,12 +624,15 @@ begin
       FS.read(result.blocklaenge,sizeOf(byte));
       //Index lesen
       FS.read(result.derindex,sizeOf(integer));
+      //startwert lesen
+      FS.read(result.rlestartwert,sizeOf(byte));
     finally
       FS.free;
     end;
 end;
-
+{------------------------------------------------------------------------------}
 {------------------------HUFFMAN-CODING----------------------------------------}
+{------------------------------------------------------------------------------}
 function TKompressorForm.huffman(s:string):TDatensatz;
 var
  index:int64;
@@ -668,6 +699,7 @@ var
   end;
 {------------------------------------------------------------------------------}
 {-------------------huffmankompriemierung entpacken----------------------------}
+{------------------------------------------------------------------------------}
 function dehuff(datensatz:TDatensatz):string;
 var
   i,index:integer;
@@ -691,37 +723,76 @@ var
   end;
 {------------------------------------------------------------------------------}
 {----------------------Run-Length-Encoding-------------------------------------}
+{------------------------------------------------------------------------------}
 function rleencode(Werte:TArrayofbyte):TArrayofbyte;
-var i,z:integer;
-  WerteKomprimiert: Array of byte;
-  wert1:byte;
-  wert2:byte;
+var
+  i:integer;                                                                    //Zähl/Laufvariable
+  z:integer;                                                                    //Zähl/Laufvariable
+  WerteKomprimiert: Array of byte;                                              //Ausgabewerte
+  wert1:byte;                                                                   //Platzhalter für Arrayzugriff für den Vergleich
+  wert2:byte;                                                                   //Platzhalter für Arrayzugriff für den Vergleich
 begin
 
   z:=0;
 
   setLength(WerteKomprimiert,1);
 
-  WerteKomprimiert[0]:=1;  //anfangswert, falls sofort ein wechsel auftritt
+  WerteKomprimiert[0]:=1;                                                       //anfangswert, falls sofort ein wechsel auftritt
 
   //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
 
-     for i:=0 to (Length(werte)-2) do begin
-         wert1:=(werte[i]);       //werte miteinander vergleichen,ob wechsel (01) vorliegt
-         wert2:=(werte[i+1]);
-        if wert1=wert2 then
-          inc(WerteKomprimiert[z],1) //es wird gezählt, wie oft etwas hintereinander steht
-        else begin
-          inc(z,1);                   //hier liegt ein wechsel vor und greifen auf den nächsten platz des array zu
-          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);  //dynamische erweiterung des arrays
-          WerteKomprimiert[z] := 1;       //auch hier 1 als minimum
-        end;
-        end;
+  for i:=0 to (Length(werte)-2) do
+    begin
+      wert1:=(werte[i]);                                                        //werte miteinander vergleichen,ob wechsel (01) vorliegt
+      wert2:=(werte[i+1]);
+      if wert1=wert2 then
+          inc(WerteKomprimiert[z],1)                                            //es wird gezählt, wie oft etwas hintereinander steht
+      else
+      begin
+          inc(z,1);                                                             //hier liegt ein wechsel vor und es wird auf den nächsten platz des array zugegriffen
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);               //dynamische erweiterung des arrays
+          WerteKomprimiert[z] := 1;                                             //auch hier 1 als minimum
+      end;
+    end;
 
-   result:=copy(WerteKomprimiert);
+  result:=copy(WerteKomprimiert);
 
 end;
+function rleencode(Werte:TArrayofbyte;startwert:byte):TDatensatz;               //array of int in tdatensatz deckt mehr weete ab als array of byte, nutzt aber auch mehr speicher
+var
+  i:integer;                                                                    //Zähl/Laufvariable
+  z:integer;                                                                    //Zähl/Laufvariable
+  WerteKomprimiert: array of integer;                                           //Ausgabewerte
+  wert1:byte;                                                                   //Platzhalter für Arrayzugriff für den Vergleich
+  wert2:byte;                                                                   //Platzhalter für Arrayzugriff für den Vergleich
+begin
 
+  z:=0;
+
+  setLength(WerteKomprimiert,1);
+
+  WerteKomprimiert[0]:=1;                                                       //anfangswert, falls sofort ein wechsel auftritt
+
+  //angelehnt an https://rosettacode.org/wiki/Run-length_encoding#Pascal
+
+  for i:=0 to (Length(werte)-2) do
+    begin
+      wert1:=(werte[i]);                                                        //werte miteinander vergleichen,ob wechsel (01) vorliegt
+      wert2:=(werte[i+1]);
+      if wert1=wert2 then
+          inc(WerteKomprimiert[z],1)                                            //es wird gezählt, wie oft etwas hintereinander steht
+      else
+      begin
+          inc(z,1);                                                             //hier liegt ein wechsel vor und es wird auf den nächsten platz des array zugegriffen
+          setLength(WerteKomprimiert,Length(WerteKomprimiert)+1);               //dynamische erweiterung des arrays
+          WerteKomprimiert[z] := 1;                                             //auch hier 1 als minimum
+      end;
+    end;
+
+  result.intdaten:=WerteKomprimiert;
+  result.rlestartwert:=startwert;
+
+end;
 {function TKompressorForm.rleencode(data: string):TArrayofInt;
 var i,z,y:integer;
   werte:array of byte;
@@ -822,134 +893,161 @@ var
 
 
  end; }
-function rleencodestring(s:string;index:integer):TDatensatz;  // nach https://rosettacode.org/wiki/Run-length_encoding#Pascal ,möglich, um bwt weiter zu verarbeiten
+
+{-------nach https://rosettacode.org/wiki/Run-length_encoding#Pascal-----------}
+{------------------möglich, um bwt weiter zu verarbeiten-----------------------}
+function rleencodestring(s:string;index:integer):TDatensatz;
 var
-   i,y, j,r: integer;      //hauptsächlich laufvariablen
-   letters:string;          //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
-   counts:array of integer;   //speichert, wie oft welcher char vorkommt
+   i,y, j,r: integer;                                                           //hauptsächlich laufvariablen
+   letters:string;                                                              //speichert die chars ;umbennung der strings und arrays evtl. noch erforderlich
+   counts:array of integer;                                                     //speichert, wie oft welcher char vorkommt
    ausgabe:array of integer;
  begin
+
    j := 0;
    setLength(counts,1);
    setlength(letters,1);
-     letters[1]:=s[1];       //erster char wird eingelesen
-     counts[0] := 1;         //dieser kommt mind. einmal vor
+   letters[1]:=s[1];                                                            //erster char wird eingelesen
+   counts[0] := 1;                                                              //dieser kommt mind. einmal vor
 
 
-     for i := 1 to (length(s)-1) do
-       if s[i] = s[i+1]  then      //wenn gleich, dann
-         inc(counts[j])            //zähle einen mehr
+   for i := 1 to (length(s)-1) do
+       if s[i] = s[i+1]  then                                                   //wenn gleich, dann
+         inc(counts[j])                                                         //zähle einen mehr
        else
-       begin                        //wenn nicht
-       setlength(counts,length(counts)+1);       //array-erweiterung
-         setlength(letters,length(letters)+1);
-         letters[j+2]:=s[i+1];        //nächster char wird gespeichert
-         inc(j);
-         counts[j] := 1;              //auch dieser kommt mind. einmal vor
+       begin                                                                    //wenn nicht
+       setlength(counts,length(counts)+1);                                      //array-erweiterung
+       setlength(letters,length(letters)+1);
+       letters[j+2]:=s[i+1];                                                    //nächster char wird gespeichert
+       inc(j);
+       counts[j] := 1;                                                          //auch dieser kommt mind. einmal vor
        end;
 
-   setLength(ausgabe,length(counts)+length(letters));  //ausgabe setzt sich aus beiden array zusammen
+   setLength(ausgabe,length(counts)+length(letters));                           //ausgabe setzt sich aus beiden array zusammen
 
-    r:=1;
+   r:=1;
    y:=0;
 
-   for i:=0 to Length(ausgabe) do begin
-      if (i mod 2) = 0 then  begin     //in alle geraden plätze wird der asciicode der chars geschrieben
-      ausgabe[i]:=ord(letters[r]);
-     inc(r,1);
-      end
-       else  begin                    //in alle ungeraden plätze wird die anzahl geschrieben
-     ausgabe[i]:=counts[y];
-    inc(y,1);
-   end;
-   end;
+   for i:=0 to Length(ausgabe) do
+     begin
+      if (i mod 2) = 0 then                                                     //in alle geraden plätze wird der asciicode der chars geschrieben
+         begin
+         ausgabe[i]:=ord(letters[r]);
+         inc(r,1);
+         end
+      else                                                                      //in alle ungeraden plätze wird die anzahl geschrieben
+         begin
+         ausgabe[i]:=counts[y];
+         inc(y,1);
+         end;
+     end;
 
    result.intdaten:=ausgabe;
-   result.derindex:=index; //nimmt den integer index nur von der vorherigen bwt auf, damit er auf jeden Fall gespeichert wird
+   result.derindex:=index;                                                      //nimmt den integer index nur von der vorherigen bwt auf, damit er auf jeden Fall gespeichert wird
 
-
- end;
+end;
 {------------------------------------------------------------------------------}
 {-----------------Run-Length-Encoding entpacken--------------------------------}
- function TKompressorForm.rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
-var entpackt:array of byte;
-    x:byte;
-    z,n,i,y:integer;
+{------------------------------------------------------------------------------}
+function rledecode(Werte:TArrayofInt;Startwert:byte):TArrayofByte;
+var
+   entpackt:array of byte;                                                      //ausgabe der originalen Binärwerte
+   x:byte;                                                                      //einer der zu schreibenden Werte (gegenteil Startwert)
+   z:integer;                                                                   //Zähl/Laufvariable
+   n:integer;                                                                   //Zähl/Laufvariable
+   i:integer;                                                                   //Zähl/Laufvariable
+   y:integer;                                                                   //Zähl/Laufvariable
 begin
-   Memo.lines.add('RLE-binär wird entpackt...');
-   if Startwert=0 then x:=1 else x:=0;   //festlegen, wann 0/1 geschrieben werden muss
+   //Memo.lines.add('RLE-binär wird entpackt...');
+   if Startwert=0 then x:=1 else x:=0;                                          //festlegen, wann 0/1 geschrieben werden muss
 
    z:=0;
    n:=0;
 
-   for i:=0 to (Length(Werte)-1) do begin     //menge der daten bestimmen
+   for i:=0 to (Length(Werte)-1) do                                             //menge der daten bestimmen
+     begin
       n:=n+Werte[i];
-   end;
+     end;
 
    setLength(entpackt,n);
 
-   for i:=0 to (Length(Werte)-1) do begin
-   if (i mod 2) = 0 then  begin    //startwert bei i=0,2,4,usw. deshalb auf teilbarkeit prüfen
-      for y:=1 to Werte[i] do begin
-         entpackt[z]:=startwert;//0 oder 1
-         Inc(z,1);
-      end
-      end
-       else  begin
-        for y:=1 to Werte[i]do  begin
-         entpackt[z]:=x;//gegenteil vom startwert
-         Inc(z,1);
-      end;
-       end;
+   for i:=0 to (Length(Werte)-1) do
+     begin
+          if (i mod 2) = 0 then                                                 //startwert bei i=0,2,4,usw. deshalb auf teilbarkeit prüfen
+             begin
+                  for y:=1 to Werte[i] do
+                  begin
+                  entpackt[z]:=startwert;                                       //0 oder 1
+                  Inc(z,1);
+                  end
+             end
+          else
+             begin
+                  for y:=1 to Werte[i]do
+                  begin
+                  entpackt[z]:=x;                                               //gegenteil vom startwert
+                  Inc(z,1);
+                  end;
+             end;
 
-end;
-   Memo.lines.add('RLE fertig entpackt');
+   end;
+   //Memo.lines.add('RLE fertig entpackt');
    result:=copy(entpackt);
 
 end;
- function TKompressorForm.rledecodestring(werte:TArrayofInt):string;      //entpackt einen mit rleencodestring verpackten string
-   var
-      z,y,m,n,i:integer;   //hauptsächlich laufvariablen
-      ausgabe:string;      //entpackter string
-      chars:string;        //die chars, aus denen der ex-string bestand
-   begin
-    n:=0;
-    i:=1;
-    z:=1;
-    m:=1;
-    Memo.lines.add('RLE-String wird entpackt...');
-    setlength(chars,(length(werte) div 2));  //array ist immer durch 2 teilbar, da jedem char eine zahl zugeordnet wird
+{---------entpackt einen mit rleencodestring verpackten string-----------------}
+function rledecodestring(werte:TArrayofInt):string;
+var
+  z,y,m,n,i:integer;                                                            //hauptsächlich laufvariablen
+  ausgabe:string;                                                               //entpackter string
+  chars:string;                                                                 //die chars, aus denen der ex-string bestand
+begin
+   n:=0;
+   i:=1;
+   z:=1;
+   m:=1;
+    //Memo.lines.add('RLE-String wird entpackt...');
+   setlength(chars,(length(werte) div 2));                                      //array ist immer durch 2 teilbar, da jedem char eine zahl zugeordnet wird
 
-      for i:=0 to (Length(Werte)-1) do begin
-       if (i mod 2) = 0 then  begin    //hinter den geraden zahlen verstecken sich die buchstaben in asciicode
-         chars[m]:=chr(werte[i]);      //aus asciicode wird wieder ein char
-         inc(m,1);
-       end
-        else  begin
-         n:=n+werte[i];      //zählen, wie lang der string ehemalig war (jede 2. Zahl gibt an, wie oft ein buchstabe vorhanden ist)
-      end;
+   for i:=0 to (Length(Werte)-1) do
+    begin
+         if (i mod 2) = 0 then
+           begin                                                                //hinter den geraden zahlen verstecken sich die buchstaben in asciicode
+           chars[m]:=chr(werte[i]);                                             //aus asciicode wird wieder ein char
+           inc(m,1);
+           end
+         else
+           begin
+           n:=n+werte[i];                                                       //zählen, wie lang der string ehemalig war (jede 2. Zahl gibt an, wie oft ein buchstabe vorhanden ist)
+           end;
     end;
 
-    setLength(ausgabe,n);  //ausgabe auf finale länge setzen
+   setLength(ausgabe,n);                                                        //ausgabe auf finale länge setzen
 
    m:=1;
 
-   for i:=0 to (Length(Werte)-1) do begin
-    if (i mod 2) <> 0 then  begin        //bei ungeraden zahlen ausführen
-         for y:=1 to Werte[i]do  begin   //der buchstabe wird sooft in die ausgabe geschrieben, wie es der ihm zugeordnete wert vorgibt
-          ausgabe[z]:=chars[m];
-          Inc(z,1);
-       end;
-        Inc(m,1);
-        end;
-  end;
-   Memo.lines.add('RLE-String entpackt');
+   for i:=0 to (Length(Werte)-1) do
+    begin
+    if (i mod 2) <> 0 then                                                      //bei ungeraden zahlen ausführen
+      begin
+         for y:=1 to Werte[i]do                                                 //der buchstabe wird sooft in die ausgabe geschrieben, wie es der ihm zugeordnete wert vorgibt
+          begin
+           ausgabe[z]:=chars[m];
+           Inc(z,1);
+          end;
+          Inc(m,1);
+      end;
+    end;
+   //Memo.lines.add('RLE-String entpackt');
    result:=ausgabe;
    end;
- {------------------------------------------------------------------------------}
+{------------------------------------------------------------------------------}
 {--------------------Alphabet-Codierung----------------------------------------}
-function TKompressorForm.alphacode(data:string):TDatensatz;         //Optimiert das Alphabet, das data nutzt indem es ein neues
-var                                             //generiert, das nur die notwenige anzahl an zeichen hat
+{------------------------------------------------------------------------------}
+{--------Optimiert das Alphabet, das data nutzt indem es ein neues-------------}
+{---------generiert, das nur die notwenige anzahl an zeichen hat---------------}
+function TKompressorForm.alphacode(data:string):TDatensatz;
+var
     i,n:integer;
     alphabet,bits:string;
     bitdata,bitalpha:array of shortstring;
@@ -990,6 +1088,7 @@ begin
 end;
 {------------------------------------------------------------------------------}
 {------------------Alphabet-DECodierung----------------------------------------}
+{------------------------------------------------------------------------------}
 function dealphacode(data:TDatensatz):string;
 var
     i,n:integer;
@@ -1020,115 +1119,148 @@ begin
 end;
 {------------------------------------------------------------------------------}
 {------------------------Burrows-Wheeler-Transformation------------------------}
+{------------------------------------------------------------------------------}
 function bwt(data:string):string;
 var
-    str:string;
-    i,index:integer;
-    indizes:array of integer;
+   str:string;                                                                  //die jeweiloige Transformation
+   i:integer;                                                                   //Zählvariable
+   index:integer;                                                               //Index der originalen Transformation
+   indizes:array of integer;                                                    //alle Indizes
 begin
-   for i:=0 to length(data)-1 do begin         //für jedes sortieren generieren
-    setlength(indizes,i+1);
-    str:= permute(data,i);                     //permutation generieren
-    for index:=length(indizes)-1 downto 0 do begin
-      if tausch(permute(data,indizes[index]),str)=true then begin    //und die nummer der Permutation im array
-       indizes[i]:=index;                                    //richtig einsortieren
-       indizes[index]:=i;
-      end
-      else begin
-       indizes[i]:=i;
-       break;
-      end;
-    end;
-   end;
 
-result:='';
-for i:=0 to high(indizes) do begin
-    if indizes[i]=0 then index:=i;                           //Ort der original Permutation im Array speichern
+   for i:=0 to length(data)-1 do                                                //für jedes sortieren generieren
+    begin
+    setlength(indizes,i+1);
+    str:= permute(data,i);                                                      //permutation generieren
+    for index:=length(indizes)-1 downto 0 do
+     begin
+      if tausch(permute(data,indizes[index]),str)=true then                     //und die nummer der Permutation im array
+        begin
+        indizes[i]:=index;                                                      //richtig einsortieren
+        indizes[index]:=i;
+        end
+      else
+        begin
+        indizes[i]:=i;
+        break;
+        end;
+     end;
+    end;
+
+   result:='';
+   for i:=0 to high(indizes) do
+    begin
+    if indizes[i]=0 then index:=i;                                              //Ort der original Permutation im Array speichern
     str:=permute(data,i);
-    result:=result+str[length(str)];                         //den letzten Buchstaben der Tabellenzeile abspeichern
- end;
+    result:=result+str[length(str)];                                            //den letzten Buchstaben der Tabellenzeile abspeichern
+    end;
+
 end;
 
 function TKompressorForm.bwt2(orig:string):TDatensatz;
 var
-  q,k,g,i,index:integer;
-  indizes:Tarrayofint;
-  origlaenge:integer;
-  hilf,verpackt:string;
+  q:integer;                                                                    //Zähl/Laufvariable
+  k:integer;                                                                    //temporay für Tausch
+  g:integer;                                                                    //Zähl/Laufvariable
+  i:integer;                                                                    //Zählvariable
+  index:integer;                                                                //index der finalen Transformation
+  indizes:Tarrayofint;                                                          //alle indizes
+  origlaenge:integer;                                                           //Länge des originalen Strings
+  hilf:string;                                                                  //Hilfstring für Prüfung auf orig
+  verpackt:string;                                                              //finale transformation
 begin
-     origlaenge:=orig.length;
-     setlength(indizes,origlaenge);
-     setlength(verpackt,origlaenge);
-    for i:=0 to (origlaenge-1) do begin
+   origlaenge:=orig.length;
+   setlength(indizes,origlaenge);
+   setlength(verpackt,origlaenge);
+   for i:=0 to (origlaenge-1) do
+    begin
      indizes[i]:=i;
     end;
 
-   q:=-1;
-    //bwt findet allein anhand des arrays indizes statt, sodass weniger speicher benötigt wird
-   for g:=1 to origlaenge do begin                                             //basiert auf bubblesort
-   repeat
-   q:=q+1;                //hier wird überprüft, ob getauscht werden soll
-   if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then begin //vergleichen
-   k:=indizes[q+1];                                                                     //dreieckstausch
-   indizes[q+1]:=indizes[q];
-   indizes[q]:=k;
-                                                                                //erhöhen von n
+    q:=-1;
+
+{bwt findet allein anhand des arrays indizes statt, sodass weniger speicher benötigt wird}
+
+   for g:=1 to origlaenge do                                                    //basiert auf bubblesort
+    begin
+    repeat
+      q:=q+1;                                                                   //hier wird überprüft, ob getauscht werden soll
+      if  tausch2(permute2(orig,indizes[q],1),permute2(orig,indizes[q+1],1),orig,indizes[q],indizes[q+1],1,origlaenge)=true then //vergleichen
+       begin
+       k:=indizes[q+1];                                                         //dreieckstausch
+       indizes[q+1]:=indizes[q];
+       indizes[q]:=k;
+       end;                                                                     //erhöhen von n
+    until q=origlaenge-2;
+
+    if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
    end;
-  until q=origlaenge-2;
-  if q=origlaenge-2 then q:=-1;                                               //zurücksetzen von q
-  end;
-  Memo.lines.add('Sortierung beendet');
 
-  for i:=0 to (origlaenge-1) do begin      //hier wird verpackt
-  hilf:=permute(orig,indizes[i]);       //erstellen der vollständigen permutation
- if MemoAusgabeRadioButton.checked=true then memo.lines[i]:=hilf;    //ausgabe im memo/ abfragen?
-  if hilf=orig then index:=i+1;  //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
-  verpackt[i+1]:=hilf[origlaenge];     //nur der letzte buchstabe gelangt in die verpackte version
-  end;
+  //Memo.lines.add('Sortierung beendet');
 
-  if MemoAusgabeRadioButton.checked=true then Memo.lines.add(verpackt+inttostr(index));
+   for i:=0 to (origlaenge-1) do                                                //hier wird verpackt
+    begin
+     hilf:=permute(orig,indizes[i]);                                            //erstellen der vollständigen permutation
+     if MemoAusgabeRadioButton.checked=true then memo.lines[i]:=hilf;           //ausgabe im memo/ abfragen?
+     if hilf=orig then index:=i+1;                                              //index wäre 1 wenn 2. permutation original ist (memo 0,1..)
+     verpackt[i+1]:=hilf[origlaenge];                                           //nur der letzte buchstabe gelangt in die verpackte version
+    end;
 
-  result.stringdaten:=verpackt;
-  result.derindex:=index;
+   if MemoAusgabeRadioButton.checked=true then Memo.lines.add(verpackt+inttostr(index));
+
+   result.stringdaten:=verpackt;
+   result.derindex:=index;
+
 end;
 {------------------------------------------------------------------------------}
 {-----------------Burrows-Wheeler-Transformation-Decodierung-------------------}
+{------------------------------------------------------------------------------}
 function debwt(trans:string;index:integer):string;
 var
-  i,n,len,k:integer;
-  orig:string;
-  indizes:array of integer;
-  chr:char;
+  i:integer;                                                                    //Zählvariable
+  n:integer;                                                                    //Zählvariable
+  len:integer;                                                                  //Länge des verpackten Strings
+  k:integer;                                                                    //temporary für Tausch
+  orig:string;                                                                  //verpackter String
+  indizes:array of integer;                                                     //Die Indizes zur Rücktransformation
+  chr:char;                                                                     //der jeweilige char, der wieder geschrieben werden muss
 begin
   //Memo.lines.add('BWT wird entpackt...');
    len:=length(trans);
-   orig:=trans;                                         //die originaldaten speichern
-   setlength(indizes,len);                                 //für die indizes in den originaldaten
-   for i:=1 to len do indizes[i-1]:=i;             //die indizes initialisieren
+   orig:=trans;                                                                 //die originaldaten speichern
+   setlength(indizes,len);                                                      //für die indizes in den originaldaten
+
+   for i:=1 to len do indizes[i-1]:=i;                                          //die indizes initialisieren
 
    n:=0;
-   for i:=1 to len do begin                                             //bubblesort
-   repeat
-   n:=n+1;
-   if ord(orig[n])>ord(orig[n+1]) then begin                                    //vergleichen
-   chr:=orig[n];                                                                  //dreieckstausch der chars
-   orig[n]:=orig[n+1];
-   orig[n+1]:=chr;
 
-   k:=indizes[n-1];                                                               //dreieckstausch der indizes
-   indizes[n-1]:=indizes[n];
-   indizes[n]:=k;
+   for i:=1 to len do                                                           //bubblesort
+   begin
+      repeat
+         n:=n+1;
+         if ord(orig[n])>ord(orig[n+1]) then                                    //vergleichen
+          begin
+          chr:=orig[n];                                                         //dreieckstausch der chars
+          orig[n]:=orig[n+1];
+          orig[n+1]:=chr;
+
+          k:=indizes[n-1];                                                      //dreieckstausch der indizes
+          indizes[n-1]:=indizes[n];
+          indizes[n]:=k;
+          end;
+      until n=len-1;
+    if n=len-1 then n:=0;                                                       //zurücksetzen von q
    end;
-  until n=len-1;
-  if n=len-1 then n:=0;                                               //zurücksetzen von q
-  end;
 
   result:='';
-  for i:=1 to len do begin
+  for i:=1 to len do
+  begin
    result:=result+orig[index];
    index:=indizes[index-1];
   end;
+
   //Memo.lines.add('BWt entpackt');
+
 end;
 {------------------------------------------------------------------------------}
 {$R *.lfm}
@@ -1170,6 +1302,8 @@ begin
       FS.Write(data.blocklaenge,SizeOf(byte));
       //Index schreiben
       FS.Write(data.derindex,SizeOf(integer));
+      //Startwert schreiben
+      FS.Write(data.rlestartwert,sizeOf(byte));
     finally
        Memo.lines.add('Größe nachher: '+inttostr(FS.Size)+'bytes');
        FS.free;
@@ -1193,7 +1327,7 @@ begin
 procedure TKompressorForm.KomprimierenButtonClick(Sender: TObject);
 var
   runmode:integer;
-  datensatz,datensatz2:TDatensatz;
+  datensatz,rlestringdatensatz,rledatensatz:TDatensatz;
   Data:string;
   alpha:string;
   kompdata:string;
@@ -1222,7 +1356,7 @@ begin
  end;
  runmode:=getrunmode;
 {------------------------------------------------------------------------------}
-{---------------------------RunMode--------------------------------------------}
+{---------------------------------RunMode--Neu---------------------------------}
  //nur alpha
  if runmode=1 then begin
    Memo.lines.add('Beginn der Komprimierung mit AlphaCode');
@@ -1239,7 +1373,21 @@ begin
  end;
  //nur rlebinär
  if runmode=3 then begin
-   data:=loadBitString(OpenPathEdit.text);
+
+    data:=loadBitString(OpenPathEdit.text);
+
+    startwert:=strtoint(data[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
+                                                                                //ausgelesene Daten nehmen.
+    setLength(origdata,length(data)-1);    //übernahme der werte aus startdata
+    for i:=2 to length(data) do
+    begin
+    origdata[i-2]:=strtoint(data[i]);
+    end;
+
+    rledatensatz:=rleencode(origdata,startwert);
+
+    saveRecord(rledatensatz,SavePathEdit.text);
+   {data:=loadBitString(OpenPathEdit.text);
    //Komprimiert:=rleencode(data);
    //startwert:=strtoint(data[1]);
    startwert:=strtoint(data[1]);    //für späteres zurückrechnen merken    //wenn vorher nicht gehufft wurde, dann
@@ -1267,7 +1415,7 @@ begin
   setlength(rledata,length(komprimiert)+1);             //Die Daten aus komprimiert als String abspeichern
   rledata[0]:=inttostr(startwert);
   for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
-  SarrayInDatei(rledata,SavePathEdit.text);
+  SarrayInDatei(rledata,SavePathEdit.text);}
   end;
  //nur huffmann
  if runmode=4 then begin
@@ -1283,10 +1431,12 @@ begin
  Memo.lines.add('Beginn der Umsortierung mit Burrows-Wheeler-Tarnsformation');
  datensatz:=bwt2(origstr);
  Memo.lines.add('Beginn der Komprimierung mit Run-Length-Encoding');
- datensatz2:=rleencodestring(datensatz.stringdaten,datensatz.derindex);
-saverecord(datensatz2,SavePathEdit.text);
+ rlestringdatensatz:=rleencodestring(datensatz.stringdaten,datensatz.derindex);
+saverecord(rlestringdatensatz,SavePathEdit.text);
 end;
-{---------------------------------------------------------------------}
+{------------------------------------------------------------------------------}
+{-----------------------------------ALT----------------------------------------}
+{------------------------------------------------------------------------------}
 {---------------------------HUFFMAN--------------------------------------------}
 {if (HaffCheckbox.Checked=true) then begin
   data:='';
@@ -1440,8 +1590,9 @@ var
   index:integer;
   trans,textorig:string;
 begin
+
   datensatz:=loadrecord(OpenPathEdit.text);
- runmode:=getRunMode;
+  runmode:=getRunMode;
 
 //De-Alphacode
 if runmode=1 then begin
@@ -1467,6 +1618,16 @@ end;
  //de-rlebinär
  if runmode=3 then begin
 
+  entpackt:=rledecode(datensatz.intDaten,datensatz.rlestartwert);
+
+  setlength(rledata,length(entpackt));
+  for i:=0 to high(entpackt) do begin
+    a:=inttostr(entpackt[i]);
+    rledata[i+1]:=a[1];
+  end;
+
+  StringinDatei(rledata,SavePathEdit.text);
+
  end;
 if runmode=8 then begin
 
@@ -1474,7 +1635,7 @@ if runmode=8 then begin
    index:=datensatz.derindex;;
    trans:=rledecodestring(datensatz.intdaten);
    textorig:=debwt(trans,index);
-   StringinDatei(textorig,SavePathEdit.text);
+   Save(textorig,SavePathEdit.text);
  end;
 
 
