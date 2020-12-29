@@ -1,1 +1,1 @@
-Test, nun sollte es funktionieren!
+Dies ist ein Test.

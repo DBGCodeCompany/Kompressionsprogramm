@@ -54,6 +54,7 @@ type
     Memo: TMemo;
     OpenSpeedButton: TSpeedButton;
     SaveSpeedButton: TSpeedButton;
+    WechselPfadSpeedButton: TSpeedButton;
     TopLabel: TLabel;
     procedure DekomprimierenButtonClick(Sender: TObject);
     procedure KomprimierenButtonClick(Sender: TObject);
@@ -61,6 +62,7 @@ type
     procedure SaveSpeedButtonClick(Sender: TObject);
     procedure save(data:String; const Path:String);
     procedure saverecord(data:TDatensatz; Path:string);
+    procedure WechselPfadSpeedButtonClick(Sender: TObject);
     function tausch2(char1,char2:char;str:string;index1,index2:integer;pos,max:integer):boolean;
     function bwt2(orig:string):TDatensatz;
     //function getRunmode(now:integer):integer;
@@ -1310,6 +1312,15 @@ begin
     end;
 end;
 
+procedure TKompressorForm.WechselPfadSpeedButtonClick(Sender: TObject);
+var
+  s:string;
+begin
+   s:=OpenPathEdit.Text;
+   OpenPathEdit.text:=SavePathEdit.text;
+   SavePathEdit.text:=s;
+end;
+
 procedure TKompressorform.save(data:String; const Path:String);
 var
   fs: TFileStream;
@@ -1580,12 +1591,12 @@ var
   sw:string;
   rledata:string;
   entpacktstr:string;
-  rlestring:string;
-  bwtstring:string;
+  //rlestring:string;
+  //bwtstring:string;
   a:string;
   entpackt:array of byte;
-  verpackt:array of integer;
-  startwert:byte;
+  //verpackt:array of integer;
+  //startwert:byte;
   i:integer;
   index:integer;
   trans,textorig:string;
