@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Compiler Value="C:\lazarus\fpc\3.0.4\bin\x86_64-win64\fpc.exe" Date="1325662982"/>
-  <Params Value=" -MObjFPC -Scghi -O1 -g -gl -WG -l -vewnhibq -FiD:\Dokumente\GIT\Kompressionsprogramm\lib\x86_64-win64 -FuC:\lazarus\lcl\units\x86_64-win64\win32 -FuC:\lazarus\lcl\units\x86_64-win64 -FuC:\lazarus\components\lazutils\lib\x86_64-win64 -FuC:\lazarus\packager\units\x86_64-win64 -FuD:\Dokumente\GIT\Kompressionsprogramm\ -FUD:\Dokumente\GIT\Kompressionsprogramm\lib\x86_64-win64\ -FED:\Dokumente\GIT\Kompressionsprogramm\ -oD:\Dokumente\GIT\Kompressionsprogramm\Kompressionsproject.exe -dLCL -dLCLwin32 Kompressionsproject.lpr"/>
+  <Compiler Value="C:\lazarus\fpc\3.2.0\bin\x86_64-win64\fpc.exe" Date="1357350767"/>
+  <Params Value=" -MObjFPC -Scghi -O1 -g -gl -WG -l -vewnhibq -FiC:\Users\leon_\Documents\Pascal\DBGCC\Kompressionsprogramm\lib\x86_64-win64 -FuC:\lazarus\lcl\units\x86_64-win64\win32 -FuC:\lazarus\lcl\units\x86_64-win64 -FuC:\lazarus\components\lazutils\lib\x86_64-win64 -FuC:\lazarus\packager\units\x86_64-win64 -FuC:\Users\leon_\Documents\Pascal\DBGCC\Kompressionsprogramm\ -FUC:\Users\leon_\Documents\Pascal\DBGCC\Kompressionsprogramm\lib\x86_64-win64\ -FEC:\Users\leon_\Documents\Pascal\DBGCC\Kompressionsprogramm\ -oC:\Users\leon_\Documents\Pascal\DBGCC\Kompressionsprogramm\Kompressionsproject.exe -dLCL -dLCLwin32 Kompressionsproject.lpr"/>
 </CONFIG>

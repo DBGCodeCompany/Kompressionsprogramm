@@ -1,13 +1,13 @@
 object KompressorForm: TKompressorForm
   Left = 102
-  Height = 598
+  Height = 797
   Top = 334
-  Width = 946
+  Width = 1261
   Caption = 'Kompressor'
-  ClientHeight = 598
-  ClientWidth = 946
+  ClientHeight = 797
+  ClientWidth = 1261
   Color = clCream
-  DesignTimePPI = 144
+  DesignTimePPI = 192
   Icon.Data = {
     3E08010000000100010080800000010020002808010016000000280000008000
     0000000100000100200000000000000001006400000064000000000000000000
@@ -2125,16 +2125,16 @@ object KompressorForm: TKompressorForm
     FFFFFFFFFFFFFFFFFFE7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7FFFFFFFFFF
     FFFF
   }
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.10.0'
   object TopLabel: TLabel
-    Left = 48
-    Height = 40
-    Top = 32
-    Width = 387
+    Left = 64
+    Height = 52
+    Top = 43
+    Width = 523
     Caption = '...ein Kompressionsprogramm'
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlack
-    Font.Height = -29
+    Font.Height = -39
     Font.Name = 'Segoe UI Semibold'
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
@@ -2143,10 +2143,10 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object Memo: TMemo
-    Left = 516
-    Height = 552
-    Top = 24
-    Width = 405
+    Left = 688
+    Height = 736
+    Top = 32
+    Width = 540
     HideSelection = False
     Lines.Strings = (
       'Bitte geben Sie den Pfad der unverpackten Datei an.'
@@ -2156,19 +2156,19 @@ object KompressorForm: TKompressorForm
     TabOrder = 0
   end
   object BWTCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 96
-    Width = 287
+    Left = 64
+    Height = 36
+    Top = 128
+    Width = 384
     Caption = 'Burrows-Wheeler-Transormation'
     ParentFont = False
     TabOrder = 1
   end
   object RLCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 144
-    Width = 199
+    Left = 64
+    Height = 36
+    Top = 192
+    Width = 267
     Caption = 'Run-length-encoding'
     Checked = True
     ParentFont = False
@@ -2176,57 +2176,57 @@ object KompressorForm: TKompressorForm
     TabOrder = 2
   end
   object HaffCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 192
-    Width = 165
+    Left = 64
+    Height = 36
+    Top = 256
+    Width = 217
     Caption = 'Huffman-Coding'
     ParentFont = False
     TabOrder = 3
   end
   object KomprimierenButton: TButton
-    Left = 48
-    Height = 38
-    Top = 416
-    Width = 136
+    Left = 64
+    Height = 51
+    Top = 555
+    Width = 181
     Caption = 'Komprimieren'
     OnClick = KomprimierenButtonClick
     ParentFont = False
     TabOrder = 4
   end
   object DekomprimierenButton: TButton
-    Left = 192
-    Height = 38
-    Top = 416
-    Width = 144
+    Left = 256
+    Height = 51
+    Top = 555
+    Width = 192
     Caption = 'Dekomprimieren'
     OnClick = DekomprimierenButtonClick
     ParentFont = False
     TabOrder = 5
   end
   object OpenPathEdit: TEdit
-    Left = 120
-    Height = 33
-    Top = 280
-    Width = 320
+    Left = 160
+    Height = 40
+    Top = 373
+    Width = 427
     ParentFont = False
     TabOrder = 6
     Text = 'test.txt'
   end
   object SavePathEdit: TEdit
-    Left = 120
-    Height = 33
-    Top = 336
-    Width = 320
+    Left = 160
+    Height = 40
+    Top = 448
+    Width = 427
     ParentFont = False
     TabOrder = 7
     Text = 'saved.txt'
   end
   object OpenSpeedButton: TSpeedButton
-    Left = 448
-    Height = 33
-    Top = 280
-    Width = 34
+    Left = 597
+    Height = 44
+    Top = 373
+    Width = 45
     Glyph.Data = {
       42120000424D4212000000000000360000002800000023000000210000000100
       2000000000000C12000064000000640000000000000000000000F3F3F3FFF3F8
@@ -2380,10 +2380,10 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object SaveSpeedButton: TSpeedButton
-    Left = 448
-    Height = 33
-    Top = 336
-    Width = 34
+    Left = 597
+    Height = 44
+    Top = 448
+    Width = 45
     Glyph.Data = {
       42120000424D4212000000000000360000002800000023000000210000000100
       2000000000000C12000064000000640000000000000000000000F3F3F3FFF3F8
@@ -2537,28 +2537,28 @@ object KompressorForm: TKompressorForm
     ParentFont = False
   end
   object inputLabel: TLabel
-    Left = 8
-    Height = 25
-    Top = 280
-    Width = 42
+    Left = 11
+    Height = 32
+    Top = 373
+    Width = 56
     Caption = 'Input'
     ParentColor = False
     ParentFont = False
   end
   object outputLabel: TLabel
-    Left = 8
-    Height = 25
-    Top = 344
-    Width = 57
+    Left = 11
+    Height = 32
+    Top = 459
+    Width = 76
     Caption = 'Output'
     ParentColor = False
     ParentFont = False
   end
   object AusgabeRadioGroup: TRadioGroup
-    Left = 40
-    Height = 102
-    Top = 472
-    Width = 278
+    Left = 53
+    Height = 136
+    Top = 629
+    Width = 371
     AutoFill = True
     Caption = 'Ausgabe wählen:'
     ChildSizing.LeftRightSpacing = 6
@@ -2568,24 +2568,24 @@ object KompressorForm: TKompressorForm
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 72
-    ClientWidth = 274
+    ClientHeight = 99
+    ClientWidth = 367
     ParentFont = False
     TabOrder = 8
     object MemoAusgabeRadioButton: TRadioButton
       Left = 6
-      Height = 36
+      Height = 50
       Top = 0
-      Width = 262
+      Width = 355
       Caption = 'Memo Ausgabe'
       ParentFont = False
       TabOrder = 0
     end
     object keineAusgabeRadioButton: TRadioButton
       Left = 6
-      Height = 36
-      Top = 36
-      Width = 262
+      Height = 49
+      Top = 50
+      Width = 355
       Caption = 'Keine Memo Ausgabe'
       Checked = True
       ParentFont = False
@@ -2594,19 +2594,19 @@ object KompressorForm: TKompressorForm
     end
   end
   object AlphaCheckBox: TCheckBox
-    Left = 48
-    Height = 29
-    Top = 240
-    Width = 231
+    Left = 64
+    Height = 36
+    Top = 320
+    Width = 306
     Caption = 'Alphabet Komprimierung'
     ParentFont = False
     TabOrder = 9
   end
   object WechselPfadSpeedButton: TSpeedButton
-    Left = 72
-    Height = 33
-    Top = 304
-    Width = 35
+    Left = 96
+    Height = 44
+    Top = 405
+    Width = 47
     Glyph.Data = {
       5A130000424D5A13000000000000360000002800000023000000230000000100
       2000000000002413000064000000640000000000000000000000F0FBFFFFF0FB
@@ -2765,13 +2765,14 @@ object KompressorForm: TKompressorForm
       FFFFF0FBFFFFF0FBFFFFF0FBFFFFF0FBFFFFF0FBFFFFF0FBFFFFF0FBFFFF
     }
     OnClick = WechselPfadSpeedButtonClick
+    ParentFont = False
   end
   object OpenDialog: TOpenDialog
-    left = 432
-    top = 396
+    Left = 576
+    Top = 528
   end
   object SaveDialog: TSaveDialog
-    left = 348
-    top = 396
+    Left = 464
+    Top = 528
   end
 end

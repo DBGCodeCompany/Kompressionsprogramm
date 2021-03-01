@@ -74,6 +74,7 @@ type
     function huffman(s:string):TDatensatz;
     function alphacode(data:string):TDatensatz;
     function getRunMode():integer;
+    function ArrayContains(find:byte;list:TArrayofByte):boolean;
     //function rledecodestring2(werte2:TArrayofByte):TDatensatz;
 
   private
@@ -91,19 +92,34 @@ implementation
 {------------überprüft, welche Algorithmen verwendet werden sollen-------------}
 function TKompressorform.getRunmode():integer;
 var bwt,rle,huff,alpha:boolean;
+  choice: integer;
+    options: array of byte;
 begin
+ options := [1,2,4,8,6];
+  //result:=0;
+  choice:=0;
+ if ArrayContains(choice,options) = false then
+  begin
+   if choice = 0 then memo.lines.add('Sie haben gar nichts ausgwählt')
+   else memo.lines.add('Die gewählte Kombination ist nicht sinnvoll, bitte neu wählen.');
+  end;
+
   {
   // auch möglich:
+
+
   result := 0;
-  if AlphaCheckBox.checked=true then result := result + 8;
+  if AlphaCheckBox.checked=true then choice := choice + 8;
 
- if BWTCheckBox.checked=true then result := result +4;
+  if BWTCheckBox.checked=true then choice := choice +4;
 
- if RLCheckBox.checked=true then  result := result +2;
+  if RLCheckBox.checked=true then  choice := choice +2;
 
- if HaffCheckBox.checked=true then result := result +1;
+  if HaffCheckBox.checked=true then choice := choice +1;
 
- if result=0 then Showmessage('nö');
+
+  result:= choice;
+  if result=0 then Showmessage('nö');
  {
  vorteil: nicht so umständlich
  nachteil: abfrage der nicht wählbaren fälle?
@@ -319,6 +335,19 @@ begin
 
 
 end;
+
+function TKompressorform.ArrayContains(find:byte;list:TArrayofByte):boolean;
+var i : integer;
+    match: boolean;
+begin
+ match:= false;
+ for i:= 1 to length(list) do begin
+ Memo.lines.add('i:' +inttostr(i)+'list[i]:' + inttostr(list[i])+'find:'+inttostr(find));
+    if list[i] = find then match:= true;
+ end;
+ result:= match;
+end;
+
 {------------------------------------------------------------------------------}
 {-------------untersucht ob str1 und str2 getauscht werden sollen--------------}
 function tausch(str1,str2:string):boolean;
@@ -1375,6 +1404,7 @@ begin
    saverecord(datensatz,SavePathEdit.text);
    Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
+
  //nur bwt
  if runmode=2 then begin
    Memo.lines.add('Beginn der Umsortierung mit Burrows-Wheeler-Tarnsformation');
@@ -1382,6 +1412,7 @@ begin
    saverecord(datensatz,SavePathEdit.text);
    Memo.lines.add('Umsortierte Daten abgespeichert');
  end;
+
  //nur rlebinär
  if runmode=3 then begin
 
@@ -1428,6 +1459,7 @@ begin
   for i:=0 to high(komprimiert) do rledata[i+1]:=inttostr(komprimiert[i]);
   SarrayInDatei(rledata,SavePathEdit.text);}
   end;
+
  //nur huffmann
  if runmode=4 then begin
  Memo.lines.add('Beginn der Komprimierung mit Huffmancodierung');
@@ -1435,6 +1467,7 @@ begin
  saverecord(datensatz,SavePathEdit.text);
  Memo.lines.add('Komprimierte Daten abgespeichert');
  end;
+
  //bwt und rlestring
  if runmode=8 then begin
  origstr:=StringausDatei(OpenPathEdit.text);
